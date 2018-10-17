@@ -1,0 +1,36 @@
+## Name of the node
+##需要定义 -name android_connecion_1@logic1.mpush.paf
+-name dubboerl@127.0.0.1
+
+## Cookie for distributed erlang
+-setcookie fb65338cf25a2d68a2da5207f718cdfa
+
+## Heartbeat management; auto-restarts VM if it dies or becomes unresponsive
+## (Disabled by default..use with caution!)
+##-heart
+
+## Enable kernel poll and a few async threads
++K true
+##+A 5
+
+## Increase number of concurrent ports/sockets
+-env ERL_MAX_PORTS 10240000
+
+## too many db tables
+-env ERL_MAX_ETS_TABLES 125535
+
++P 3000000
+
+## Tweak GC to run more often
+-env ERL_FULLSWEEP_AFTER 30000
+
+
+## +S 2
+
+## erlang 端口上退 默认65535
++Q 2000000
+
+-kernel inet_dist_listen_min 4370 inet_dist_listen_max 4388
+
+## 调度类型
+-sub true
