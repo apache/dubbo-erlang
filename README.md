@@ -2,6 +2,8 @@ dubboerl
 =====
 A Erlang framework for dubbo.
 
+[![Build Status](https://travis-ci.org/dubboerl/dubboerl.svg?branch=master)](https://travis-ci.org/dubboerl/dubboerl)
+
 Feature
 -----
 
