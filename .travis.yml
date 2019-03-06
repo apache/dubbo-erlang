@@ -4,4 +4,4 @@ otp_release:
   - 20.3.8.2
 sudo: false
 script:
-- ./rebar3 do compile, dialyzer
+- ./rebar3 do compile DEBUG=1
