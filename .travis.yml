@@ -1,7 +1,11 @@
 language: erlang
 otp_release:
   - 21.0.4
-  - 20.3.8.2
 sudo: false
+
+before_install:
+  - ./ci before_install "${PWD:?}"/rebar3
+install:
+  - ./ci install "${PWD:?}"/rebar3
 script:
-- ./rebar3 do compile DEBUG=1
+  - ./ci script "${PWD:?}"/rebar3
