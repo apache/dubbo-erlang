@@ -4,29 +4,42 @@ A Erlang framework for dubbo.
 
 [![Build Status](https://travis-ci.org/dubboerl/dubboerl.svg?branch=master)](https://travis-ci.org/dubboerl/dubboerl)
 
-Feature
+Feature list
 -----
+The following features are supported.
 
-* 支持Zookeeper注册中心
-* 支持Hession serialize
-* 支持Consumer
-* 支持Provider
-* sync invoker
-* async invoker
+* Zookeeper registry center (√)
+* Tcp Transport and Hession serialize (√)
+* Erlang project as a consumer (√)
+* Erlang project as a provider (√)
+* Sync invoker (√)
+* Async invoker (√)
+* Random load balance (√)
+* Network rate limit (√)
+* Connection pools (√)
 
 Start
 -----
 
-参考demo [dubboerl_demo](https://github.com/dubboerl/dubboerl_demo)
+#### Import
+
+Add dubblerl to rebar.config with your project
+```
+{deps, [
+    {dubboerl, {git, "http://github.com/dubboerl/dubboerl.git", {branch, "master"}}}
+]}.
+```
 
 #### Step1
-Transfer java facede t
-o erlang lib and add to you project dir.
+
+Use [erlanalysis](https://github.com/dubboerl/erlanalysis) tool transfer java interface to erlang lib. And add the lib to you project app dir.
 
 #### Step2
 
-configure dubbo reference
+configure dubbo reference.
 
+in sys.config add dubboerl config. 
+For example:
 ```
 {dubboerl,[
 	{zookeeper_list,[{"127.0.0.1",2181}]},
@@ -39,9 +52,10 @@ configure dubbo reference
 	]}
 	
 ]}
-``` 
+```
+
 #### Step4
-Init dubboerl application context
+Init dubboerl application context when your project start.
 
 	dubboerl:init().
 
@@ -53,17 +67,6 @@ RequestPara = #testReq{name = <<"nameinfo">>,nick = <<"nickinfo">>,age = 10},
 iProcessData:queryinfo(Info,[]).
 ```
 	
-
-
-Build
------
-
-    $ rebar3 compile
-
-
-release
-	
-	$ ./rebar3 as dubboerl release -n dubboerl
-
-
-	
+Sample
+______
+Reference the demo project [dubboerl_demo](https://github.com/dubboerl/dubboerl_demo)
