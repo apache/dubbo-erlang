@@ -24,7 +24,7 @@ Start
 #### Import
 
 Add dubblerl to rebar.config with your project
-```
+```erlang
 {deps, [
     {dubboerl, {git, "http://github.com/dubboerl/dubboerl.git", {branch, "master"}}}
 ]}.
@@ -40,7 +40,7 @@ configure dubbo reference.
 
 in sys.config add dubboerl config. 
 For example:
-```
+```erlang
 {dubboerl,[
 	{zookeeper_list,[{"127.0.0.1",2181}]},
 	{application,<<"testdubboerl">>},
@@ -62,11 +62,11 @@ Init dubboerl application context when your project start.
 #### Step5
 Do your interface method invoker.
 
-```
+```erlang
 RequestPara = #testReq{name = <<"nameinfo">>,nick = <<"nickinfo">>,age = 10},
 iProcessData:queryinfo(Info,[]).
 ```
 	
 Sample
-______
+------
 Reference the demo project [dubboerl_demo](https://github.com/dubboerl/dubboerl_demo)
