@@ -1,6 +1,6 @@
 dubboerl
 =====
-A Erlang framework for dubbo.
+Apache Dubbo Erlang Implementation.
 
 [![Build Status](https://travis-ci.org/dubboerl/dubboerl.svg?branch=master)](https://travis-ci.org/dubboerl/dubboerl)
 
