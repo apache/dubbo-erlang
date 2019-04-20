@@ -17,7 +17,7 @@ Feature
 Start
 -----
 
-参考demo [dubboerl_demo](https://github.com/DLive/dubboerl_demo)
+参考demo [dubboerl_demo](https://github.com/dubboerl/dubboerl_demo)
 
 #### Step1
 Transfer java facede t
@@ -25,7 +25,7 @@ o erlang lib and add to you project dir.
 
 #### Step2
 
-configure dubbo refernce
+configure dubbo reference
 
 ```
 {dubboerl,[
