@@ -203,12 +203,12 @@ decode_response(dubbo_rpc_invocation,Res,Data)->
         ?RESPONSE_WITH_EXCEPTION ->
             [ExceptionValue | _] = DataList1,
             ExceptionObject = jiffy:decode(ExceptionValue),
-%%            lager:warning("decode unkonw type ~p ~p",[Type,Rest]),
+%%            logger:warning("decode unkonw type ~p ~p",[Type,Rest]),
 %%            {Rest2,Object2,DecodeState2} = hessianDecode2:decode(Rest,State),
-%%            lager:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
+%%            logger:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
             {ok,Res#dubbo_response{data = ExceptionObject}};
         Other ->
-            lager:error("server response unkonw info ~p",[Other]),
+            logger:error("server response unkonw info ~p",[Other]),
             {ok,Res#dubbo_response{data = <<"server pool exhausted">>}}
 
     end;
@@ -241,14 +241,14 @@ decode_request(dubbo_rpc_invocation,Req,Data)->
 %%        2 ->
 %%            {ok,Req#dubbo_request{data = null,decode_state = State}};
 %%        _->
-%%            lager:warning("decode unkonw type ~p ~p",[Type,Rest]),
+%%            logger:warning("decode unkonw type ~p ~p",[Type,Rest]),
 %%            {Rest2,Object2,DecodeState2} = hessianDecode2:decode(Rest,State),
-%%            lager:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
+%%            logger:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
 %%            {ok,Req#dubbo_request{data = Object2,decode_state = DecodeState2}}
 %%    end;
 decode_request(dubbo_event,Req,Data)->
 %%    DataList = binary:split(Data,<<"\n">>),
-    lager:debug("dubbo_event datalist ~w",[Data]),
+    logger:debug("dubbo_event datalist ~w",[Data]),
     Result = jiffy:decode(Data,[]),
 %%    {_Rest,undefined,_NewState} = hessianDecode2:decode(Data,hessianDecode2:init()),
     {ok,Req#dubbo_request{data = Result}}.
@@ -275,7 +275,7 @@ decode_request_body([attachments|List],Data,State,ResultList)->
     AttachmentsList = dict:to_list(Attachments#map.dict),
     decode_request_body(List,Rest,State1,[AttachmentsList] ++ ResultList);
 decode_request_body([_Type1|List],Data,State,ResultList)->
-    lager:warning("decode_request_body unknow type"),
+    logger:warning("decode_request_body unknow type"),
     decode_request_body(List,Data,State, ResultList);
 decode_request_body([],Data,State,ResultList)->
     {ResultList,State,Data}.

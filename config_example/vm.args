@@ -1,9 +1,8 @@
 ## Name of the node
-##需要定义 -name android_connecion_1@logic1.mpush.paf
 -name dubboerl@127.0.0.1
 
 ## Cookie for distributed erlang
--setcookie fb65338cf25a2d68a2da5207f718cdfa
+-setcookie test_cookie
 
 ## Heartbeat management; auto-restarts VM if it dies or becomes unresponsive
 ## (Disabled by default..use with caution!)

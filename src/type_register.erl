@@ -35,7 +35,7 @@ init()->
 
 
 regiest_foreign_native(TypeDef)->
-    lager:debug("regiest foreign info ~p",[TypeDef]),
+    logger:debug("regiest foreign info ~p",[TypeDef]),
     ets:insert(?FOREIGN_NATIVE_TABLE,{TypeDef#type_def.foreign_type,TypeDef}),
     ets:insert(?NATIVE_FOREIGN_TABLE,{TypeDef#type_def.native_type,TypeDef}).
 

@@ -121,7 +121,7 @@ handle_cast(_Request, State) ->
     {noreply, NewState :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term(), NewState :: #state{}}).
 handle_info(_Info, State) ->
-    lager:info("zk server recv msg:~p",[_Info]),
+    logger:info("zk server recv msg:~p",[_Info]),
     {noreply, State}.
 
 %%--------------------------------------------------------------------
@@ -200,11 +200,11 @@ get_provider_list(Consumer,State)->
 get_provider_and_start(Pid,Interface,Path)->
     case erlzk:get_children(Pid,Path,spawn(dubbo_zookeeper,provider_watcher,[Interface])) of
         {ok,ChildList} ->
-            lager:debug("get provider list ~p",[ChildList]),
+            logger:debug("get provider list ~p",[ChildList]),
             start_provider_process(Interface,ChildList),
             ok;
         {error,R1} ->
-            lager:debug("[add_consumer] get_provider_list error ~p ~p",[R1]),
+            logger:debug("[add_consumer] get_provider_list error ~p ~p",[R1]),
             ok
     end.
 
@@ -212,11 +212,11 @@ provider_watcher(Interface)->
     receive
         {node_children_changed,Path} ->
             gen_server:cast(?SERVER,{provider_node_change,Interface,Path}),
-            lager:debug("provider_watcher get event ~p ~p",[node_children_changed,Path]);
+            logger:debug("provider_watcher get event ~p ~p",[node_children_changed,Path]);
         {Event, Path} ->
 %%            Path = "/a",
 %%            Event = node_created
-            lager:debug("provider_watcher get event ~p ~p",[Event,Path])
+            logger:debug("provider_watcher get event ~p ~p",[Event,Path])
     end,
     ok.
 
@@ -224,10 +224,10 @@ provider_watcher(Interface)->
 create_path(Pid,Path,CreateType)->
     case erlzk:create(Pid,Path,CreateType) of
         {ok,ActualPath}->
-            lager:debug("[add_consumer] create zk path  success ~p",[ActualPath]),
+            logger:debug("[add_consumer] create zk path  success ~p",[ActualPath]),
             ok;
         {error,R1}->
-            lager:debug("[add_consumer] create zk path error ~p ~p",[Path,R1])
+            logger:debug("[add_consumer] create zk path error ~p ~p",[Path,R1])
     end,
     ok.
 check_and_create_path(_Pid,_RootPath,[]) ->
@@ -238,11 +238,11 @@ check_and_create_path(Pid,RootPath,[{Item,CreateType}|Rst])->
         {ok,Stat} ->
             check_and_create_path(Pid,CheckPath,Rst);
         {error,no_node}->
-            lager:debug("[add_consumer] check_and_create_path unexist no_node ~p",[CheckPath]),
+            logger:debug("[add_consumer] check_and_create_path unexist no_node ~p",[CheckPath]),
             create_path(Pid,CheckPath,CreateType),
             check_and_create_path(Pid,CheckPath,Rst);
         {error,R1} ->
-            lager:debug("[add_consumer] check_and_create_path unexist ~p",[R1]),
+            logger:debug("[add_consumer] check_and_create_path unexist ~p",[R1]),
             check_and_create_path(Pid,CheckPath,Rst)
     end.
 

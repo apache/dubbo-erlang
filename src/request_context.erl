@@ -114,4 +114,4 @@ trace_end(Info)->
     ok.
 
 test()->
-    lager:error("a~-10.5sb",[123]).
+    logger:error("a~-10.5sb",[123]).

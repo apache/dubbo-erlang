@@ -76,7 +76,7 @@ init_ets_table()->
             ok
     catch
         _Type:Reason ->
-            lager:error("new ets table error ~p",[Reason]),
+            logger:error("new ets table error ~p",[Reason]),
             error
     end,
     try ets:new(?PROVIDER_NODE_LIST_TABLE, [bag,public,named_table,{keypos,2}]) of
@@ -84,7 +84,7 @@ init_ets_table()->
             ok
     catch
         _Type1:Reason1 ->
-            lager:error("new ets table error ~p",[Reason1]),
+            logger:error("new ets table error ~p",[Reason1]),
             error
     end,
     ok.
@@ -202,7 +202,7 @@ add_consumer([ProviderNodeInfo|ProviderList],RegisterList)->
             end,
             add_consumer(ProviderList,[HostFlag]++RegisterList);
         {error,R1} ->
-            lager:error("parse provider info error reason ~p",[R1]),
+            logger:error("parse provider info error reason ~p",[R1]),
             add_consumer(ProviderList,RegisterList)
     end.
 
@@ -213,7 +213,7 @@ start_provider_process(HostFlag,Weight,ProviderConfig) ->
         ConnectionFlagTerm= binary_to_atom(ConnectionFlag,utf8),
         AChild = {ConnectionFlagTerm,{dubbo_netty_client, start_link, [ConnectionFlagTerm,HostFlag,ProviderConfig,Item]}, permanent, 2000, worker, [dubbo_netty_client]},
         {ok,Pid} = dubbo_consumer_pool_sup:add_children(AChild),
-        lager:info("start provider ~p pid info ~p~n",[HostFlag,Pid]),
+        logger:info("start provider ~p pid info ~p~n",[HostFlag,Pid]),
         #connection_info{connection_id = ConnectionFlagTerm,pid = Pid,weight = Weight,host_flag = HostFlag}
         end,ExecutesList),
     ConnectionList.
@@ -224,11 +224,11 @@ get_host_flag(ProviderConfig)->
 update_connection_info(Interface,HostFlag,ConnectionList,IsUpdateProvideNode)->
     lists:map(fun(Item) ->
         I1 = ets:insert(?INTERFCE_LIST_TABLE,#interface_list{interface = Interface,connection_info = Item}),
-        lager:debug("save INTERFCE_LIST_TABLE ~p info:~p",[Interface,I1]),
+        logger:debug("save INTERFCE_LIST_TABLE ~p info:~p",[Interface,I1]),
         case IsUpdateProvideNode of
             true->
                 I2 = ets:insert(?PROVIDER_NODE_LIST_TABLE,#provider_node_list{host_flag = HostFlag,connection_info = Item }),
-                lager:debug("save PROVIDER_NODE_LIST_TABLE ~p info:~p",[HostFlag,I2]);
+                logger:debug("save PROVIDER_NODE_LIST_TABLE ~p info:~p",[HostFlag,I2]);
             false->
                 ok
         end,

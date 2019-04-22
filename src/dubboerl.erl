@@ -25,7 +25,7 @@ start_consumer()->
     lists:map(fun({Interface,Option})->
         ConsumerInfo = dubbo_config_util:gen_consumer(ApplicationName,Interface,Option),
         dubbo_zookeeper:register_consumer(ConsumerInfo),
-        lager:info("register consumer success ~p",[Interface])
+        logger:info("register consumer success ~p",[Interface])
         end,ConsumerList),
     ok.
 
@@ -39,7 +39,7 @@ start_provider()->
         MethodList= apply(BehaviourModuleName,get_method_999_list,[]),
         ProviderInfo = dubbo_config_util:gen_provider(ApplicationName,DubboServerPort,Interface,MethodList,Option),
         dubbo_zookeeper:register_provider(ProviderInfo),
-        lager:info("register provider success ~p ~p",[ImplModuleName,Interface])
+        logger:info("register provider success ~p ~p",[ImplModuleName,Interface])
         end,ProviderList),
     ok.
 

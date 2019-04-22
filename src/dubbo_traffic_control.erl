@@ -31,7 +31,7 @@ check_goon(Key,Max)->
             ets:update_counter(?TRAFFIC_CONTROL,Key,-1),
             full;
         _V ->
-%%            lager:debug("check traffic incr value ~p",[V]),
+%%            logger:debug("check traffic incr value ~p",[V]),
             ok
 
     catch
@@ -43,7 +43,7 @@ check_goon(Key,Max)->
 decr_count(Key)->
     try ets:update_counter(?TRAFFIC_CONTROL,Key,-1) of
         _V ->
-%%            lager:debug("check traffic decr value ~p",[V]),
+%%            logger:debug("check traffic decr value ~p",[V]),
             ok
     catch
         _T:_R->
