@@ -166,9 +166,9 @@ decode_response(dubbo_rpc_invocation,Res,Data)->
         2 ->
             {ok,Res#dubbo_response{data = null,decode_state = State}};
         _->
-            lager:warning("decode unkonw type ~p ~p",[Type,Rest]),
+            logger:warning("decode unkonw type ~p ~p",[Type,Rest]),
             {Rest2,Object2,DecodeState2} = hessianDecode2:decode(Rest,State),
-            lager:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
+            logger:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
             {ok,Res#dubbo_response{data = Object2,decode_state = DecodeState2}}
     end;
 decode_response(dubbo_event,Res,Data)->
@@ -200,9 +200,9 @@ decode_request(dubbo_rpc_invocation,Req,Data)->
 %%        2 ->
 %%            {ok,Req#dubbo_request{data = null,decode_state = State}};
 %%        _->
-%%            lager:warning("decode unkonw type ~p ~p",[Type,Rest]),
+%%            logger:warning("decode unkonw type ~p ~p",[Type,Rest]),
 %%            {Rest2,Object2,DecodeState2} = hessianDecode2:decode(Rest,State),
-%%            lager:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
+%%            logger:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
 %%            {ok,Req#dubbo_request{data = Object2,decode_state = DecodeState2}}
 %%    end;
 decode_request(dubbo_event,Req,Data)->
@@ -231,7 +231,7 @@ decode_request_body([attachments|List],Data,State,ResultList)->
     AttachmentsList = dict:to_list(Attachments#map.dict),
     decode_request_body(List,Rest,State1,[AttachmentsList] ++ ResultList);
 decode_request_body([_Type1|List],Data,State,ResultList)->
-    lager:warning("decode_request_body unknow type"),
+    logger:warning("decode_request_body unknow type"),
     decode_request_body(List,Data,State, ResultList);
 decode_request_body([],Data,State,ResultList)->
     {ResultList,State,Data}.

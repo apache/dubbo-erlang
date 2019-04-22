@@ -26,10 +26,10 @@ parse_provider_info(ProviderStr)->
             end,
             QueryListTmp = string:tokens(QueryStr,"&"),
             ProviderConfig = parse_parameter(QueryListTmp,#provider_config{protocol=Scheme,host=Host,port = Port}),
-            lager:debug("parse provider info string ~p,result: ~p",[ProviderStr,ProviderConfig]),
+            logger:debug("parse provider info string ~p,result: ~p",[ProviderStr,ProviderConfig]),
             {ok,ProviderConfig};
         {error,R1} ->
-            lager:debug("parse provider error string ~p, error ~p",[ProviderStr,R1]),
+            logger:debug("parse provider error string ~p, error ~p",[ProviderStr,R1]),
             {error,R1}
     end.
 %%    PrivoderInfo =list_to_binary(http_uri:decode(binary_to_list(PrivoderStr))),
@@ -51,7 +51,7 @@ parse_parameter([Item|Rest],Config)->
             ConfigNew = parse_parameter(Key,Value,Config),
             parse_parameter(Rest,ConfigNew);
         KeyPair2 ->
-            lager:error("parse parameter error, keypair ~p",[KeyPair2]),
+            logger:error("parse parameter error, keypair ~p",[KeyPair2]),
             parse_parameter(Rest,Config)
     end.
 parse_parameter("anyhost",Value,Config)->

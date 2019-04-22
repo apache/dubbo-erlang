@@ -53,7 +53,7 @@ enlist(TypeDef = #type_def{native_type = Key},
 %%
 %% If it already has been written out, it must be back-referenced.
 visit(NativeType, State = #encoding_state{pool = Pool}) ->
-    lager:debug("[encode] visit ~p",[NativeType]),
+    logger:debug("[encode] visit ~p",[NativeType]),
     case dict:find(NativeType,Pool) of
         {ok,{-1, TypeDef}} ->
             %% The type needs hashing and it's reference needs updating
@@ -84,7 +84,7 @@ assign_reference(TypeDef = #type_def{native_type = Key},
     NewTypeDef = TypeDef#type_def{defineNo = NewCount},
     Value = {NewCount, NewTypeDef},
     NewPool = dict:store(Key, Value, OldPool),
-    lager:debug("[encode] assign_reference type ~p definedNo ~p",[Key,NewCount]),
+    logger:debug("[encode] assign_reference type ~p definedNo ~p",[Key,NewCount]),
     {NewCount,NewTypeDef,#encoding_state{pool = NewPool, count = NewCount}}.
 
 get_deftype_public_pool(NativeType)->

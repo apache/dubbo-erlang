@@ -1,11 +1,11 @@
 {application, dubboerl,
  [{description, "An OTP application"},
-  {vsn, "0.1.0"},
+  {vsn, "0.3.0"},
   {registered, []},
   {mod, { dubboerl_app, []}},
   {applications,
    [kernel,
-    stdlib,xmerl,eunit,erlzk,lager,poolboy,inets
+    stdlib,xmerl,eunit,erlzk,logger,poolboy,inets
    ]},
   {env,[]},
   {modules, []},

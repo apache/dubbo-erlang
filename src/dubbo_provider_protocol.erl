@@ -52,7 +52,7 @@ start_link(Ref, Socket, Transport, Opts) ->
 %init([]) -> {ok, undefined}.
 
 init({Ref, Socket, Transport, _Opts = []}) ->
-    lager:info("provider connected"),
+    logger:info("provider connected"),
     ok = ranch:accept_ack(Ref),
     ok = Transport:setopts(Socket, [{active, once}]),
     gen_server:enter_loop(?MODULE, [],
@@ -67,7 +67,7 @@ handle_info({tcp,_Port,Data}, #state{recv_buffer = RecvBuffer,socket=Socket, tra
                                    {next_buffer,<<>>,State2} ->
                                        {ok,<<>>,State2};
                                    {next_buffer,NextBuffer2,State3}->
-                                       lager:debug("[INFO] recv one data state wait next_buffer"),
+                                       logger:debug("[INFO] recv one data state wait next_buffer"),
                                        {ok,NextBuffer2,State3}
                                end,
 %%    HeartbeatInfo =update_heartbeat(write,NewState#state.heartbeat),
@@ -96,7 +96,7 @@ handle_cast({send_response,Data}, #state{socket = Socket} = State) ->
         ok ->
             ok;
         Other ->
-            lager:warning("response error ~p",[Other])
+            logger:warning("response error ~p",[Other])
     end,
     {noreply, State};
 handle_cast(_Msg, State) ->
@@ -137,17 +137,17 @@ check_recv_data(<<?DUBBO_MEGIC_HIGH,?DUBBO_MEGIC_LOW,_OtherFlag:80,DataLen:32,Re
             {ok,State2} = process_data(Data,State),
             {next_buffer,<<>>,State2};
         DataLen>RestSize ->
-            lager:warning("need wait next buffer data ~p",[Data]),
+            logger:warning("need wait next buffer data ~p",[Data]),
             {next_buffer,Data,State};
         DataLen<RestSize ->
             <<ReadyData:DataLen/binary,NextBuffer/binary>> = Rest,
             OneData = <<?DUBBO_MEGIC_HIGH:8,?DUBBO_MEGIC_LOW:8,_OtherFlag:80,DataLen:32,ReadyData/binary>>,
             {ok,State3} = process_data(OneData,State),
-            lager:warning("recevi more data ~w ",[NextBuffer]),
+            logger:warning("recevi more data ~w ",[NextBuffer]),
             check_recv_data(NextBuffer,State3)
     end;
 check_recv_data(<<Error/integer,Data/binary>>,State)->
-    lager:error("recv bad header data,Begin Byte:~p",[Error]),
+    logger:error("recv bad header data,Begin Byte:~p",[Error]),
     check_recv_data(Data,State);
 check_recv_data(<<>>,State)->
     {next_buffer,<<>>,State}.
@@ -158,16 +158,16 @@ process_data(Data,State)->
     case de_codec:decode_header(Header) of
         {ok,request,RequestInfo}->
             {ok,Req} = de_codec:decode_request(RequestInfo,RestData),
-            lager:info("get one request mid ~p, is_event ~p",[Req#dubbo_request.mid,Req#dubbo_request.is_event]),
+            logger:info("get one request mid ~p, is_event ~p",[Req#dubbo_request.mid,Req#dubbo_request.is_event]),
             {ok,State2} = process_request(Req#dubbo_request.is_event,Req,State),
             {ok,State2};
         {ok,response,ResponseInfo}->
             {ok,Res} = de_codec:decode_response(ResponseInfo,RestData),
-            lager:info("get one response mid ~p, is_event ~p state ~p",[Res#dubbo_response.mid,Res#dubbo_response.is_event,Res#dubbo_response.state]),
+            logger:info("get one response mid ~p, is_event ~p state ~p",[Res#dubbo_response.mid,Res#dubbo_response.is_event,Res#dubbo_response.state]),
             {ok,State3} =process_response(Res#dubbo_response.is_event,Res,State),
             {ok,State3};
         {error,Type,RelData}->
-            lager:error("process_data error type ~p RelData ~p",[Type,RelData]),
+            logger:error("process_data error type ~p RelData ~p",[Type,RelData]),
             {ok,State}
     end.
 
@@ -181,9 +181,9 @@ process_response(true,Response,State)->
 process_response(false,Response,State)->
 %%    case get_earse_request_info(Response#dubbo_response.mid) of
 %%        undefined->
-%%            lager:error("dubbo response can't find request data,response ~p",[Response]);
+%%            logger:error("dubbo response can't find request data,response ~p",[Response]);
 %%        {SourcePid,Ref,Request} ->
-%%            lager:debug("will cast mid ~p to source process SourcePid ~p",[Response#dubbo_response.mid,SourcePid]),
+%%            logger:debug("will cast mid ~p to source process SourcePid ~p",[Response#dubbo_response.mid,SourcePid]),
 %%            RpcContent=[],
 %%            ResponseData = de_type_transfer:response_to_native(Response),
 %%            gen_server:cast(SourcePid,{msg_back,Ref,ResponseData,RpcContent})
@@ -192,9 +192,9 @@ process_response(false,Response,State)->
 
 process_request(true,Request,State)->
 %%    {ok,NewState} = send_heartbeat_msg(Request#dubbo_request.mid,State),
-    lager:info("process request event ~p",[Request]),
+    logger:info("process request event ~p",[Request]),
     {ok,State};
 process_request(false,Request,State)->
-    lager:info("process request ~p",[Request]),
+    logger:info("process request ~p",[Request]),
     dubbo_provider_worker:process_request(Request,self()),
     {ok,State}.

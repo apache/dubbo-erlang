@@ -176,7 +176,7 @@ decode(<<$O,Bin/binary>>, State) ->
             end
     end;
 decode(<<H:4,Ref:4,Rest/binary>>, _State) when H == 6 ->
-    lager:debug("decode data find ref ~p",[Ref]),
+    logger:debug("decode data find ref ~p",[Ref]),
     case hash_lookup(Ref, _State) of
         {not_found, Ref} ->
             {Rest, {not_found, Ref}, _State};
@@ -284,7 +284,7 @@ get_type_set(#decoding_state{type_pool = Pool}) ->
     end.
 
 build_foreign_view(ForeignType,FieldNames,State) ->
-    lager:debug("[DECODE] build_foreign_view ForeignType ~p FieldNames ~p",[ForeignType,FieldNames]),
+    logger:debug("[DECODE] build_foreign_view ForeignType ~p FieldNames ~p",[ForeignType,FieldNames]),
     ForeignView = FieldNames,
     #decoding_state{type_pool = OldPool} = State,
     Native = dict:size(OldPool),
@@ -310,7 +310,7 @@ project_native_view(ForeignView,ForeignData,
     NativeData.
 
 visit(TypeDef, State = #decoding_state{reference_pool = OldPool}) ->
-    lager:debug("[DECODE] visit typedef ~p",[TypeDef]),
+    logger:debug("[DECODE] visit typedef ~p",[TypeDef]),
     Size = dict:size(OldPool),
     NewPool = dict:store(Size, TypeDef, OldPool),
     {Size,State#decoding_state{reference_pool = NewPool}}.
@@ -333,7 +333,7 @@ hash_lookup(Hash,#decoding_state{hash_pool = HashPool} = State) ->
 hash_store(TypeDef = #type_def{defineNo = Hash}, #decoding_state{hash_pool = HashPool} = State) ->
 %%    init(false),
 %%    ets:insert(hashes,{Hash,TypeDef}),
-    lager:debug("[DECODE] hash store typedef ~p",[TypeDef]),
+    logger:debug("[DECODE] hash store typedef ~p",[TypeDef]),
     NewPool = dict:store(Hash,TypeDef,HashPool),
     State#decoding_state{hash_pool = NewPool}.
 

@@ -37,7 +37,7 @@ java_to_native(#object{values = ForeignData}=Data,State)->
                     list_to_tuple( [NativeTupeName] ++ NativeData)
             end;
         Info ->
-            lager:warning("java_to_native error:~p",[Info]),
+            logger:warning("java_to_native error:~p",[Info]),
             error
     end;
 java_to_native(#list{values = ForeignData}=Data,State)->
@@ -49,18 +49,18 @@ java_to_native(#list{values = ForeignData}=Data,State)->
 %%                false->
 %%                    error;
 %%                #type_def{fieldnames = NativeFields,native_type = NativeTupeName}->
-%%                    lager:debug("test ForeignType ~p NativeTupeName ~p",[ForeignType,NativeTupeName]),
+%%                    logger:debug("test ForeignType ~p NativeTupeName ~p",[ForeignType,NativeTupeName]),
 %%%%                    AsDict = dict:from_list(lists:zip(ObjectFields,ForeignDataNew)),
 %%%%                    NativeData = [dict:fetch(atom_to_binary(Key,utf8),AsDict) || Key <- NativeFields],
 %%%%                    list_to_tuple( [NativeTupeName] ++ NativeData)
 %%                    ForeignDataNew
 %%            end;
 %%        Info ->
-%%            lager:warning("java_to_native list error:~p",[Info]),
+%%            logger:warning("java_to_native list error:~p",[Info]),
 %%            error
 %%    end;
 java_to_native(Data,_)->
-    lager:debug("java_to_native unkonw type ~p",[Data]),
+    logger:debug("java_to_native unkonw type ~p",[Data]),
     Data.
 
 %%get_deftype([Item |DefTypeList],ForeignType)->
@@ -76,13 +76,13 @@ get_deftype(ForeignType)->
 
     case type_register:lookup_foreign_type(ForeignType) of
         undefined->
-            lager:debug("get deftype undefined ~p",[ForeignType]),
+            logger:debug("get deftype undefined ~p",[ForeignType]),
             false;
         #type_def{}=TypeDef->
-            lager:debug("get deftype success ~p",[ForeignType]),
+            logger:debug("get deftype success ~p",[ForeignType]),
             TypeDef;
         _->
-            lager:debug("get deftype  undefined ~p",[ForeignType]),
+            logger:debug("get deftype  undefined ~p",[ForeignType]),
             false
     end.
 
@@ -90,14 +90,14 @@ pre_process_typedef(NativeType,ForeignType,FieldsNames)->
     Type = #type_def{native_type = NativeType,foreign_type = ForeignType,fieldnames = FieldsNames},
 %%            Type2=type_decoding:hash_store(Type),
     type_register:regiest_foreign_native(Type),
-    lager:debug("pre_process_typedef ~p,~p",[NativeType,ForeignType]).
+    logger:debug("pre_process_typedef ~p,~p",[NativeType,ForeignType]).
 %%    case type_decoding:resolve_native_type(ForeignType) of
 %%        undefined ->
 %%%%            Type = #type_def{native_type = NativeType, foreign_type = ForeignType, fieldnames = record_info(fields,NativeType)},
 %%            Type = #type_def{native_type = NativeType,foreign_type = ForeignType,fieldnames = FieldsNames},
 %%            Type2=type_decoding:hash_store(Type),
 %%
-%%            lager:debug("pre_process_typedef ~p,~p",[NativeType,ForeignType]);
+%%            logger:debug("pre_process_typedef ~p,~p",[NativeType,ForeignType]);
 %%            type_decoding:store_typepool(Type2);
 %%        _->
 %%            ok

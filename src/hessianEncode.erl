@@ -40,7 +40,7 @@ encode(struct, Input, State) ->
 			IndexBin = encode(int, Index, State),
 			<<$Q, IndexBin/binary>>;
 		_Object ->
-            lager:debug("[encode] object ~p",[Input]),
+            logger:debug("[encode] object ~p",[Input]),
 			encode(class_object, Input, State);
 %%			{<<>>,State};
 		{K, V} ->
@@ -339,7 +339,7 @@ encode(list, Len, Type, List, State) ->
 encode(object, BaseBin, TypeNo, Values, State) ->
 	IndexBin = if
 		TypeNo < 16 ->
-			lager:debug("[encode] encode object TypeNo ~p",[TypeNo]),
+			logger:debug("[encode] encode object TypeNo ~p",[TypeNo]),
 			IndexWrap = TypeNo + 16#60,
 			<<IndexWrap:8>>;
 		true ->
@@ -376,7 +376,7 @@ camelize(Element,[$_|Acc]) -> lists:append(Acc,[Element - 16#20]);
 camelize(Element,Acc) -> lists:append(Acc,[Element]).
 
 encode_accumulate(Value, {Acc, State}) ->
-    lager:debug("[encode] encode_accumulate value ~p",[Value]),
+    logger:debug("[encode] encode_accumulate value ~p",[Value]),
 	case encode(Value, State) of 
 		{Encoded,NewState} -> {<<Acc/binary,Encoded/binary>>,NewState};
 		Encoded -> {<<Acc/binary,Encoded/binary>>,State}

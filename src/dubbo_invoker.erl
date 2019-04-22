@@ -43,10 +43,10 @@ invoke_request(Interface,Request,RpcContext,RequestState,CallBackPid)->
                     {error,request_full}
             end;
         {error,none}->
-            lager:error("[INVOKE] ~p error Reason no_provider",[Interface]),
+            logger:error("[INVOKE] ~p error Reason no_provider",[Interface]),
             {error,no_provider};
         {error,R1}->
-            lager:error("[INVOKE] ~p error Reason ~p",[Interface,R1]),
+            logger:error("[INVOKE] ~p error Reason ~p",[Interface,R1]),
             {error,R1}
     end.
 

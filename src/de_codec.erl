@@ -26,7 +26,7 @@
 
 -spec encode_request(#dubbo_request{})->{ok,binary()} | {error,term()}.
 encode_request(Request)->
-%%    lager:debug("encode request ~p",[Request]),
+%%    logger:debug("encode request ~p",[Request]),
     {ok,RequestData} = encode_request_data(Request#dubbo_request.serialize_type,Request),
     Size = byte_size(RequestData),
     Header = encode_header(Request,Size,0),
@@ -218,9 +218,9 @@ decode_response(Res,Data)->
 %%        2 ->
 %%            {ok,Res#dubbo_response{data = null,decode_state = State}};
 %%        _->
-%%            lager:warning("decode unkonw type ~p ~p",[Type,Rest]),
+%%            logger:warning("decode unkonw type ~p ~p",[Type,Rest]),
 %%            {Rest2,Object2,DecodeState2} = hessianDecode2:decode(Rest,State),
-%%            lager:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
+%%            logger:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
 %%            {ok,Res#dubbo_response{data = Object2,decode_state = DecodeState2}}
 %%    end;
 %%decode_response(?SERIALIZATION_HESSIAN,dubbo_event,Res,Data)->
@@ -269,7 +269,7 @@ decode_request(Req,Data)->
 %%    AttachmentsList = dict:to_list(Attachments#map.dict),
 %%    decode_request_body(List,Rest,State1,[AttachmentsList] ++ ResultList);
 %%decode_request_body([_Type1|List],Data,State,ResultList)->
-%%    lager:warning("decode_request_body unknow type"),
+%%    logger:warning("decode_request_body unknow type"),
 %%    decode_request_body(List,Data,State, ResultList);
 %%decode_request_body([],Data,State,ResultList)->
 %%    {ResultList,State,Data}.
