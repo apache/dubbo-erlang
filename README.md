@@ -9,7 +9,10 @@ Feature list
 The following features are supported.
 
 * Zookeeper registry center (√)
-* Tcp Transport and Hession serialize (√)
+* Tcp Transport
+* Serialize
+	* Hession serialize (√)
+	* Json serialize (√)
 * Erlang project as a consumer (√)
 * Erlang project as a provider (√)
 * Sync invoker (√)

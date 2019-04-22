@@ -10,6 +10,8 @@
 -author("dlive").
 
 -include("dubboerl.hrl").
+-include("dubbo.hrl").
+
 %% API
 -export([init/0,start_consumer/0,start_provider/0]).
 
@@ -32,7 +34,7 @@ start_consumer()->
 start_provider()->
     ProviderList = application:get_env(dubboerl,provider,[]),
     ApplicationName = application:get_env(dubboerl,application,<<"defaultApplication">>),
-    DubboServerPort = application:get_env(dubboerl,port,20881),
+    DubboServerPort = application:get_env(dubboerl,port,?DUBBO_DEFAULT_PORT),
     start_provider_listen(DubboServerPort),
     lists:map(fun({ImplModuleName,BehaviourModuleName,Interface,Option})->
         ok = dubbo_provider_protocol:register_impl_provider(Interface,ImplModuleName,BehaviourModuleName),

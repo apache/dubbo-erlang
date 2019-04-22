@@ -15,6 +15,8 @@
 -define(DUBBO_MEGIC_HIGH, 16#da). %% new version 16#da
 -define(DUBBO_MEGIC_LOW, 16#bb). %% new version 16#bb
 
+-define(DUBBO_DEFAULT_PORT,20880).
+
 %% 序列化类型
 -define(SERIALIZATION_HESSIAN,2).
 -define(SERIALIZATION_FASTJSON,6).
