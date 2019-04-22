@@ -15,7 +15,7 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    io:format("[START] server start~n"),
+    io:format("[START] dubbo framework server start~n"),
     env_init(),
     dubboerl_sup:start_link().
 

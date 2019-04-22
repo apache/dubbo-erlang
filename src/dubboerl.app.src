@@ -12,5 +12,5 @@
 
   {maintainers, []},
   {licenses, []},
-  {links, []}
+  {links, [{"Github", "https://github.com/dubboerl/dubboerl"}]}
  ]}.
