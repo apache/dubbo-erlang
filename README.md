@@ -3,6 +3,7 @@ dubboerl
 Apache Dubbo Erlang Implementation.
 
 [![Build Status](https://travis-ci.org/dubboerl/dubboerl.svg?branch=master)](https://travis-ci.org/dubboerl/dubboerl)
+[![codecov](https://codecov.io/gh/dubboerl/dubboerl/branch/master/graph/badge.svg)](https://codecov.io/gh/dubboerl/dubboerl)
 
 Feature list
 -----
