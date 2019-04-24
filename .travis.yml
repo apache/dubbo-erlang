@@ -1,7 +1,13 @@
 language: erlang
+sudo: true
+install:
+  - sudo pip install codecov
 otp_release:
   - 21.0.4
-sudo: false
-
 script:
   - rebar3 compile
+  - rebar3 eunit -c
+  - rebar3 codecov analyze
+
+after_success:
+  - codecov
