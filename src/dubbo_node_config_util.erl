@@ -13,7 +13,8 @@
 %% API
 -export([parse_provider_info/1,gen_provider_info/1]).
 
-%%
+parse_provider_info(ProviderStr) when is_binary(ProviderStr)->
+    parse_provider_info(binary_to_list(ProviderStr));
 parse_provider_info(ProviderStr)->
     case http_uri:parse(http_uri:decode(ProviderStr),[{scheme_defaults,[{dubbo,20880}]}]) of
         {ok, {Scheme, UserInfo, Host, Port, Path, Query}} ->
@@ -32,15 +33,7 @@ parse_provider_info(ProviderStr)->
             logger:debug("parse provider error string ~p, error ~p",[ProviderStr,R1]),
             {error,R1}
     end.
-%%    PrivoderInfo =list_to_binary(http_uri:decode(binary_to_list(PrivoderStr))),
-%%    [{ProtocolEndPos,3},{HostEndPos,1},{InterfaceEndPos,1} ] = binary:matches(PrivoderInfo,[<<"://">>,<<"/">>,<<"?">>],[]),
-%%    HostLength=HostEndPos - ProtocolEndPos-3,
-%%    InterfaceLenth=InterfaceEndPos-HostEndPos-1,
-%%    << Protocol:5/binary,_:3/binary,Host:HostLength/binary,_:1/binary,Interface:InterfaceLenth/binary,_:1/binary,Parameter/binary>> = PrivoderInfo,
-%%    [HostName,Port]=binary:split(Host,<<":">>),
-%%    ParameterList = binary:split(Parameter,<<"&">>),
 
-%%    io:format(user,"protocol end Pos ~p~n protocol:~p~n Host:~p~n Interface:~p~n",[ProtocolEndPos,Protocol,Host,Interface]),
 
 parse_parameter([],Config)->
     Config;

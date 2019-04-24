@@ -15,5 +15,5 @@ exist_test() ->
     Consumer=#consumer_config{interface = <<"com.ifcoder.demo.facade.User">>,
         methods = [<<"a">>,<<"b">>]},
     V= dubbo_zookeeper:gen_consumer_node_info(Consumer),
-    io:format(user,"gen consumer info:~p~n",[V]),
-    ?assert(true).
+    ?debugFmt("consumer info ~p",[V]),
+    ?assert(is_binary(V)).
