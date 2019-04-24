@@ -17,7 +17,7 @@ parse_provider_info(ProviderStr) when is_binary(ProviderStr)->
     parse_provider_info(binary_to_list(ProviderStr));
 parse_provider_info(ProviderStr)->
     case http_uri:parse(http_uri:decode(ProviderStr),[{scheme_defaults,[{dubbo,20880}]}]) of
-        {ok, {Scheme, UserInfo, Host, Port, Path, Query}} ->
+        {ok, {Scheme, _UserInfo, Host, Port, _Path, Query}} ->
             QueryStr = case lists:prefix("?",Query) of
                 true ->
                     [_|Query2] = Query,

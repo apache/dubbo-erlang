@@ -167,11 +167,11 @@ get_index(Type,Max)->
 %%% Internal functions
 %%%===================================================================
 init_table()->
-    try ets:new(de_id_count_table, [public,named_table]) of
-        de_id_count_table ->
+    try ets:new(?INDEX_ETS_TABLE, [public,named_table]) of
+        ?INDEX_ETS_TABLE ->
             ets:insert(?INDEX_ETS_TABLE,{cur_index,1}),
             ok
     catch
         _Type:Reason ->
-            io:format("error init auto inc table reason:~p~n",[Reason])
+            logger:error("[DUBBO] error init auto inc table reason:~p",[Reason])
     end.

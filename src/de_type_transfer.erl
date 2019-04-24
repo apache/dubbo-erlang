@@ -43,34 +43,9 @@ java_to_native(#object{values = ForeignData}=Data,State)->
 java_to_native(#list{values = ForeignData}=Data,State)->
     ForeignDataNew = [java_to_native(ValueItem,State) || ValueItem <-ForeignData ],
     ForeignDataNew;
-%%    case hessianDecode2:get_deftype(Data#list.refNo,State) of
-%%        #type_def{fieldnames = ObjectFields,foreign_type = ForeignType } ->
-%%            case get_deftype(ForeignType) of
-%%                false->
-%%                    error;
-%%                #type_def{fieldnames = NativeFields,native_type = NativeTupeName}->
-%%                    logger:debug("test ForeignType ~p NativeTupeName ~p",[ForeignType,NativeTupeName]),
-%%%%                    AsDict = dict:from_list(lists:zip(ObjectFields,ForeignDataNew)),
-%%%%                    NativeData = [dict:fetch(atom_to_binary(Key,utf8),AsDict) || Key <- NativeFields],
-%%%%                    list_to_tuple( [NativeTupeName] ++ NativeData)
-%%                    ForeignDataNew
-%%            end;
-%%        Info ->
-%%            logger:warning("java_to_native list error:~p",[Info]),
-%%            error
-%%    end;
 java_to_native(Data,_)->
     logger:debug("java_to_native unkonw type ~p",[Data]),
     Data.
-
-%%get_deftype([Item |DefTypeList],ForeignType)->
-%%    if
-%%        Item#type_def.foreign_type == ForeignType -> Item;
-%%        true ->
-%%            get_deftype(DefTypeList,ForeignType)
-%%    end;
-%%get_deftype([],_ForeignType)->
-%%    false.
 
 get_deftype(ForeignType)->
 
@@ -90,15 +65,5 @@ pre_process_typedef(NativeType,ForeignType,FieldsNames)->
     Type = #type_def{native_type = NativeType,foreign_type = ForeignType,fieldnames = FieldsNames},
 %%            Type2=type_decoding:hash_store(Type),
     type_register:regiest_foreign_native(Type),
-    logger:debug("pre_process_typedef ~p,~p",[NativeType,ForeignType]).
-%%    case type_decoding:resolve_native_type(ForeignType) of
-%%        undefined ->
-%%%%            Type = #type_def{native_type = NativeType, foreign_type = ForeignType, fieldnames = record_info(fields,NativeType)},
-%%            Type = #type_def{native_type = NativeType,foreign_type = ForeignType,fieldnames = FieldsNames},
-%%            Type2=type_decoding:hash_store(Type),
-%%
-%%            logger:debug("pre_process_typedef ~p,~p",[NativeType,ForeignType]);
-%%            type_decoding:store_typepool(Type2);
-%%        _->
-%%            ok
-%%    end.
+    logger:debug("pre_process_typedef ~p,~p",[NativeType,ForeignType]),
+    ok.

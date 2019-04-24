@@ -68,12 +68,6 @@ start_link(Name,HostFlag,ProviderConfig,Index) ->
     {stop, Reason :: term()} | ignore).
 init([HostFlag,ProviderConfig,Index]) ->
     erlang:process_flag(min_bin_vheap_size, 1024*1024),
-%%    erlang:process_flag(min_heap_size, 1024*1024),
-%%    BindScheduler = (Index rem erlang:system_info(schedulers_online))+1,
-%%    logger:info("will bind to scheduler ~p",[BindScheduler]),
-%%    erlang:process_flag(scheduler, BindScheduler),
-%%    erlang:process_flag(priority, high),
-
     #provider_config{host = Host,port = Port}=ProviderConfig,
     State = case open(Host,Port) of
                 {ok,Socket} ->
