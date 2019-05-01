@@ -30,7 +30,7 @@ invoke_request(Interface,Request,RpcContext,RequestState,CallBackPid)->
             case dubbo_traffic_control:check_goon(HostFlag,199) of
                 ok ->
                     Request2 = merge_attachments(Request,RpcContext),
-                    {ok,RequestData} = de_codec:encode_request(Request2),
+                    {ok,RequestData} = dubbo_codec:encode_request(Request2),
                     Ref=get_ref(RequestState),
                     RequestState2 = request_context:update(<<"t_agent_e">>,RequestState),
                     gen_server:cast(Pid,{send_request,Ref,Request2,RequestData,CallBackPid,RequestState2}),

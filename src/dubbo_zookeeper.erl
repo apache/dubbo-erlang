@@ -250,7 +250,7 @@ gen_consumer_node_info(Consumer)->
     %% revision参数字段的作用是什么？ 暂时不添加
     Methods=lists_util:join(Consumer#consumer_config.methods,<<",">>),
     Value=io_lib:format(<<"consumer://~s/~s?application=~s&category=~s&check=~p&default.timeout=~p&dubbo=~s&interface=~s&methods=~s&side=~s&timestamp=~p">>,
-        [de_common_fun:local_ip_v4_str(),
+        [dubbo_common_fun:local_ip_v4_str(),
             Consumer#consumer_config.interface,
             Consumer#consumer_config.application,
             Consumer#consumer_config.category,

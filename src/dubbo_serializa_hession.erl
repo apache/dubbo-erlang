@@ -242,5 +242,5 @@ decode_request_body_args([ArgsType|RestList],Data,State,ArgsObjList) when ArgsTy
     decode_request_body_args(RestList,Data,State,ArgsObjList);
 decode_request_body_args([_ArgsType|RestList],Data,State,ArgsObjList) ->
     {Rest,ArgObj,NewState } = hessianDecode2:decode(Data,State),
-    ArgObj2 = de_type_transfer:classobj_to_native(ArgObj,NewState),
+    ArgObj2 = dubbo_type_transfer:classobj_to_native(ArgObj,NewState),
     decode_request_body_args(RestList,Rest,NewState,ArgsObjList++[ArgObj2]).

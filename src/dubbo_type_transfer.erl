@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 27. 十月 2016 下午8:28
 %%%-------------------------------------------------------------------
--module(de_type_transfer).
+-module(dubbo_type_transfer).
 -author("dlive").
 
 -include("hessian.hrl").

@@ -28,7 +28,7 @@ gen_consumer(Application,Interface,Option)->
     }.
 
 gen_provider(Application,Port,Interface,MethodList,Option)->
-    Host = de_network_tools:local_ipv4_binary(),
+    Host = dubbo_network_tools:local_ipv4_binary(),
     MethodList2= [atom_to_binary(Item,utf8) || Item <- MethodList ],
     #provider_config{
         protocol= <<"dubbo">>,

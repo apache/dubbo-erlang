@@ -155,14 +155,14 @@ check_recv_data(<<>>,State)->
 
 process_data(Data,State)->
     <<Header:16/binary,RestData/binary>> = Data,
-    case de_codec:decode_header(Header) of
+    case dubbo_codec:decode_header(Header) of
         {ok,request,RequestInfo}->
-            {ok,Req} = de_codec:decode_request(RequestInfo,RestData),
+            {ok,Req} = dubbo_codec:decode_request(RequestInfo,RestData),
             logger:info("get one request mid ~p, is_event ~p",[Req#dubbo_request.mid,Req#dubbo_request.is_event]),
             {ok,State2} = process_request(Req#dubbo_request.is_event,Req,State),
             {ok,State2};
         {ok,response,ResponseInfo}->
-            {ok,Res} = de_codec:decode_response(ResponseInfo,RestData),
+            {ok,Res} = dubbo_codec:decode_response(ResponseInfo,RestData),
             logger:info("get one response mid ~p, is_event ~p state ~p",[Res#dubbo_response.mid,Res#dubbo_response.is_event,Res#dubbo_response.state]),
             {ok,State3} =process_response(Res#dubbo_response.is_event,Res,State),
             {ok,State3};

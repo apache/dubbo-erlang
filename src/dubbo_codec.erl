@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 20. 十月 2016 下午6:21
 %%%-------------------------------------------------------------------
--module(de_codec).
+-module(dubbo_codec).
 -author("dlive").
 
 -include("dubbo.hrl").

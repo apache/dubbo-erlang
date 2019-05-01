@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 21. Mar 2018 4:07 PM
 %%%-------------------------------------------------------------------
--module(de_network_tools).
+-module(dubbo_network_tools).
 -author("dlive").
 
 %% API

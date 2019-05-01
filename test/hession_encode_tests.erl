@@ -29,9 +29,9 @@ object_test()->
     {Bin, State0} = hessianEncode:encode(RequestArg0, EncodingState0),
 
     type_register:init(),
-    de_type_transfer:pre_process_typedef(de_TestReq,<<"com.ifcoder.demo.bean.UserInfoRequest">>,record_info(fields,de_TestReq)),
+    dubbo_type_transfer:pre_process_typedef(de_TestReq,<<"com.ifcoder.demo.bean.UserInfoRequest">>,record_info(fields,de_TestReq)),
     {<<>>,Data,State2 } = hessianDecode2:decode(Bin,hessianDecode2:init()),
-    DecodeResult = de_type_transfer:java_to_native(Data,State2),
+    DecodeResult = dubbo_type_transfer:java_to_native(Data,State2),
     ?assert(is_record(DecodeResult,de_TestReq)),
     ?assertEqual(DecodeResult#de_TestReq.name,<<"nameinfo">>),
     ?assertEqual(DecodeResult#de_TestReq.nick,<<"nickname">>),

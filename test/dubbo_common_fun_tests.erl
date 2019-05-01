@@ -12,8 +12,8 @@
 -include_lib("eunit/include/eunit.hrl").
 
 request_gen_test() ->
-    de_id_count:init([]),
-    Id = de_id_count:gen_id(),
+    dubbo_id_generator:init([]),
+    Id = dubbo_id_generator:gen_id(),
     ?assert(is_integer(Id)).
 
 string_join_test()->

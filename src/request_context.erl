@@ -105,12 +105,10 @@ to_log2(Map)->
                 ])
     end.
 
-trace(Info)->
-%%    gen_server:cast({monitor_trace,'monitor@agent_monitor.me'},{trace,Info}).
+trace(_Info)->
     ok.
 
-trace_end(Info)->
-%%    gen_server:cast({monitor_trace,'monitor@agent_monitor.me'},{trace_end,Info}).
+trace_end(_Info)->
     ok.
 
 test()->

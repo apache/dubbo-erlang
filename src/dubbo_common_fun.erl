@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 27. Dec 2017 3:01 PM
 %%%-------------------------------------------------------------------
--module(de_common_fun).
+-module(dubbo_common_fun).
 -author("dlive").
 
 %% API

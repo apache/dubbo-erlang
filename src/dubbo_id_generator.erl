@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 17. 十月 2016 上午11:12
 %%%-------------------------------------------------------------------
--module(de_id_count).
+-module(dubbo_id_generator).
 -author("dlive").
 
 -behaviour(gen_server).

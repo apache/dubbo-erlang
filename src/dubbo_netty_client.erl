@@ -305,7 +305,7 @@ check_heartbeat_state(#state{heartbeat = HeartBeatInfo}=_State)->
 
 
 send_heartbeat_msg(Mid,NeedResponse,State)->
-    {ok,Bin} = de_heartbeat:generate_request(Mid,NeedResponse),
+    {ok,Bin} = dubbo_heartbeat:generate_request(Mid,NeedResponse),
     NewState = case send_msg(Bin,State) of
         ok ->
             logger:info("send one heartbeat msg to server"),
@@ -348,7 +348,7 @@ check_recv_data(<<>>,State)->
 process_data(Data,State)->
     TmpTime = time_util:timestamp_ms(),
     <<Header:16/binary,RestData/binary>> = Data,
-    case de_codec:decode_header(Header) of
+    case dubbo_codec:decode_header(Header) of
         {ok,response,ResponseInfo}->
             %%心跳包的回应，是否会造成错误
             dubbo_traffic_control:decr_count(State#state.host_flag),
@@ -359,7 +359,7 @@ process_data(Data,State)->
 %%                    RequestState2 = request_context:update(<<"t_net_b">>,TmpTime,RequestState),
                     RequestState3 = request_context:update(<<"t_net_e">>,RequestState),
 
-                    {ok,Res} = de_codec:decode_response(ResponseInfo,RestData),
+                    {ok,Res} = dubbo_codec:decode_response(ResponseInfo,RestData),
 
                     %%从另一条路返回
 %%                    case Res#dubbo_response.is_event of
@@ -392,7 +392,7 @@ process_data(Data,State)->
 %%            {ok,State3} =process_response(Res#dubbo_response.is_event,Res,State,TmpTime),
             {ok,State};
         {ok,request,RequestInfo}->
-            {ok,Req} = de_codec:decode_request(RequestInfo,RestData),
+            {ok,Req} = dubbo_codec:decode_request(RequestInfo,RestData),
             logger:info("get one request mid ~p, is_event ~p",[Req#dubbo_request.mid,Req#dubbo_request.is_event]),
             {ok,State2} = process_request(Req#dubbo_request.is_event,Req,State),
             {ok,State2};
