@@ -5,7 +5,7 @@
   {mod, { dubboerl_app, []}},
   {applications,
    [kernel,
-    stdlib,xmerl,eunit,erlzk,logger,poolboy,inets
+    stdlib,xmerl,eunit,erlzk,poolboy,inets
    ]},
   {env,[]},
   {modules, []},

@@ -148,7 +148,7 @@ handle_info(_Info, State) ->
 %%--------------------------------------------------------------------
 %% @private
 %% @doc
-%% This function is called by a gen_se  rver when it is about to
+%% This function is called by a gen_server when it is about to
 %% terminate. It should be the opposite of Module:init/1 and do any
 %% necessary cleaning up. When it returns, the gen_server terminates
 %% with Reason. The return value is ignored.
@@ -270,7 +270,6 @@ clean_invalid_provider([HostFlag | DeleteProverList])->
         []->
             ok;
         ProviderNodeList->
-            io:format("ConnectionList ~p~n",[ProviderNodeList]),
             ProviderNodeList1 = lists_util:del_duplicate(ProviderNodeList),
             clean_connection_info(ProviderNodeList1)
     end,

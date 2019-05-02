@@ -16,8 +16,8 @@
 -export([init/0,start_consumer/0,start_provider/0]).
 
 init()->
-    start_consumer(),
-    start_provider(),
+    ok=start_consumer(),
+    ok=start_provider(),
     ok.
 
 
