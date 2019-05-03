@@ -17,19 +17,19 @@
 init()->
     case ets:info(?FOREIGN_NATIVE_TABLE) of
         undefined ->
-            io:format("init decoding foreign_native_table table pid ~p~n",[self()]),
-            ets:new(?FOREIGN_NATIVE_TABLE,[public,named_table]); %% public
+            ?FOREIGN_NATIVE_TABLE = ets:new(?FOREIGN_NATIVE_TABLE,[public,named_table]),
+            logger:info("init decoding foreign_native_table table",[]);
         _ ->
             ets:delete(?FOREIGN_NATIVE_TABLE),
-            ets:new(?FOREIGN_NATIVE_TABLE,[public,named_table])
+            ?FOREIGN_NATIVE_TABLE = ets:new(?FOREIGN_NATIVE_TABLE,[public,named_table])
     end,
     case ets:info(?NATIVE_FOREIGN_TABLE) of
         undefined ->
-            io:format("init decoding foreign_native_table table pid ~p~n",[self()]),
-            ets:new(?NATIVE_FOREIGN_TABLE,[public,named_table]); %% public
+            io:format("init decoding native_foreign_table table pid ~p~n",[self()]),
+            ?NATIVE_FOREIGN_TABLE = ets:new(?NATIVE_FOREIGN_TABLE,[public,named_table]); %% public
         _ ->
             ets:delete(?NATIVE_FOREIGN_TABLE),
-            ets:new(?NATIVE_FOREIGN_TABLE,[public,named_table])
+            ?NATIVE_FOREIGN_TABLE = ets:new(?NATIVE_FOREIGN_TABLE,[public,named_table])
     end,
     ok.
 

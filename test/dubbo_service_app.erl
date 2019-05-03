@@ -35,6 +35,6 @@ register_type_list()->
     List = dubbo_service_type_list:get_list(),
     lists:map(
         fun({NativeType,ForeignType,Fields}) ->
-        de_type_transfer:pre_process_typedef(NativeType,ForeignType,Fields)
+        dubbo_type_transfer:pre_process_typedef(NativeType,ForeignType,Fields)
     end,List),
     ok.

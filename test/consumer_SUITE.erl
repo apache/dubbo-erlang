@@ -30,7 +30,8 @@ suite() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
-  application:ensure_all_started(dubboerl),
+  Start = application:ensure_all_started(dubboerl),
+  io:format(user,"test case start info ~p~n",[Start]),
   Config.
 
 %%--------------------------------------------------------------------

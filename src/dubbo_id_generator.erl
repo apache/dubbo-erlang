@@ -24,7 +24,7 @@
 -export([gen_id/0,get_index/2]).
 
 -define(SERVER, ?MODULE).
--define(INDEX_ETS_TABLE,de_id_count_table).
+-define(INDEX_ETS_TABLE,dubbo_id_count_table).
 -define(MAX_NUM,9223372036854775807).
 -record(state, {}).
 
