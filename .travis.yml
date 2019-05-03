@@ -12,10 +12,10 @@ install:
   - sudo pip install codecov
 
 script:
-  - rebar3 compile
-  - rebar3 eunit -c
-  - rebar3 ct -c --sys_config config_example/sys.config
-  - rebar3 codecov analyze
+  - ./rebar3 compile
+  - ./rebar3 eunit -c
+  - ./rebar3 ct -c --sys_config config_example/sys.config
+  - ./rebar3 codecov analyze
 
 after_success:
   - codecov
