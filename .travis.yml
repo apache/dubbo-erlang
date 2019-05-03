@@ -1,12 +1,20 @@
 language: erlang
 sudo: true
-install:
-  - sudo pip install codecov
 otp_release:
   - 21.0.4
+jdk:
+  - oraclejdk8
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y zookeeperd
+install:
+  - sudo pip install codecov
+
 script:
   - rebar3 compile
   - rebar3 eunit -c
+  - rebar3 ct -c --sys_config config_example/sys.config
   - rebar3 codecov analyze
 
 after_success:
