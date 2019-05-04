@@ -18,3 +18,5 @@ target
 *.iml
 *.crashdump
 codecov.json
+.DS_Store
+doc

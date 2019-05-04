@@ -1,0 +1,18 @@
+{"1.1.0",
+[{<<"erlzk">>,
+  {git,"https://github.com/huaban/erlzk.git",
+       {ref,"aa7190ee2343ac1341cea3edc9b9eea36c591708"}},
+  0},
+ {<<"jiffy">>,{pkg,<<"jiffy">>,<<"0.15.1">>},0},
+ {<<"poolboy">>,
+  {git,"https://github.com/devinus/poolboy.git",
+       {ref,"3bb48a893ff5598f7c73731ac17545206d259fac"}},
+  0},
+ {<<"ranch">>,
+  {git,"https://github.com/ninenines/ranch.git",
+       {ref,"55c2a9d623454f372a15e99721a37093d8773b48"}},
+  0}]}.
+[
+{pkg_hash,[
+ {<<"jiffy">>, <<"BE83B09388DA1A6C7E798207C9D6A1C4D71BB95FCC387D37D35861788F49AB97">>}]}
+].
