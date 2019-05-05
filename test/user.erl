@@ -44,9 +44,9 @@ get_method_999_list()->
     {ok,reference(),Data::#userInfo{},RpcContent::list()}|
     {error,Reason::timeout|no_provider|any()}.
 getUserInfo(Arg0)->
-    getUserInfo(Arg0 ,[]).
+    getUserInfo(Arg0 ,#{}).
 
-getUserInfo(Arg0, Option)->
+getUserInfo(Arg0, RequestOption)->
     
     Data = #dubbo_rpc_invocation{
         className = ?CURRENT_CLASS_NAME,
@@ -69,12 +69,12 @@ getUserInfo(Arg0, Option)->
     Request = #dubbo_request{
         is_event = false,
         is_twoway = true,
-        mid = de_id_count:gen_id(),
+        mid = dubbo_id_generator:gen_id(),
         data = Data,
         mversion= <<"0.0.0">>,
         serialize_type = ?SERIALIZATION_HESSIAN
     },
-    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request).
+    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 
 
 -spec genUserId()->
@@ -82,9 +82,9 @@ getUserInfo(Arg0, Option)->
     {ok,reference(),Data::list(),RpcContent::list()}|
     {error,Reason::timeout|no_provider|any()}.
 genUserId()->
-    genUserId( []).
+    genUserId( #{}).
 
-genUserId( Option)->
+genUserId( RequestOption)->
     
     Data = #dubbo_rpc_invocation{
         className = ?CURRENT_CLASS_NAME,
@@ -105,12 +105,12 @@ genUserId( Option)->
     Request = #dubbo_request{
         is_event = false,
         is_twoway = true,
-        mid = de_id_count:gen_id(),
+        mid = dubbo_id_generator:gen_id(),
         data = Data,
         mversion= <<"0.0.0">>,
         serialize_type = ?SERIALIZATION_HESSIAN
     },
-    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request).
+    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 
 
 -spec queryUserInfo(Arg0::#userInfoRequest{})->
@@ -118,9 +118,9 @@ genUserId( Option)->
     {ok,reference(),Data::#userInfo{},RpcContent::list()}|
     {error,Reason::timeout|no_provider|any()}.
 queryUserInfo(Arg0)->
-    queryUserInfo(Arg0 ,[]).
+    queryUserInfo(Arg0 ,#{}).
 
-queryUserInfo(Arg0, Option)->
+queryUserInfo(Arg0, RequestOption)->
     
     Data = #dubbo_rpc_invocation{
         className = ?CURRENT_CLASS_NAME,
@@ -143,12 +143,12 @@ queryUserInfo(Arg0, Option)->
     Request = #dubbo_request{
         is_event = false,
         is_twoway = true,
-        mid = de_id_count:gen_id(),
+        mid = dubbo_id_generator:gen_id(),
         data = Data,
         mversion= <<"0.0.0">>,
         serialize_type = ?SERIALIZATION_HESSIAN
     },
-    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request).
+    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 
 
 -spec queryUserList(Arg0::list())->
@@ -156,9 +156,9 @@ queryUserInfo(Arg0, Option)->
     {ok,reference(),Data::#userRes{},RpcContent::list()}|
     {error,Reason::timeout|no_provider|any()}.
 queryUserList(Arg0)->
-    queryUserList(Arg0 ,[]).
+    queryUserList(Arg0 ,#{}).
 
-queryUserList(Arg0, Option)->
+queryUserList(Arg0, RequestOption)->
     
     Data = #dubbo_rpc_invocation{
         className = ?CURRENT_CLASS_NAME,
@@ -181,10 +181,10 @@ queryUserList(Arg0, Option)->
     Request = #dubbo_request{
         is_event = false,
         is_twoway = true,
-        mid = de_id_count:gen_id(),
+        mid = dubbo_id_generator:gen_id(),
         data = Data,
         mversion= <<"0.0.0">>,
         serialize_type = ?SERIALIZATION_HESSIAN
     },
-    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request).
+    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 

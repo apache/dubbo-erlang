@@ -11,7 +11,7 @@
 
 -include("dubbo.hrl").
 %% API
--export([invoke_request/2,invoke_request/5]).
+-export([invoke_request/2,invoke_request/3,invoke_request/5]).
 
 -spec invoke_request(Interface::binary(),Request::#dubbo_request{})->
     {ok,reference()}|
@@ -19,6 +19,14 @@
     {error,Reason::timeout|no_provider|any()}.
 invoke_request(Interface,Request)->
     invoke_request(Interface,Request,[],#{},self()).
+
+-spec invoke_request(Interface::binary(),Request::#dubbo_request{},RequestOption::map())->
+    {ok,reference()}|
+    {ok,reference(),Data::any(),RpcContent::list()}|
+    {error,Reason::timeout|no_provider|any()}.
+invoke_request(Interface,Request,RequestOption)->
+    invoke_request(Interface,Request,maps:get(ctx,RequestOption,[]),RequestOption,self()).
+
 
 -spec invoke_request(Interface::binary(),Request::#dubbo_request{},RpcContext::list(),RequestState::map(),CallBackPid::pid())->
     {ok,reference()}|

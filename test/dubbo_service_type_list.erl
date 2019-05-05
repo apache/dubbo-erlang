@@ -8,6 +8,7 @@
 get_list()->
     [
         {userInfoRequest,<<"com.ifcoder.demo.bean.UserInfoRequest">>,record_info(fields,userInfoRequest)},
+        {list,<<"java.util.List">>,record_info(fields,list)},
         {userInfo,<<"com.ifcoder.demo.bean.UserInfo">>,record_info(fields,userInfo)},
         {userRes,<<"com.ifcoder.demo.bean.UserRes">>,record_info(fields,userRes)}    ].
 
