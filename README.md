@@ -68,7 +68,7 @@ Call the interface method.
 
 ```erlang
 RequestPara = #testReq{name = <<"nameinfo">>,nick = <<"nickinfo">>,age = 10},
-iProcessData:queryinfo(Info,[]).
+iProcessData:queryinfo(Info).
 ```
 
 Sample
