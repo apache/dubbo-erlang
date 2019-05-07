@@ -12,7 +12,7 @@ The following features are supported.
 * Zookeeper registry center (√)
 * Tcp Transport
 * Serialize
-	* Hession serialize (√)
+	* Hessian serialize (√)
 	* Json serialize (√)
 * Erlang project as a consumer (√)
 * Erlang project as a provider (√)

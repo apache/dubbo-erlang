@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 18. 十月 2016 上午10:46
 %%%-------------------------------------------------------------------
--module(hession_encode_tests).
+-module(hessian_encode_tests).
 -author("dlive").
 
 -include("hessian.hrl").

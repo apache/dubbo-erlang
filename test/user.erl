@@ -66,14 +66,7 @@ getUserInfo(Arg0, RequestOption)->
             {<<"interface">> , ?CURRENT_CLASS_NAME}
         ]
     },
-    Request = #dubbo_request{
-        is_event = false,
-        is_twoway = true,
-        mid = dubbo_id_generator:gen_id(),
-        data = Data,
-        mversion= <<"0.0.0">>,
-        serialize_type = ?SERIALIZATION_HESSIAN
-    },
+    Request = dubbo_adapter:reference(Data),
     dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 
 
@@ -102,14 +95,7 @@ genUserId( RequestOption)->
             {<<"interface">> , ?CURRENT_CLASS_NAME}
         ]
     },
-    Request = #dubbo_request{
-        is_event = false,
-        is_twoway = true,
-        mid = dubbo_id_generator:gen_id(),
-        data = Data,
-        mversion= <<"0.0.0">>,
-        serialize_type = ?SERIALIZATION_HESSIAN
-    },
+    Request = dubbo_adapter:reference(Data),
     dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 
 
@@ -140,14 +126,7 @@ queryUserInfo(Arg0, RequestOption)->
             {<<"interface">> , ?CURRENT_CLASS_NAME}
         ]
     },
-    Request = #dubbo_request{
-        is_event = false,
-        is_twoway = true,
-        mid = dubbo_id_generator:gen_id(),
-        data = Data,
-        mversion= <<"0.0.0">>,
-        serialize_type = ?SERIALIZATION_HESSIAN
-    },
+    Request = dubbo_adapter:reference(Data),
     dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 
 
@@ -178,13 +157,6 @@ queryUserList(Arg0, RequestOption)->
             {<<"interface">> , ?CURRENT_CLASS_NAME}
         ]
     },
-    Request = #dubbo_request{
-        is_event = false,
-        is_twoway = true,
-        mid = dubbo_id_generator:gen_id(),
-        data = Data,
-        mversion= <<"0.0.0">>,
-        serialize_type = ?SERIALIZATION_HESSIAN
-    },
+    Request = dubbo_adapter:reference(Data),
     dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 

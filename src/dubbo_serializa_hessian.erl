@@ -6,7 +6,7 @@
 %%% @end
 %%% Created : 11. May 2018 4:12 PM
 %%%-------------------------------------------------------------------
--module(dubbo_serializa_hession).
+-module(dubbo_serializa_hessian).
 -author("dlive").
 
 -include("dubbo.hrl").

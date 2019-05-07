@@ -203,7 +203,7 @@ decode_response(Res,Data)->
         ?SERIALIZATION_FASTJSON ->
             dubbo_serializa_fastjson:decode_response(Res,Data);
         ?SERIALIZATION_HESSIAN ->
-            dubbo_serializa_hession:decode_response(Res,Data)
+            dubbo_serializa_hessian:decode_response(Res,Data)
     end.
 
 %%decode_response(?SERIALIZATION_FASTJSON,dubbo_rpc_invocation,Res,Data)->
@@ -233,7 +233,7 @@ decode_request(Req,Data)->
         ?SERIALIZATION_FASTJSON ->
             dubbo_serializa_fastjson:decode_request(Req,Data);
         ?SERIALIZATION_HESSIAN ->
-            dubbo_serializa_hession:decode_request(Req,Data)
+            dubbo_serializa_hessian:decode_request(Req,Data)
     end.
 
 %%decode_request(dubbo_rpc_invocation,Req,Data)->
