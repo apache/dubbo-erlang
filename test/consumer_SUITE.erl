@@ -137,9 +137,6 @@ lib_type_register(_Config) ->
   ok.
 
 user_sync_invoker(_Config)->
-%%  dubbo_service_app:register_type_list(),
-  io:format(user,"table info ~p~n",[ets:info(provider_impl_table)]),
   Result = user2:genUserId(),
-
   io:format(user,"result ~p ~n",[Result]),
   ok.
