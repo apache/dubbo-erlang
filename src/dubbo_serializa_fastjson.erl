@@ -226,20 +226,32 @@ decode_request(dubbo_event,Req,Data)->
     {ok,Req#dubbo_request{data = Result}}.
 
 decode_request_body(Data,State,List)->
-    {ResultList,NewState,RestData} = decode_request_body(List,Data,State,[]),
-    {lists:reverse(ResultList),NewState,RestData}.
-decode_request_body([ParseType|List],Data,State,ResultList)
+    DataList = binary:split(Data,<<"\n">>),
+    if
+        length(DataList) <6 ->
+            {error,request_data_error};
+        true ->
+            {ResultList,NewState,RestData} = decode_request_body(List,DataList,State,[]),
+            {lists:reverse(ResultList),NewState,RestData}
+    end.
+
+
+
+decode_request_body([ParseType|List],[DataItem | Data],_,ResultList)
     when ParseType==dubbo;ParseType==path;ParseType==version;ParseType==method_name ->
-    {Rest,Result,NewState } = cotton_hessian:decode(Data,State),
-    decode_request_body(List,Rest,NewState, [Result] ++ ResultList);
-decode_request_body([desc_and_args| List],Data,State,ResultList)->
-    {Rest,ParameterDesc,State1 } = cotton_hessian:decode(Data,State),
+    DecodeData = jiffy:decode(DataItem,[]),
+    decode_request_body(List,Data,_, [DecodeData] ++ ResultList);
+
+decode_request_body([desc_and_args| List],[DescBin|Data],State,ResultList)->
+    ParameterDesc = jiffy:decode(DescBin,[]),
+
+%%    {Rest,ParameterDesc,State1 } = cotton_hessian:decode(Data,State),
     if
         size(ParameterDesc) == 0 ->
-            decode_request_body(List,Rest,State1, [ [],[] ]++ ResultList);
+            decode_request_body(List,Data,State, [ [],[] ]++ ResultList);
         true ->
             ParameterDescArray = binary:split(ParameterDesc,<<";">>),
-            {ArgsObjList,NewState,RestData} = decode_request_body_args(ParameterDescArray,Rest,State1,[]),
+            {ArgsObjList,NewState,RestData} = decode_request_body_args(ParameterDescArray,Data,State,[]),
             decode_request_body(List,RestData,NewState, [ArgsObjList,ParameterDesc]++ ResultList)
     end;
 decode_request_body([attachments|List],Data,State,ResultList)->
@@ -252,10 +264,13 @@ decode_request_body([_Type1|List],Data,State,ResultList)->
 decode_request_body([],Data,State,ResultList)->
     {ResultList,State,Data}.
 
+
 decode_request_body_args([],Data,State,ArgsObjList)->
     {ArgsObjList,State,Data};
+
 decode_request_body_args([ArgsType|RestList],Data,State,ArgsObjList) when ArgsType== <<>> ->
     decode_request_body_args(RestList,Data,State,ArgsObjList);
+
 decode_request_body_args([_ArgsType|RestList],Data,State,ArgsObjList) ->
     {Rest,ArgObj,NewState } = cotton_hessian:decode(Data,State),
     ArgObj2 = dubbo_type_transfer:classobj_to_native(ArgObj,NewState),
