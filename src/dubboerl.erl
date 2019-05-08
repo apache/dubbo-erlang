@@ -46,9 +46,8 @@ start_provider()->
     ok.
 
 start_provider_listen(Port)->
-    ets:new(?PROVIDER_IMPL_TABLE,[public,named_table]),
     {ok, _} = ranch:start_listener(tcp_reverse,
-        ranch_tcp, [{port, Port}], dubbo_provider_protocol, []),
+        ranch_tcp, [{port, Port},{reuseaddr, true}], dubbo_provider_protocol, []),
     ok.
 
 

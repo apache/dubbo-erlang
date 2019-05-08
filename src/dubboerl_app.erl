@@ -7,6 +7,7 @@
 
 -behaviour(application).
 
+-include("dubboerl.hrl").
 %% Application callbacks
 -export([start/2, stop/1,env_init/0]).
 
@@ -16,7 +17,7 @@
 
 start(_StartType, _StartArgs) ->
     io:format("[START] dubbo framework server start~n"),
-    env_init(),
+%%    env_init(),
     dubboerl_sup:start_link().
 
 %%--------------------------------------------------------------------
@@ -27,6 +28,7 @@ stop(_State) ->
 %% Internal functions
 %%====================================================================
 env_init()->
+    ets:new(?PROVIDER_IMPL_TABLE,[public,named_table]),
     dubbo_traffic_control:init(),
     type_register:init(),
     register_type_list().
