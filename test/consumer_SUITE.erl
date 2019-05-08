@@ -34,8 +34,11 @@ init_per_suite(Config) ->
     level => debug
   }),
   Start = application:ensure_all_started(dubboerl),
-  dubboerl:init(),
+%%  dubboerl:init(),
 %%  dubbo_service_app:start(a,b),
+  dubboerl:start_provider(),
+  timer:sleep(2000),
+  dubboerl:start_consumer(),
   dubbo_service_app:register_type_list(),
   timer:sleep(5000),
   io:format(user,"test case start info ~p~n",[Start]),
