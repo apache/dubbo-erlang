@@ -26,7 +26,7 @@ classobj_to_native(Data,DecodeState)->
 java_to_native(#object{values = ForeignData}=Data,State)->
     ForeignDataNew = [java_to_native(ValueItem,State) || ValueItem <-ForeignData ],
 
-    case hessianDecode2:get_deftype(Data#object.typeRef,State) of
+    case cotton_hessian:get_deftype(Data#object.typeRef,State) of
         #type_def{fieldnames = ObjectFields,foreign_type = ForeignType } ->
             case get_deftype(ForeignType) of
                 false->

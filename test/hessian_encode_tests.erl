@@ -26,11 +26,11 @@ object_test()->
 %%    ?debugFmt("state:~p~n",[EncodingState0]),
     RequestArg0 = #de_TestReq{name = <<"nameinfo">>, nick = <<"nickname">> ,age=10 },
 
-    {Bin, State0} = hessianEncode:encode(RequestArg0, EncodingState0),
+    {Bin, State0} = cotton_hessian:encode(RequestArg0, EncodingState0),
 
     type_register:init(),
     dubbo_type_transfer:pre_process_typedef(de_TestReq,<<"com.ifcoder.demo.bean.UserInfoRequest">>,record_info(fields,de_TestReq)),
-    {<<>>,Data,State2 } = hessianDecode2:decode(Bin,hessianDecode2:init()),
+    {<<>>,Data,State2 } = cotton_hessian:decode(Bin,cotton_hessian:init()),
     DecodeResult = dubbo_type_transfer:java_to_native(Data,State2),
     ?assert(is_record(DecodeResult,de_TestReq)),
     ?assertEqual(DecodeResult#de_TestReq.name,<<"nameinfo">>),
