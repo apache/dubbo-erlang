@@ -30,7 +30,8 @@
 -record(state, {provider_config,socket =undefined,
     heartbeat=#heartbeat{},
     recv_buffer= <<>> ,         %%从服务端接收的数据
-    host_flag
+    host_flag,
+    reconnection_timer
 }).
 
 %%%===================================================================
@@ -78,7 +79,7 @@ init([HostFlag,ProviderConfig,Index]) ->
     NowStamp = time_util:timestamp_ms(),
     HeartBeatInfo = #heartbeat{last_read = NowStamp,last_write = NowStamp},
     logger:info("netty client start ~p",[HostFlag]),
-%%    start_heartbeat_timer(HeartBeatInfo),
+    start_heartbeat_timer(HeartBeatInfo),
     {ok, State#state{provider_config=ProviderConfig,heartbeat=HeartBeatInfo,host_flag = HostFlag}}.
 
 %%--------------------------------------------------------------------
@@ -120,6 +121,7 @@ handle_cast({send_request,Ref,Request,Data,SourcePid,RequestState}, State) ->
             logger:debug("[send_request end] send data to provider consumer pid ~p state ok",[self()]),
             State;
         {error,closed}->
+            logger:warning("send request error, connection is closed"),
             State2 = reconnect(State),
             State2;
         {error,R1}->
@@ -159,17 +161,17 @@ handle_info({tcp,_Port,Data}, #state{recv_buffer = RecvBuffer} = State) ->
 %%    HeartbeatInfo =update_heartbeat(write,NewState#state.heartbeat),
     {noreply, NewState#state{recv_buffer = NextBuffer}};
 handle_info({tcp_closed,Port},State)->
+    logger:info("dubbo connection closed ~p",[Port]),
     NewState=reconnect(State),
     {noreply, NewState};
 handle_info({timeout, _TimerRef, {reconnect}},State)->
-    NewState=reconnect(State),
+    NewState=reconnect(State#state{reconnection_timer = undefined}),
     {noreply, NewState};
 handle_info({timeout, _TimerRef, {heartbeat_timer}},State) ->
     {ok,NewState} = case check_heartbeat_state(State) of
                         {normal}-> {ok,State};
                         {send_heart}->
-%% @todo            send_heartbeat_msg(undefined,true,State);
-                            {ok,State};
+                            send_heartbeat_msg(undefined,true,State);
                         {reconnect} ->
                             %% @todo reconnect
                             {ok,State}
@@ -248,6 +250,8 @@ open(Host,Port)->
             {error,Info}
     end.
 
+reconnect(#state{reconnection_timer = Timer}=State) when Timer /= undefined ->
+    State;
 reconnect(State)->
     #provider_config{host = Host,port = Port} = State#state.provider_config,
     case State#state.socket of
@@ -257,10 +261,12 @@ reconnect(State)->
     end,
     case open(Host,Port) of
         {ok,Socket2}->
+            logger:warning("reconnect to provider ~p ~p success",[Host,Port]),
             State#state{socket = Socket2,recv_buffer = <<>>};
-        {error,_Info}->
-            erlang:start_timer(2000,self(),{reconnect}),
-            State#state{socket = undefined}
+        {error,Reason}->
+            logger:warning("connect to provider error ~p",[Reason]),
+            TimerRef = erlang:start_timer(2000,self(),{reconnect}),
+            State#state{socket = undefined,reconnection_timer = TimerRef}
     end.
 
 send_msg(Msg,State) ->
@@ -310,7 +316,8 @@ send_heartbeat_msg(Mid,NeedResponse,State)->
         ok ->
             logger:info("send one heartbeat msg to server"),
             State;
-        {error,_Reason} ->
+        {error,Reason} ->
+            logger:warning("dubbo connection send heartbeat error ~p",[Reason]),
             State2 = reconnect(State),
             State2
     end,

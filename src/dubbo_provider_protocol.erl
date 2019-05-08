@@ -28,7 +28,7 @@
 
 -define(SERVER, ?MODULE).
 
--define(TIMEOUT, 5000).
+-define(IDLE_TIMEOUT, 70000).
 
 -record(heartbeat,{last_write=0,last_read=0,timeout=50000,max_timeout=9000}).
 
@@ -54,13 +54,14 @@ start_link(Ref, Socket, Transport, Opts) ->
 init({Ref, Socket, Transport, _Opts = []}) ->
     logger:info("provider connected"),
     ok = ranch:accept_ack(Ref),
-    ok = Transport:setopts(Socket, [{active, once}]),
+%%    ok = Transport:setopts(Socket, [{active, once}]),
+    ok = Transport:setopts(Socket, [{active, true},{packet,0}]),
     gen_server:enter_loop(?MODULE, [],
         #state{socket=Socket, transport=Transport},
-        ?TIMEOUT).
+        ?IDLE_TIMEOUT).
 
 handle_info({tcp,_Port,Data}, #state{recv_buffer = RecvBuffer,socket=Socket, transport=Transport} = State) ->
-    Transport:setopts(Socket, [{active, once}]),
+%%    Transport:setopts(Socket, [{active, once}]),
     NowBuffer = << RecvBuffer/binary,Data/binary >>,
 
     {ok,NextBuffer,NewState} = case check_recv_data(NowBuffer,State) of
@@ -71,20 +72,16 @@ handle_info({tcp,_Port,Data}, #state{recv_buffer = RecvBuffer,socket=Socket, tra
                                        {ok,NextBuffer2,State3}
                                end,
 %%    HeartbeatInfo =update_heartbeat(write,NewState#state.heartbeat),
-    {noreply, NewState#state{recv_buffer = NextBuffer}};
-handle_info({tcp_closed,Port},State)->
-%%    NewState=reconnect(State),
-    {noreply, State};
-%%handle_info({timeout, _TimerRef, {reconnect}},State)->
-%%    NewState=reconnect(State),
-%%    {noreply, NewState};
+    {noreply, NewState#state{recv_buffer = NextBuffer},?IDLE_TIMEOUT};
 
 handle_info({tcp_closed, _Socket}, State) ->
+    logger:warning("provider socket is closed"),
     {stop, normal, State};
 handle_info({tcp_error, _, Reason}, State) ->
     {stop, Reason, State};
 handle_info(timeout, State) ->
-    {stop, normal, State};
+    logger:info("dubbo provider connection idle timeout"),
+    {stop, {shutdown,idle_timeout}, State};
 handle_info(_Info, State) ->
     {stop, normal, State}.
 
@@ -102,7 +99,8 @@ handle_cast({send_response,Data}, #state{socket = Socket} = State) ->
 handle_cast(_Msg, State) ->
     {noreply, State}.
 
-terminate(_Reason, _State) ->
+terminate(Reason, _State) ->
+    logger:info("proviver connection terminal reason ~p",[Reason]),
     ok.
 
 code_change(_OldVsn, State, _Extra) ->
@@ -175,7 +173,7 @@ process_data(Data,State)->
 %% @doc process event
 -spec process_response(IsEvent::boolean(),#dubbo_response{},#state{})->ok.
 process_response(true,Response,State)->
-
+%%
     {ok,State};
 
 process_response(false,Response,State)->
@@ -192,7 +190,7 @@ process_response(false,Response,State)->
 
 process_request(true,Request,State)->
 %%    {ok,NewState} = send_heartbeat_msg(Request#dubbo_request.mid,State),
-    logger:info("process request event ~p",[Request]),
+    logger:debug("process request event ~p",[Request]),
     {ok,State};
 process_request(false,Request,State)->
     logger:info("process request ~p",[Request]),
