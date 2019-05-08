@@ -21,7 +21,7 @@
 %% Info = [tuple()]
 %%--------------------------------------------------------------------
 suite() ->
-  [{timetrap,{seconds,50}}].
+  [{timetrap,{seconds,60}}].
 
 %%--------------------------------------------------------------------
 %% Function: init_per_suite(Config0) ->
@@ -30,9 +30,19 @@ suite() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
+%%  logger:add_handler(testttt,logger_std_h,#{
+%%    config => #{
+%%      type=> file,
+%%      file => "/tmp/common.log"
+%%    },
+%%    level => debug
+%%  }),
   Start = application:ensure_all_started(dubboerl),
+  dubboerl:init(),
+  dubbo_service_app:start(a,b),
+  timer:sleep(5000),
   io:format(user,"test case start info ~p~n",[Start]),
-  Config.
+  [{appid,1}].
 
 %%--------------------------------------------------------------------
 %% Function: end_per_suite(Config0) -> term() | {save_config,Config1}
@@ -94,7 +104,7 @@ end_per_testcase(_TestCase, _Config) ->
 %%--------------------------------------------------------------------
 groups() ->
   [
-    {consumer1,[sequence],[lib_type_register]}
+    {consumer1,[sequence],[lib_type_register,user_sync_invoker]}
   ].
 
 %%--------------------------------------------------------------------
@@ -123,5 +133,13 @@ lib_type_register() ->
 %% Comment = term()
 %%--------------------------------------------------------------------
 lib_type_register(_Config) ->
-  ok = dubbo_service_app:register_type_list(),
+
+  ok.
+
+user_sync_invoker(_Config)->
+%%  dubbo_service_app:register_type_list(),
+  io:format(user,"table info ~p~n",[ets:info(provider_impl_table)]),
+  Result = user2:genUserId(),
+
+  io:format(user,"result ~p ~n",[Result]),
   ok.

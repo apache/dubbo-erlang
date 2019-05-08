@@ -1,4 +1,4 @@
--module(user).
+-module(user2).
 
 -include_lib("dubboerl/include/dubbo.hrl").
 -include_lib("dubboerl/include/hessian.hrl").
