@@ -33,8 +33,6 @@ encode_request_data(Request)->
 
 
 encode_request_data(dubbo_rpc_invocation,Request,Data,State) ->
-%%    METHOD_NAME = Data#dubbo_rpc_invocation.methodName,
-%%    METHOD_ARGS_TYPES = Data#dubbo_rpc_invocation.parameterDesc,
     RequestList = [
 %%        jiffy:encode(?DUBBO_VERSION,[]),
         string_encode(?DUBBO_VERSION),

@@ -35,7 +35,6 @@ init_per_suite(Config) ->
   }),
   Start = application:ensure_all_started(dubboerl),
 %%  dubboerl:init(),
-%%  dubbo_service_app:start(a,b),
   dubboerl:start_provider(),
   timer:sleep(2000),
   dubboerl:start_consumer(),

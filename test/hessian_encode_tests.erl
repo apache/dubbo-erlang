@@ -23,7 +23,6 @@ object_test()->
         native_type = de_TestReq,
         fieldnames = record_info(fields,de_TestReq)},
     EncodingState0 = type_encoding:enlist(TypeDefA),
-%%    ?debugFmt("state:~p~n",[EncodingState0]),
     RequestArg0 = #de_TestReq{name = <<"nameinfo">>, nick = <<"nickname">> ,age=10 },
 
     {Bin, State0} = cotton_hessian:encode(RequestArg0, EncodingState0),

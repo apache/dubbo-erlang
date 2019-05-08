@@ -26,7 +26,7 @@
 -record(decoding_state,{type_pool = dict:new(), reference_pool = dict:new(),hash_pool = dict:new()}).
 
 %---------------------------------------------------------------------------
-% encode/2	<--	** Entry **
+% encode/2
 %---------------------------------------------------------------------------
 
 encode(undefined, _State) -> <<$N>>;
@@ -805,13 +805,6 @@ hash_lookup(Hash,#decoding_state{hash_pool = HashPool} = State) ->
     {ok,TypeDef}->
       TypeDef
   end.
-%%    init(false),
-%%    case ets:lookup(hashes, Hash) of
-%%        [] ->
-%%            {not_found, Hash};
-%%        [{Hash,TypeDef}] ->
-%%            TypeDef
-%%    end.
 
 hash_store(TypeDef = #type_def{defineNo = Hash}, #decoding_state{hash_pool = HashPool} = State) ->
 %%    init(false),
