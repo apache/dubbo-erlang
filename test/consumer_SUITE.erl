@@ -30,16 +30,13 @@ suite() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
-%%  logger:add_handler(testttt,logger_std_h,#{
-%%    config => #{
-%%      type=> file,
-%%      file => "/tmp/common.log"
-%%    },
-%%    level => debug
-%%  }),
+  logger:add_handler(testttt,logger_std_h,#{
+    level => debug
+  }),
   Start = application:ensure_all_started(dubboerl),
   dubboerl:init(),
-  dubbo_service_app:start(a,b),
+%%  dubbo_service_app:start(a,b),
+  dubbo_service_app:register_type_list(),
   timer:sleep(5000),
   io:format(user,"test case start info ~p~n",[Start]),
   [{appid,1}].
