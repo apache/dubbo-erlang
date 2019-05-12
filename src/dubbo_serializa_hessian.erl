@@ -14,12 +14,29 @@
 -export([decode_header/1]).
 -export([decode_response/2]).
 -export([decode_request/2]).
+-export([encode_request_data/1,encode_response_data/1]).
 
 
-encode_request_data(dubbo_event,Request,Data,State) ->
+encode_request_data(Request)->
+    State=type_encoding:init(),
+    DataType =case Request#dubbo_request.is_event of
+                  true->
+                      dubbo_event;
+                  false->
+                      case Request#dubbo_request.data of
+                          #dubbo_rpc_invocation{} ->
+                              dubbo_rpc_invocation;
+                          _ ->
+                              unknow
+                      end
+              end,
+    {ok,Bin} = encode_request_data(DataType,Request,Request#dubbo_request.data,State),
+    {ok,Bin}.
+
+encode_request_data(dubbo_event,_Request,Data,State) ->
     Bin = cotton_hessian:encode(Data,State),
     {ok,Bin};
-encode_request_data(dubbo_rpc_invocation,Request,Data,State) ->
+encode_request_data(dubbo_rpc_invocation,_Request,Data,State) ->
     METHOD_NAME = Data#dubbo_rpc_invocation.methodName,
     METHOD_ARGS_TYPES = Data#dubbo_rpc_invocation.parameterDesc,
     RequestList = [
@@ -36,13 +53,6 @@ encode_request_data(dubbo_rpc_invocation,Request,Data,State) ->
     RequestData = erlang:iolist_to_binary(RequestList ++ [ArgsBin,AttachBinay]),
     {ok,RequestData}.
 
--spec encode_response(#dubbo_response{})-> {ok,term()}.
-encode_response(Response)->
-    {ok,ResponseData} = encode_response_data(Response),
-    Size = byte_size(ResponseData),
-    Header = encode_response_header(Response,Size,?RESPONSE_STATE_OK),
-    ResponseContent = <<Header/binary,ResponseData/binary>>,
-    {ok, ResponseContent}.
 
 encode_response_data(Response)->
     State=type_encoding:init(),
@@ -59,10 +69,11 @@ encode_response_data(Response)->
               end,
     {ok,Bin} = encode_response_data(DataType,Response,Response#dubbo_response.data,State),
     {ok,Bin}.
-encode_response_data(dubbo_event,Response,Data,State) ->
+
+encode_response_data(dubbo_event,_Response,Data,State) ->
     Bin = cotton_hessian:encode(Data,State),
     {ok,Bin};
-encode_response_data(dubbo_rpc_invocation,Response,Data,State) ->
+encode_response_data(dubbo_rpc_invocation,_Response,Data,State) ->
     Result = case Data of
                  null ->
                      [
@@ -78,19 +89,6 @@ encode_response_data(dubbo_rpc_invocation,Response,Data,State) ->
     ResponseData = erlang:iolist_to_binary(Result),
     {ok,ResponseData}.
 
-encode_response_header(Response,DataLen, ResponseState)->
-    Header2= Response#dubbo_response.serialize_type,
-    Header21=case Response#dubbo_response.is_twoway of
-                 true -> Header2 bor 64;
-                 false-> Header2
-             end,
-    Header22=case Response#dubbo_response.is_event of
-                 true -> Header21 bor 32;
-                 false-> Header21
-             end,
-    RequestId = Response#dubbo_response.mid,
-    Header = << ?DUBBO_MEGIC:16,Header22:8, ResponseState:8,RequestId:64,DataLen:32>>,
-    Header.
 encode_arguments(Data,State)->
     {StateNew} = lists:foldl(fun(X,{StateTmp})->
         StateTmpNew = type_encoding:enlist(X,StateTmp),

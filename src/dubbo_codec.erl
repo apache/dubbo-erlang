@@ -47,85 +47,27 @@ encode_header(Request,DataLen,RequestState)->
     Header = << ?DUBBO_MEGIC:16,Header22:8,RequestState:8,RequestId:64,DataLen:32>>,
     Header.
 encode_request_data(?SERIALIZATION_FASTJSON,Request)->
-    dubbo_serializa_fastjson:encode_request_data(Request);
+    dubbo_serializa_json:encode_request_data(Request);
 
 encode_request_data(?SERIALIZATION_HESSIAN,Request)->
-    State=type_encoding:init(),
-    DataType =case Request#dubbo_request.is_event of
-                 true->
-                    dubbo_event;
-                 false->
-                    case Request#dubbo_request.data of
-                       #dubbo_rpc_invocation{} ->
-                           dubbo_rpc_invocation;
-                       _ ->
-                           unknow
-                    end
-             end,
-    {ok,Bin} = encode_request_data(DataType,Request,Request#dubbo_request.data,State),
-    {ok,Bin}.
+    dubbo_serializa_hessian:encode_request_data(Request).
 
-encode_request_data(dubbo_event,Request,Data,State) ->
-    Bin = cotton_hessian:encode(Data,State),
-    {ok,Bin};
-encode_request_data(dubbo_rpc_invocation,Request,Data,State) ->
-    METHOD_NAME = Data#dubbo_rpc_invocation.methodName,
-    METHOD_ARGS_TYPES = Data#dubbo_rpc_invocation.parameterDesc,
-    RequestList = [
-        cotton_hessian:encode(?DUBBO_VERSION, State), %% dubbo version
-        cotton_hessian:encode(Data#dubbo_rpc_invocation.className, State),
-        cotton_hessian:encode(Data#dubbo_rpc_invocation.classVersion, State),
-        cotton_hessian:encode(METHOD_NAME, State),
-        cotton_hessian:encode(METHOD_ARGS_TYPES, State)
-    ],
-    {ArgsBin,State2} = encode_arguments(Data,State),
-    AttachDict = dict:from_list(Data#dubbo_rpc_invocation.attachments),
-    AttachMaps = #map{dict = AttachDict },
-    {AttachBinay,_} = cotton_hessian:encode(AttachMaps, State2),
-    RequestData = erlang:iolist_to_binary(RequestList ++ [ArgsBin,AttachBinay]),
-    {ok,RequestData}.
 
 -spec encode_response(#dubbo_response{})-> {ok,term()}.
 encode_response(Response)->
-    {ok,ResponseData} = encode_response_data(Response),
+    {ok,ResponseData} = encode_response_data(Response#dubbo_response.serialize_type,Response),
     Size = byte_size(ResponseData),
     Header = encode_response_header(Response,Size,?RESPONSE_STATE_OK),
     ResponseContent = <<Header/binary,ResponseData/binary>>,
     {ok, ResponseContent}.
 
-encode_response_data(Response)->
-    State=type_encoding:init(),
-    DataType =case Response#dubbo_response.is_event of
-                  true->
-                      dubbo_event;
-                  false->
-                      case Response#dubbo_response.data of
-                          #dubbo_rpc_invocation{} ->
-                              dubbo_rpc_invocation;
-                          _ ->
-                              unknow
-                      end
-              end,
-    {ok,Bin} = encode_response_data(DataType,Response,Response#dubbo_response.data,State),
-    {ok,Bin}.
-encode_response_data(dubbo_event,Response,Data,State) ->
-    Bin = cotton_hessian:encode(Data,State),
+encode_response_data(?SERIALIZATION_FASTJSON,Response)->
+    {ok,Bin} = dubbo_serializa_json:encode_response_data(Response),
     {ok,Bin};
-encode_response_data(dubbo_rpc_invocation,Response,Data,State) ->
-    Result = case Data of
-        null ->
-            [
-                cotton_hessian:encode(?RESPONSE_NULL_VALUE, State)
-            ];
-        _ ->
-            {ArgsBin,_State2} = encode_arguments(Data,State),
-            [
-                cotton_hessian:encode(?RESPONSE_VALUE, State),
-                ArgsBin
-            ]
-    end,
-    ResponseData = erlang:iolist_to_binary(Result),
-    {ok,ResponseData}.
+encode_response_data(?SERIALIZATION_HESSIAN,Response)->
+
+    {ok,Bin} = dubbo_serializa_hessian:encode_response_data(Response),
+    {ok,Bin}.
 
 encode_response_header(Response,DataLen, ResponseState)->
     Header2= Response#dubbo_response.serialize_type,
@@ -140,20 +82,7 @@ encode_response_header(Response,DataLen, ResponseState)->
     RequestId = Response#dubbo_response.mid,
     Header = << ?DUBBO_MEGIC:16,Header22:8, ResponseState:8,RequestId:64,DataLen:32>>,
     Header.
-encode_arguments(Data,State)->
-    {StateNew} = lists:foldl(fun(X,{StateTmp})->
-        StateTmpNew = type_encoding:enlist(X,StateTmp),
-        {StateTmpNew} end,
-        {State},Data#dubbo_rpc_invocation.parameterTypes),
-    {Bin,State2} = lists:foldl(fun(X,{BinTmp,StateTmp2})->
-        case cotton_hessian:encode(X, StateTmp2) of
-            {ArgsBin,StateTmpNew} ->
-                {<<BinTmp/binary,ArgsBin/binary>>, StateTmpNew};
-            ArgsBin2 ->
-                {<<BinTmp/binary,ArgsBin2/binary>>, StateTmp2}
-        end end,
-        {<<>>,StateNew},Data#dubbo_rpc_invocation.parameters),
-    {Bin,State2}.
+
 
 -spec decode_header(binary())-> {State::ok|error,Type::request|response,Data::#dubbo_response{}|#dubbo_request{}}.
 decode_header(Header)->
@@ -201,13 +130,13 @@ decode_header(response,Flag,State,Mid,DataLen)->
 decode_response(Res,Data)->
     case Res#dubbo_response.serialize_type of
         ?SERIALIZATION_FASTJSON ->
-            dubbo_serializa_fastjson:decode_response(Res,Data);
+            dubbo_serializa_json:decode_response(Res,Data);
         ?SERIALIZATION_HESSIAN ->
             dubbo_serializa_hessian:decode_response(Res,Data)
     end.
 
 %%decode_response(?SERIALIZATION_FASTJSON,dubbo_rpc_invocation,Res,Data)->
-%%    dubbo_serializa_fastjson:decode_response(dubbo_rpc_invocation,Res,Data);
+%%    dubbo_serializa_json:decode_response(dubbo_rpc_invocation,Res,Data);
 %%
 %%decode_response(?SERIALIZATION_HESSIAN,dubbo_rpc_invocation,Res,Data)->
 %%    {Rest,Type,State} = cotton_hessian:decode(Data,cotton_hessian:init()),
@@ -231,7 +160,7 @@ decode_response(Res,Data)->
 decode_request(Req,Data)->
     case Req#dubbo_request.serialize_type of
         ?SERIALIZATION_FASTJSON ->
-            dubbo_serializa_fastjson:decode_request(Req,Data);
+            dubbo_serializa_json:decode_request(Req,Data);
         ?SERIALIZATION_HESSIAN ->
             dubbo_serializa_hessian:decode_request(Req,Data)
     end.

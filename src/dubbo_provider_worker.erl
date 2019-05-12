@@ -184,13 +184,18 @@ invoker_implement(Request)->
                     ok;
                 #dubbo_rpc_invocation{}=ResultInvoca ->
                     #dubbo_request{mid = Mid} = Request,
-                    {ok,Content }= dubbo_codec:encode_response(#dubbo_response{mid=Mid,is_event = false,data= ResultInvoca}),
+                    {ok,Content }=
+                        dubbo_codec:encode_response(#dubbo_response{
+                            serialize_type = Request#dubbo_request.serialize_type,
+                            mid=Mid,
+                            is_event = false,
+                            data= ResultInvoca}),
                     {ok,Content};
                 ResultObj->
 %%                    Data = #databaseOperateResponse{databaseOperateRsp = "ha-ha"},
                     #dubbo_request{mid = Mid} = Request,
                     Data2 =#dubbo_rpc_invocation{parameters = [ResultObj]},
-                    {ok,Content }= dubbo_codec:encode_response(#dubbo_response{mid=Mid,is_event = false,data= Data2}),
+                    {ok,Content }= dubbo_codec:encode_response(#dubbo_response{serialize_type = Request#dubbo_request.serialize_type,mid=Mid,is_event = false,data= Data2}),
                     {ok,Content}
             end;
         {error,Reason}  ->
