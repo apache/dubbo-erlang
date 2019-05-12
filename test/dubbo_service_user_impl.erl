@@ -15,7 +15,7 @@
 -include_lib("dubboerl/include/hessian.hrl").
 -include_lib("dubboerl/include/dubbo.hrl").
 %% API
--export([getUserInfo/1,queryUserList/1,genUserId/0]).
+-export([getUserInfo/1,queryUserList/1,genUserId/0,queryUserInfo/1]).
 
 genUserId()->
   "newid".
@@ -32,3 +32,8 @@ queryUserList(Args)->
     userlist = List
   },
   Res.
+
+
+queryUserInfo(Arg0)->
+  io:format(user,"do invoker queryUserInfo ~p",[Arg0]),
+  #userInfo{userName = "uuname",userAge = 10,userId = "44"}.

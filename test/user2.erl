@@ -9,7 +9,7 @@
 -include("dubbo_service.hrl").
 
 
-
+-export([test/0]).
 
 %% API
 -export([
@@ -160,3 +160,6 @@ queryUserList(Arg0, RequestOption)->
     Request = dubbo_adapter:reference(Data),
     dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 
+
+test()->
+    queryUserInfo(#userInfoRequest{username = "name",requestId = "111"},#{sync=> true}).

@@ -13,7 +13,7 @@
 -include("dubbo.hrl").
 
 %% API
--export([java_to_native/2,pre_process_typedef/3,response_to_native/1,classobj_to_native/2]).
+-export([java_to_native/2,pre_process_typedef/3,response_to_native/1,classobj_to_native/2,jsonobj_to_native/3]).
 
 
 response_to_native(Response)->
@@ -67,3 +67,27 @@ pre_process_typedef(NativeType,ForeignType,FieldsNames)->
     type_register:regiest_foreign_native(Type),
     logger:debug("pre_process_typedef ~p,~p",[NativeType,ForeignType]),
     ok.
+
+
+jsonobj_to_native(Type,JsonObj,State)->
+    ClassName = java_desc_name_to_dot(Type),
+    %% todo need recursion transfer
+    case type_register:lookup_foreign_type(ClassName) of
+        undefined ->
+            JsonObj;
+        #type_def{fieldnames = Fields,native_type = NativeType} ->
+            logger:debug("jsonobj_to_native ~p ~p ~p",[ClassName,Fields,JsonObj]),
+            NativeData = [ maps:get(atom_to_binary(Key,utf8),JsonObj,undefined) || Key <- Fields],
+            list_to_tuple( [NativeType] ++ NativeData)
+    end.
+
+
+
+java_desc_name_to_dot(DescName) ->
+    case DescName of
+        <<$L,ClassName/binary>> ->
+            binary:replace(ClassName,<<"/">>,<<".">>,[global]);
+        _ ->
+            DescName
+    end.
+
