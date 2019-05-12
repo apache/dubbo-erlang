@@ -10,7 +10,7 @@ Feature list
 The following features are supported.
 
 * Zookeeper registry center (√)
-* Tcp Transport
+* Dubbo Protocol (√)
 * Serialize
 	* Hessian serialize (√)
 	* Json serialize (√)
