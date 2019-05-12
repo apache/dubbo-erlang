@@ -81,7 +81,7 @@ get_timeout(Option)->
 
 sync_receive(Ref,TimeOut)->
     receive
-        {'$gen_cast',{msg_back,Ref,Response,RpcContent}}->
+        {'$gen_cast',{response_process,Ref,RpcContent,Response}}->
             {ok,Ref,Response,RpcContent}
     after
         TimeOut ->
