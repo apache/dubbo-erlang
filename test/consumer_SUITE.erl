@@ -15,7 +15,7 @@
 -compile(export_all).
 
 -include_lib("common_test/include/ct.hrl").
-
+-include("dubbo_service.hrl").
 %%--------------------------------------------------------------------
 %% Function: suite() -> Info
 %% Info = [tuple()]
@@ -103,7 +103,7 @@ end_per_testcase(_TestCase, _Config) ->
 %%--------------------------------------------------------------------
 groups() ->
   [
-    {consumer1,[sequence],[lib_type_register,user_sync_invoker]}
+    {consumer1,[sequence],[lib_type_register,json_sync_invoker,hessian_sync_invoker]}
   ].
 
 %%--------------------------------------------------------------------
@@ -132,10 +132,19 @@ lib_type_register() ->
 %% Comment = term()
 %%--------------------------------------------------------------------
 lib_type_register(_Config) ->
-
   ok.
 
-user_sync_invoker(_Config)->
-  Result = user2:genUserId(),
-  io:format(user,"result ~p ~n",[Result]),
+json_sync_invoker(_Config)->
+  application:set_env(dubboerl,protocol,json),
+  R1 = user2:queryUserInfo(#userInfoRequest{username = "name",requestId = "111"},#{sync=> true}),
+  io:format(user,"json_sync_invoker result ~p ~n",[R1]),
+  R2 = user2:genUserId(),
+  io:format(user,"json_sync_invoker result2 ~p ~n",[R2]),
+  ok.
+hessian_sync_invoker(_Config)->
+  application:set_env(dubboerl,protocol,hessian),
+  R1 = user2:queryUserInfo(#userInfoRequest{username = "name",requestId = "111"},#{sync=> true}),
+  io:format(user,"json_sync_invoker result ~p ~n",[R1]),
+  R2 = user2:genUserId(),
+  io:format(user,"json_sync_invoker result2 ~p ~n",[R2]),
   ok.
