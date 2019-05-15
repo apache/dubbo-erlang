@@ -97,7 +97,7 @@ merge_attachments(Request,Option)->
     end,
     List=[
         {<<"version">>, <<"0.0.0">>},
-        {<<"timeout">>, <<"500">>}
+        {<<"timeout">>, <<"5000">>}
     ],
     Attachements2= lists:merge3(Attachements,OptionAttachments,List),
     Data2=Request#dubbo_request.data#dubbo_rpc_invocation{attachments = Attachements2},

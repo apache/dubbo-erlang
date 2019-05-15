@@ -363,40 +363,20 @@ process_data(Data,State)->
                 undefined->
                     logger:error("dubbo response can't find request data,response ~p",[ResponseInfo]);
                 {SourcePid,Ref,RequestState} ->
-%%                    RequestState2 = request_context:update(<<"t_net_b">>,TmpTime,RequestState),
                     RequestState3 = request_context:update(<<"t_net_e">>,RequestState),
-
                     {ok,Res} = dubbo_codec:decode_response(ResponseInfo,RestData),
 
-                    %%从另一条路返回
-%%                    case Res#dubbo_response.is_event of
-%%                        false ->
-%%                            mesh_agent_invoker:response(Ref,Res#dubbo_response.data,RequestState3);
-%%                        _->
-%%                            ok
-%%                    end
-
-            %% 从原路返回
+                    logger:info("got one response mid ~p, is_event ~p state ~p",[Res#dubbo_response.mid,Res#dubbo_response.is_event,Res#dubbo_response.state]),
                     case Res#dubbo_response.is_event of
                         false ->
-                            gen_server:cast(SourcePid,{response_process,Ref,RequestState3,Res#dubbo_response.data});
+                            %% todo rpccontent need merge response with request
+                            RpcContent=[],
+                            ResponseData = dubbo_type_transfer:response_to_native(Res),
+                            gen_server:cast(SourcePid,{response_process,Ref,RpcContent,ResponseData});
                         _->
                             ok
                     end
-%%                    gen_server:cast(SourcePid,{response_process,Ref,ResponseInfo,RestData,RequestState3})
-
-%%            logger:debug("will cast mid ~p to source process SourcePid ~p",[Response#dubbo_response.mid,SourcePid]),
-%%                    RpcContent=[],
-%%            ResponseData = de_type_transfer:response_to_native(Response),
-%%            logger:debug("one response ~p",[Response]),
-%%                    gen_server:cast(SourcePid,{msg_back,Ref,Response,RpcContent,RequestState3})
             end,
-
-
-
-%%            {ok,Res} = de_codec:decode_response(ResponseInfo,RestData),
-%%            logger:info("get one response mid ~p, is_event ~p state ~p",[Res#dubbo_response.mid,Res#dubbo_response.is_event,Res#dubbo_response.state]),
-%%            {ok,State3} =process_response(Res#dubbo_response.is_event,Res,State,TmpTime),
             {ok,State};
         {ok,request,RequestInfo}->
             {ok,Req} = dubbo_codec:decode_request(RequestInfo,RestData),
@@ -438,16 +418,6 @@ process_request(false,Request,State)->
 
 
 save_request_info(Request,SourcePid,Ref,RequestState)->
-%%    SaveFlag = get_request_flag(),
-
     put(Request#dubbo_request.mid,{SourcePid,Ref,RequestState}).
 get_earse_request_info(Mid)->
-%%    Flag=get_request_flag(Mid),
     erase(Mid).
-
-
-
-
-get_request_flag(Mid)->
-    Mid.
-%%    list_to_binary(io_lib:format(<<"request_~p">>,[Mid])).

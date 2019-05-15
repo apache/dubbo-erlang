@@ -26,7 +26,6 @@
 
 -spec encode_request(#dubbo_request{})->{ok,binary()} | {error,term()}.
 encode_request(Request)->
-%%    logger:debug("encode request ~p",[Request]),
     {ok,RequestData} = encode_request_data(Request#dubbo_request.serialize_type,Request),
     Size = byte_size(RequestData),
     Header = encode_header(Request,Size,0),
@@ -135,26 +134,6 @@ decode_response(Res,Data)->
             dubbo_serializa_hessian:decode_response(Res,Data)
     end.
 
-%%decode_response(?SERIALIZATION_FASTJSON,dubbo_rpc_invocation,Res,Data)->
-%%    dubbo_serializa_json:decode_response(dubbo_rpc_invocation,Res,Data);
-%%
-%%decode_response(?SERIALIZATION_HESSIAN,dubbo_rpc_invocation,Res,Data)->
-%%    {Rest,Type,State} = cotton_hessian:decode(Data,cotton_hessian:init()),
-%%    case Type of
-%%        1 ->
-%%            {_,Object,DecodeState} = cotton_hessian:decode(Rest,State),
-%%            {ok,Res#dubbo_response{data = Object,decode_state = DecodeState}};
-%%        2 ->
-%%            {ok,Res#dubbo_response{data = null,decode_state = State}};
-%%        _->
-%%            logger:warning("decode unkonw type ~p ~p",[Type,Rest]),
-%%            {Rest2,Object2,DecodeState2} = cotton_hessian:decode(Rest,State),
-%%            logger:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
-%%            {ok,Res#dubbo_response{data = Object2,decode_state = DecodeState2}}
-%%    end;
-%%decode_response(?SERIALIZATION_HESSIAN,dubbo_event,Res,Data)->
-%%    {_Rest,undefined,_NewState} = cotton_hessian:decode(Data,cotton_hessian:init()),
-%%    {ok,Res#dubbo_response{data = undefined}}.
 
 -spec decode_request(#dubbo_request{},binary())-> {ok,#dubbo_request{}}.
 decode_request(Req,Data)->
@@ -164,50 +143,3 @@ decode_request(Req,Data)->
         ?SERIALIZATION_HESSIAN ->
             dubbo_serializa_hessian:decode_request(Req,Data)
     end.
-
-%%decode_request(dubbo_rpc_invocation,Req,Data)->
-%%    {ResultList,NewState,RestData} = decode_request_body(Data,cotton_hessian:init(),[dubbo,path,version,method_name,desc_and_args,attachments]),
-%%    [DubboVersion,Path,Version,MethodName,Desc,ArgsObj,Attachments]=ResultList,
-%%    RpcData = #dubbo_rpc_invocation{className = Path,classVersion = Version,methodName = MethodName,parameterDesc = Data,parameters = ArgsObj,attachments = Attachments},
-%%    Req2 = Req#dubbo_request{data = RpcData},
-%%    {ok,Req2};
-%%
-%%decode_request(dubbo_event,Req,Data)->
-%%    {_Rest,undefined,_NewState} = cotton_hessian:decode(Data,cotton_hessian:init()),
-%%    {ok,Req#dubbo_request{data = undefined}}.
-%%
-%%decode_request_body(Data,State,List)->
-%%    {ResultList,NewState,RestData} = decode_request_body(List,Data,State,[]),
-%%    {lists:reverse(ResultList),NewState,RestData}.
-%%decode_request_body([ParseType|List],Data,State,ResultList)
-%%    when ParseType==dubbo;ParseType==path;ParseType==version;ParseType==method_name ->
-%%    {Rest,Result,NewState } = cotton_hessian:decode(Data,State),
-%%    decode_request_body(List,Rest,NewState, [Result] ++ ResultList);
-%%decode_request_body([desc_and_args| List],Data,State,ResultList)->
-%%    {Rest,ParameterDesc,State1 } = cotton_hessian:decode(Data,State),
-%%    if
-%%        size(ParameterDesc) == 0 ->
-%%            decode_request_body(List,Rest,State1, [ [],[] ]++ ResultList);
-%%        true ->
-%%            ParameterDescArray = binary:split(ParameterDesc,<<";">>),
-%%            {ArgsObjList,NewState,RestData} = decode_request_body_args(ParameterDescArray,Rest,State1,[]),
-%%            decode_request_body(List,RestData,NewState, [ArgsObjList,ParameterDesc]++ ResultList)
-%%    end;
-%%decode_request_body([attachments|List],Data,State,ResultList)->
-%%    {Rest,Attachments,State1 } = cotton_hessian:decode(Data,State),
-%%    AttachmentsList = dict:to_list(Attachments#map.dict),
-%%    decode_request_body(List,Rest,State1,[AttachmentsList] ++ ResultList);
-%%decode_request_body([_Type1|List],Data,State,ResultList)->
-%%    logger:warning("decode_request_body unknow type"),
-%%    decode_request_body(List,Data,State, ResultList);
-%%decode_request_body([],Data,State,ResultList)->
-%%    {ResultList,State,Data}.
-%%
-%%decode_request_body_args([],Data,State,ArgsObjList)->
-%%    {ArgsObjList,State,Data};
-%%decode_request_body_args([ArgsType|RestList],Data,State,ArgsObjList) when ArgsType== <<>> ->
-%%    decode_request_body_args(RestList,Data,State,ArgsObjList);
-%%decode_request_body_args([_ArgsType|RestList],Data,State,ArgsObjList) ->
-%%    {Rest,ArgObj,NewState } = cotton_hessian:decode(Data,State),
-%%    ArgObj2 = de_type_transfer:classobj_to_native(ArgObj,NewState),
-%%    decode_request_body_args(RestList,Rest,NewState,ArgsObjList++[ArgObj2]).
