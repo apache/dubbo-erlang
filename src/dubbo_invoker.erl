@@ -52,28 +52,14 @@ invoke_request(Interface,Request,RpcContext,RequestState,CallBackPid)->
             end;
         {error,none}->
             logger:error("[INVOKE] ~p error Reason no_provider",[Interface]),
-            {error,no_provider};
-        {error,R1}->
-            logger:error("[INVOKE] ~p error Reason ~p",[Interface,R1]),
-            {error,R1}
+            {error,no_provider}
     end.
 
 
 is_sync(Option)->
     maps:is_key(sync,Option).
-%%    lists:member(sync,Option).
 get_ref(Option)->
     maps:get(ref,Option,make_ref()).
-%%    case maps:is_key(ref,Option) of
-%%        true->
-%%
-%%    end,
-%%    case proplists:get_value(ref,Option) of
-%%        undefined->
-%%            make_ref();
-%%        Ref->
-%%            Ref
-%%    end.
 
 get_timeout(Option)->
     maps:get(timeout,Option,?REQUEST_TIME_OUT).
@@ -87,7 +73,8 @@ sync_receive(Ref,TimeOut)->
         TimeOut ->
             {error,timeout}
     end.
-
+merge_attachments(#dubbo_request{data = null}=Request,_Option) ->
+    Request;
 merge_attachments(Request,Option)->
     Attachements= Request#dubbo_request.data#dubbo_rpc_invocation.attachments,
     case lists:keyfind(attachments,1,Option) of

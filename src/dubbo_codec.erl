@@ -83,7 +83,7 @@ encode_response_header(Response,DataLen, ResponseState)->
     Header.
 
 
--spec decode_header(binary())-> {State::ok|error,Type::request|response,Data::#dubbo_response{}|#dubbo_request{}}.
+-spec(decode_header(Header::binary())-> {State::ok|error,Type::request|response,Data::dubbo_response()|dubbo_request()}).
 decode_header(Header)->
     <<?DUBBO_MEGIC_HIGH,?DUBBO_MEGIC_LOW,Flag:8,State:8,Mid:64,DataLen:32>> = Header,
     if
@@ -94,7 +94,7 @@ decode_header(Header)->
             {DecodeState,Req} = decode_header(request,Flag,State,Mid,DataLen),
             {DecodeState,request,Req}
     end.
-decode_header(request,Flag,State,Mid,DataLen)->
+decode_header(request,Flag,_State,Mid,_DataLen)->
     SerializeType = Flag band 16#1f,
     IsTwoWay = if
                    (Flag band 16#40) /=0 -> true;
@@ -112,7 +112,7 @@ decode_header(request,Flag,State,Mid,DataLen)->
         serialize_type = SerializeType
     },
     {ok,Req};
-decode_header(response,Flag,State,Mid,DataLen)->
+decode_header(response,Flag,State,Mid,_DataLen)->
     SerializeType = Flag band 16#1f,
     IsEvent = if
         (Flag band 16#20) /= 0 -> true;

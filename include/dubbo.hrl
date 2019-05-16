@@ -39,8 +39,8 @@
     is_twoway = false       ::boolean(),
     data                    ::null|dubbo_rpc_invocation,
     mid                     ::integer(),
-    mversion                ::string(),
-    error_msg               ::string(),
+    mversion                ::binary(),
+    error_msg               ::binary(),
     state                   ::byte(),
     decode_state
 }).
@@ -74,7 +74,7 @@
     category = <<"consumers">> ::binary(),
     check=false                ::boolean(),
     default_timeout=500        ::integer(),
-    dubbo_version= <<"2.5.3">>         ::binary(),
+    dubbo_version= <<"2.5.3">> ::binary(),
     methods=[]                 ::list(),
     revision= <<"">>           ::binary(),
     side= <<"consumers">>      ::binary()
@@ -98,3 +98,6 @@
 -record(interface_list,{interface,pid,connection_info}).
 -record(provider_node_list,{host_flag,connection_info}).
 -record(connection_info,{connection_id,pid,weight,host_flag}).
+
+-type dubbo_request() ::#dubbo_request{}.
+-type dubbo_response()::#dubbo_response{}.

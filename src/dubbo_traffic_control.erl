@@ -31,9 +31,7 @@ check_goon(Key,Max)->
             ets:update_counter(?TRAFFIC_CONTROL,Key,-1),
             full;
         _V ->
-%%            logger:debug("check traffic incr value ~p",[V]),
             ok
-
     catch
         _T:_R->
             ets:insert(?TRAFFIC_CONTROL,{Key,1}),

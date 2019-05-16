@@ -13,7 +13,7 @@
 %% API
 -export([reference/1]).
 
--spec reference(Data::#dubbo_rpc_invocation{}) -> #dubbo_request{}.
+-spec(reference(Data::#dubbo_rpc_invocation{}) -> dubbo_request()).
 reference(Data)->
   #dubbo_request{
     is_event = false,

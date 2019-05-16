@@ -18,12 +18,7 @@
 encode_request_data(Request)->
     DataType =case Request#dubbo_request.is_event of
                   false->
-                      case Request#dubbo_request.data of
-                          #dubbo_rpc_invocation{} ->
-                              dubbo_rpc_invocation;
-                          _ ->
-                              unknow
-                      end;
+                      dubbo_rpc_invocation;
                   true->
                       dubbo_event
               end,
@@ -31,21 +26,16 @@ encode_request_data(Request)->
     {ok,Bin}.
 
 
-encode_request_data(dubbo_rpc_invocation,Request,Data,State) ->
+encode_request_data(dubbo_rpc_invocation,_Request,Data,State) ->
     RequestList = [
-%%        jiffy:encode(?DUBBO_VERSION,[]),
         string_encode(?DUBBO_VERSION),
         ?LINE_SEPERATOR,
-%%        jiffy:encode(Data#dubbo_rpc_invocation.className,[]),
         string_encode(Data#dubbo_rpc_invocation.className),
         ?LINE_SEPERATOR,
-%%        jiffy:encode(Data#dubbo_rpc_invocation.classVersion,[]),
         string_encode(Data#dubbo_rpc_invocation.classVersion),
         ?LINE_SEPERATOR,
-%%        jiffy:encode(Data#dubbo_rpc_invocation.methodName,[]),
         string_encode(Data#dubbo_rpc_invocation.methodName),
         ?LINE_SEPERATOR,
-%%        jiffy:encode(Data#dubbo_rpc_invocation.parameterDesc,[]),
         string_encode(Data#dubbo_rpc_invocation.parameterDesc),
         ?LINE_SEPERATOR
     ],
@@ -53,10 +43,9 @@ encode_request_data(dubbo_rpc_invocation,Request,Data,State) ->
     AttachBinay = jiffy:encode({Data#dubbo_rpc_invocation.attachments},[]),
     RequestData = erlang:iolist_to_binary(RequestList ++ [ArgsBin,AttachBinay,?LINE_SEPERATOR]),
     {ok,RequestData};
-encode_request_data(dubbo_event,Request,Data,State) ->
+encode_request_data(dubbo_event,_Request,Data,_State) ->
     %% @todo 确认该数据类型
     Bin =  jiffy:encode(Data),
-%%    Bin = cotton_hessian:encode(Data,State),
     {ok,Bin}.
 
 

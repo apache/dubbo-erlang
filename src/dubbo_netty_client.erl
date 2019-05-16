@@ -73,7 +73,7 @@ init([HostFlag,ProviderConfig,Index]) ->
     State = case open(Host,Port) of
                 {ok,Socket} ->
                     #state{socket = Socket};
-                {error}->
+                {error,_Reason}->
                     #state{}
     end,
     NowStamp = time_util:timestamp_ms(),
@@ -236,17 +236,14 @@ open(Host,Port)->
         {nodelay, true},
         {high_watermark, 512 * 1024},
         {low_watermark, 256 * 1024},
-%%        {high_msgq_watermark,128 * 1024},
-%%        {low_msgq_watermark,64 * 1024},
         {sndbuf, 512 * 1024},
         {recbuf, 512 * 1024}
         ]) of
         {ok,Sockets} ->
-%%            inet:setopts(Sockets, [{active, once}]),
             inet:setopts(Sockets, [{active, true}]),
             {ok,Sockets};
         Info ->
-            logger:error("start netty client ~p~n",[Info]),
+            logger:error("start client connection error ~p",[Info]),
             {error,Info}
     end.
 

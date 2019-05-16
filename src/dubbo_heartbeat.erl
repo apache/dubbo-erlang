@@ -12,6 +12,8 @@
 -include("dubbo.hrl").
 %% API
 -export([generate_request/2]).
+
+-spec(generate_request(RequestId::undefined|integer(),NeedResponse::boolean())->{ok,binary()}).
 generate_request(undefined,NeedResponse)->
     RequestId = dubbo_id_generator:gen_id(),
     generate_request(RequestId,NeedResponse);

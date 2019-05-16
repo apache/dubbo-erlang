@@ -255,10 +255,6 @@ select_connection(Interface,RandNum)->
         List->
             Len = length(List),
             RemNum = (RandNum rem Len)+1,
-%%            RandNum2 = if
-%%                           RandNum==Len -> RandNum-1;
-%%                           true->RandNum
-%%                       end,
             InterfaceListItem = lists:nth(RemNum,List),
             {ok,InterfaceListItem#interface_list.connection_info}
     end.

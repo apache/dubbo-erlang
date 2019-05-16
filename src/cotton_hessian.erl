@@ -53,14 +53,13 @@ encode(struct, Input, State) ->
     {ref, Index} ->
       IndexBin = encode(int, Index, State),
       <<$Q, IndexBin/binary>>;
-    _Object ->
-      logger:debug("[encode] object ~p",[Input]),
-      encode(class_object, Input, State);
-%%			{<<>>,State};
     {K, V} ->
       {BK,SK} = encode(K, State),
       {BV,SV} = encode(V, SK),
-      {<<BK/binary, BV/binary>>, SV}
+      {<<BK/binary, BV/binary>>, SV};
+    _Object ->
+      logger:debug("[encode] object ~p",[Input]),
+      encode(class_object, Input, State)
   end;
 encode(int, Int, _State) when Int >= -16, Int =< 47 ->
   _Int = Int + 16#90,
@@ -240,10 +239,9 @@ encode(method, Method, _State) when is_binary(Method) ->
   Size = size(CamMethod),
   <<$m,Size:16/unsigned,CamMethod/binary>>;
 encode(method, String, _State) when is_list(String) ->
-  CamString = erlang_to_camel_case(String),
-  Length = string:len(CamString),
-  Bin = list_to_binary(CamString),
-  <<$m,Length:16/unsigned,Bin/binary>>;
+  CamMethod = erlang_to_camel_case(String),
+  Size = size(CamMethod),
+  <<$m,Size:16/unsigned,CamMethod/binary>>;
 encode(reply, ok, _State) ->
   <<$H,16#02,16#00,$R,16#01,$N>>;
 encode(reply, {ok, Object}, State) ->
@@ -378,11 +376,12 @@ encode(fault, Code, _Error, _Reason, State) ->
 %---------------------------------------------------------------------------
 erlang_to_camel_case(String) when is_binary(String) ->
   AsList = binary_to_list(String),
-  AsCamel = lists:foldl(fun camelize/2,[],AsList),
-  list_to_binary(AsCamel);
+  erlang_to_camel_case(AsList);
 erlang_to_camel_case(String) when is_atom(String) ->
   AsList = atom_to_list(String),
-  AsCamel = lists:foldl(fun camelize/2,[],AsList),
+  erlang_to_camel_case(AsList);
+erlang_to_camel_case(String) ->
+  AsCamel = lists:foldl(fun camelize/2,[],String),
   list_to_binary(AsCamel).
 
 camelize(Element,Acc) when Element == $_ -> [$_|Acc];
