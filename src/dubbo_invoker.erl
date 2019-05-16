@@ -40,8 +40,7 @@ invoke_request(Interface,Request,RpcContext,RequestState,CallBackPid)->
                     Request2 = merge_attachments(Request,RpcContext),
                     {ok,RequestData} = dubbo_codec:encode_request(Request2),
                     Ref=get_ref(RequestState),
-                    RequestState2 = request_context:update(<<"t_agent_e">>,RequestState),
-                    gen_server:cast(Pid,{send_request,Ref,Request2,RequestData,CallBackPid,RequestState2}),
+                    gen_server:cast(Pid,{send_request,Ref,Request2,RequestData,CallBackPid,RequestState}),
                     case is_sync(RequestState) of
                         true->
                             sync_receive(Ref,get_timeout(RequestState));

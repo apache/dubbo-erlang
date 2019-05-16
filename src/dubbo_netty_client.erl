@@ -113,11 +113,10 @@ handle_call(_Request, _From, State) ->
     {stop, Reason :: term(), NewState :: #state{}}).
 
 handle_cast({send_request,Ref,Request,Data,SourcePid,RequestState}, State) ->
-    RequestState2 = request_context:update(<<"t_net_b">>,RequestState),
     logger:debug("[send_request begin] send data to provider consumer mid ~p pid ~p sourcePid ~p",[Request#dubbo_request.mid,self(),SourcePid]),
     NewState = case send_msg(Data,State) of
         ok->
-            save_request_info(Request,SourcePid,Ref,RequestState2),
+            save_request_info(Request,SourcePid,Ref,RequestState),
             logger:debug("[send_request end] send data to provider consumer pid ~p state ok",[self()]),
             State;
         {error,closed}->
@@ -359,8 +358,7 @@ process_data(Data,State)->
             case get_earse_request_info(ResponseInfo#dubbo_response.mid) of
                 undefined->
                     logger:error("dubbo response can't find request data,response ~p",[ResponseInfo]);
-                {SourcePid,Ref,RequestState} ->
-                    RequestState3 = request_context:update(<<"t_net_e">>,RequestState),
+                {SourcePid,Ref,_RequestState} ->
                     {ok,Res} = dubbo_codec:decode_response(ResponseInfo,RestData),
 
                     logger:info("got one response mid ~p, is_event ~p state ~p",[Res#dubbo_response.mid,Res#dubbo_response.is_event,Res#dubbo_response.state]),
@@ -394,13 +392,8 @@ process_response(false,Response,State,TmpTime)->
         undefined->
             logger:error("dubbo response can't find request data,response ~p",[Response]);
         {SourcePid,Ref,RequestState} ->
-%%            RequestState2 = request_context:update(<<"t_net_b">>,TmpTime,RequestState),
-            RequestState3 = request_context:update(<<"t_net_e">>,RequestState),
-%%            logger:debug("will cast mid ~p to source process SourcePid ~p",[Response#dubbo_response.mid,SourcePid]),
             RpcContent=[],
-%%            ResponseData = de_type_transfer:response_to_native(Response),
-%%            logger:debug("one response ~p",[Response]),
-            gen_server:cast(SourcePid,{msg_back,Ref,Response,RpcContent,RequestState3})
+            gen_server:cast(SourcePid,{msg_back,Ref,Response,RpcContent,RequestState})
     end,
     {ok,State};
 process_response(true,Response,State,TmpTime)->
