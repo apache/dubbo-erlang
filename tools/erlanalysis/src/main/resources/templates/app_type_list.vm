@@ -1,0 +1,17 @@
+-module(${appName}_type_list).
+
+%% API
+-export([register_type_list/0,get_list/0]).
+
+-include("${appName}.hrl").
+
+get_list()->
+    [
+#foreach($typeItem in $typeList)
+        {${typeItem.getTypeName()},<<"${typeItem.getClassName()}">>,record_info(fields,${typeItem.getTypeName()})}#if($foreach.hasNext),
+#end
+#end
+    ].
+
+register_type_list()->
+    ok.

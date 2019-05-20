@@ -1,0 +1,83 @@
+-module(${moduleName}).
+
+-include_lib("dubboerl/include/dubbo.hrl").
+-include_lib("dubboerl/include/hessian.hrl").
+
+-define(CURRENT_CLASS_NAME,<<"${className}"/utf8>>).
+-define(CURRENT_CLASS_VERSION,<<"0.0.0"/utf8>>).
+
+-include("${appName}.hrl").
+
+
+
+
+%% API
+-export([
+#foreach($methodItem in $methodList)
+    #set($argsLength=${methodItem.getArgsLength()} + 1 )
+    ${methodItem.getName()}/${methodItem.getArgsLength()},
+    ${methodItem.getName()}/${argsLength}#if($foreach.hasNext),
+#end
+#end
+]).
+
+-export([get_method_999_list/0]).
+
+%% behaviour
+#foreach($methodItem in $methodList)
+-callback ${methodItem.getName()}(##
+#foreach($argsItemEntry in $methodItem.getParameterTypeList().entrySet())##
+${argsItemEntry.key}::${argsItemEntry.value}#if($foreach.hasNext),
+    #end##
+#end)-> ${methodItem.getReturnErlType()}.
+#end
+
+get_method_999_list()->
+    [
+#foreach($methodItem in $methodList)
+    ${methodItem.getName()}#if($foreach.hasNext),
+#end
+#end].
+
+
+#foreach($methodItem in $methodList)
+#*
+方法申明
+ *#
+-spec ${methodItem.getName()}(##
+#foreach($argsItemEntry in $methodItem.getParameterTypeList().entrySet())
+${argsItemEntry.key}::${argsItemEntry.value}#if($foreach.hasNext),##
+#end
+#end)->
+    {ok,reference()}|
+    {ok,reference(),Data::${methodItem.getReturnErlType()},RpcContent::list()}|
+    {error,Reason::timeout|no_provider|any()}.
+${methodItem.getName()}(${methodItem.getParameterNameString()})->
+    ${methodItem.getName()}(${methodItem.getParameterNameString()} #if($methodItem.getParameterNameString().length()>0),#end#{}).
+
+${methodItem.getName()}(${methodItem.getParameterNameString()}#if($methodItem.getParameterNameString().length()>0),#end RequestOption)->
+    #*
+    ResponseTypeList=[
+        ${methodItem.getResponseTypeDef()}
+    ],
+    *#
+    Data = #dubbo_rpc_invocation{
+        className = ?CURRENT_CLASS_NAME,
+        classVersion = ?CURRENT_CLASS_VERSION,
+        methodName = <<"${methodItem.getName()}">>,
+        parameterDesc = <<"${methodItem.getArgsType()}"/utf8>>,
+        parameterTypes = [
+            ${methodItem.getParameterTypeDef()}
+        ],
+        parameters = [
+            ${methodItem.getParameterNameString()}
+        ],
+        attachments = [
+            {<<"path">>, ?CURRENT_CLASS_NAME},
+            {<<"interface">> , ?CURRENT_CLASS_NAME}
+        ]
+    },
+    Request = dubbo_adapter:reference(Data),
+    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
+
+#end

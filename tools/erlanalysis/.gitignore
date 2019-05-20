@@ -15,9 +15,6 @@ _build
 .idea
 .rebar
 target
-*.iml
-*.crashdump
-codecov.json
-.DS_Store
-doc
-target
+genProjectDir
+mavenDown
+*.log

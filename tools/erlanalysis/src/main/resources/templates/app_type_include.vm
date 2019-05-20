@@ -1,0 +1,10 @@
+
+#foreach($typeItem in $typeList)
+-record(${typeItem.getTypeName()},{
+#foreach($fieldItem in ${typeItem.getFieldList()})
+    ${fieldItem.getFieldName()} ::${fieldItem.getFieldErlType()}#if($foreach.hasNext),
+#end
+#end
+}).
+
+#end

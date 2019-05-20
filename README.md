@@ -30,13 +30,13 @@ Start
 Add dubblerl to rebar.config with your project
 ```erlang
 {deps, [
-    {dubboerl, {git, "http://github.com/dubboerl/dubboerl.git", {branch, "master"}}}
+    {dubboerl, {git, "https://github.com/apache/incubator-dubbo-erlang.git", {branch, "master"}}}
 ]}.
 ```
 
 #### Step1
 
-Use [erlanalysis](https://github.com/dubboerl/erlanalysis) tool transfer java interface to erlang lib. And add the lib to you project app dir.
+Use [erlanalysis](./tools/erlanalysis) tool transfer java interface to erlang lib. And add the lib to you project app dir.
 
 #### Step2
 
@@ -49,10 +49,10 @@ For example:
 	{zookeeper_list,[{"127.0.0.1",2181}]},
 	{application,<<"testdubboerl">>},
 	{consumer,[
-		{<<"me.dlive.dubboservice.service.IProcessData">>,[]}
+		{<<"org.apache.dubbo.erlang.sample.service.facade.UserOperator">>,[]}
 	]},
 	{provider,[
-		{scherdule_impl,scherdule_behaviour,<<"me.dlive.dubboservice.service.Scherdule">>,[]}
+		{user_impl,userOperator,<<"org.apache.dubbo.erlang.sample.service.facade.UserOperator">>,[]}
 	]}
 	
 ]}
@@ -67,13 +67,13 @@ Init dubboerl application context when your project start.
 Call the interface method.
 
 ```erlang
-RequestPara = #testReq{name = <<"nameinfo">>,nick = <<"nickinfo">>,age = 10},
-iProcessData:queryinfo(Info).
+Request = #userInfoRequest{requestId = 123, username = "testname"},
+userOperator:queryUserInfo(Request,#{sync=> true}).
 ```
 
 Sample
 ------
-Reference the demo project [dubboerl_demo](https://github.com/dubboerl/dubboerl_demo)
+Reference the demo project [dubboerl_demo](./samples/dubboerl_demo)
 
 More Documents
 ------

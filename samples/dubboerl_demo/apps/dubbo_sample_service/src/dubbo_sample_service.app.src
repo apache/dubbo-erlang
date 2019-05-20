@@ -1,0 +1,17 @@
+{application, dubbo_sample_service,
+[
+    {description, "An OTP application"},
+    {vsn, "1.3"},
+    {registered, []},
+    {mod, { dubbo_sample_service_app, []}},
+    {applications,
+        [kernel,
+        stdlib,
+        dubboerl
+    ]},
+    {env,[]},
+    {modules, []},
+    {maintainers, []},
+    {licenses, []},
+    {links, []}
+]}.

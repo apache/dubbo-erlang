@@ -1,0 +1,17 @@
+{application, ${appName},
+[
+    {description, "An OTP application"},
+    {vsn, "${appVersion}"},
+    {registered, []},
+    {mod, { ${appName}_app, []}},
+    {applications,
+        [kernel,
+        stdlib,
+        dubboerl
+    ]},
+    {env,[]},
+    {modules, []},
+    {maintainers, []},
+    {licenses, []},
+    {links, []}
+]}.

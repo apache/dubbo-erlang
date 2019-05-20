@@ -349,29 +349,28 @@ check_recv_data(<<>>,State)->
 
 
 process_data(Data,State)->
-    TmpTime = time_util:timestamp_ms(),
     <<Header:16/binary,RestData/binary>> = Data,
     case dubbo_codec:decode_header(Header) of
         {ok,response,ResponseInfo}->
-            %%心跳包的回应，是否会造成错误
-            dubbo_traffic_control:decr_count(State#state.host_flag),
-            case get_earse_request_info(ResponseInfo#dubbo_response.mid) of
-                undefined->
-                    logger:error("dubbo response can't find request data,response ~p",[ResponseInfo]);
-                {SourcePid,Ref,_RequestState} ->
-                    {ok,Res} = dubbo_codec:decode_response(ResponseInfo,RestData),
-
-                    logger:info("got one response mid ~p, is_event ~p state ~p",[Res#dubbo_response.mid,Res#dubbo_response.is_event,Res#dubbo_response.state]),
-                    case Res#dubbo_response.is_event of
-                        false ->
-                            %% todo rpccontent need merge response with request
-                            RpcContent=[],
-                            ResponseData = dubbo_type_transfer:response_to_native(Res),
-                            gen_server:cast(SourcePid,{response_process,Ref,RpcContent,ResponseData});
-                        _->
-                            ok
-                    end
-            end,
+            process_response(ResponseInfo#dubbo_response.is_event,ResponseInfo,RestData,State),
+%%            dubbo_traffic_control:decr_count(State#state.host_flag),
+%%            case get_earse_request_info(ResponseInfo#dubbo_response.mid) of
+%%                undefined->
+%%                    logger:error("dubbo response can't find request data,response ~p",[ResponseInfo]);
+%%                {SourcePid,Ref,_RequestState} ->
+%%                    {ok,Res} = dubbo_codec:decode_response(ResponseInfo,RestData),
+%%
+%%                    logger:info("got one response mid ~p, is_event ~p state ~p",[Res#dubbo_response.mid,Res#dubbo_response.is_event,Res#dubbo_response.state]),
+%%                    case Res#dubbo_response.is_event of
+%%                        false ->
+%%                            %% todo rpccontent need merge response with request
+%%                            RpcContent=[],
+%%                            ResponseData = dubbo_type_transfer:response_to_native(Res),
+%%                            gen_server:cast(SourcePid,{response_process,Ref,RpcContent,ResponseData});
+%%                        _->
+%%                            ok
+%%                    end
+%%            end,
             {ok,State};
         {ok,request,RequestInfo}->
             {ok,Req} = dubbo_codec:decode_request(RequestInfo,RestData),
@@ -386,18 +385,26 @@ process_data(Data,State)->
 
 %% @doc process event
 -spec process_response(IsEvent::boolean(),#dubbo_response{},#state{},term())->ok.
-process_response(false,Response,State,TmpTime)->
+process_response(false,ResponseInfo,RestData,State)->
     dubbo_traffic_control:decr_count(State#state.host_flag),
-    case get_earse_request_info(Response#dubbo_response.mid) of
+    case get_earse_request_info(ResponseInfo#dubbo_response.mid) of
         undefined->
-            logger:error("dubbo response can't find request data,response ~p",[Response]);
-        {SourcePid,Ref,RequestState} ->
-            RpcContent=[],
-            gen_server:cast(SourcePid,{msg_back,Ref,Response,RpcContent,RequestState})
+            logger:error("dubbo response can't find request data,response ~p",[ResponseInfo]);
+        {SourcePid,Ref,_RequestState} ->
+            {ok,Res} = dubbo_codec:decode_response(ResponseInfo,RestData),
+            logger:info("got one response mid ~p, is_event ~p state ~p",[Res#dubbo_response.mid,Res#dubbo_response.is_event,Res#dubbo_response.state]),
+            case Res#dubbo_response.is_event of
+                false ->
+                    %% todo rpccontent need merge response with request
+                    RpcContent=[],
+                    ResponseData = dubbo_type_transfer:response_to_native(Res),
+                    gen_server:cast(SourcePid,{response_process,Ref,RpcContent,ResponseData});
+                _->
+                    ok
+            end
     end,
     {ok,State};
-process_response(true,Response,State,TmpTime)->
-
+process_response(true,_ResponseInfo,_RestData,State)->
     {ok,State}.
 
 process_request(true,Request,State)->

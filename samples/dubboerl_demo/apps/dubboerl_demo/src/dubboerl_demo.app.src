@@ -1,0 +1,19 @@
+{application, dubboerl_demo,
+ [{description, "An OTP application"},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {mod, { dubboerl_demo_app, []}},
+  {applications,
+   [kernel,
+    stdlib,
+    recon,
+    observer_cli,
+    dubbo_sample_service
+   ]},
+  {env,[]},
+  {modules, []},
+
+  {maintainers, []},
+  {licenses, ["Apache 2.0"]},
+  {links, []}
+ ]}.
