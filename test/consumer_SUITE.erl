@@ -1,14 +1,20 @@
-%%%-------------------------------------------------------------------
-%%% @author dlive
-%%% @copyright (C) 2019, <COMPANY>
-%%% @doc
-%%%
-%%% @end
-%%% Created : 02. May 2019 17:10
-%%%-------------------------------------------------------------------
+%%------------------------------------------------------------------------------
+%% Licensed to the Apache Software Foundation (ASF) under one or more
+%% contributor license agreements.  See the NOTICE file distributed with
+%% this work for additional information regarding copyright ownership.
+%% The ASF licenses this file to You under the Apache License, Version 2.0
+%% (the "License"); you may not use this file except in compliance with
+%% the License.  You may obtain a copy of the License at
+%%
+%%     http://www.apache.org/licenses/LICENSE-2.0
+%%
+%% Unless required by applicable law or agreed to in writing, software
+%% distributed under the License is distributed on an "AS IS" BASIS,
+%% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%% See the License for the specific language governing permissions and
+%% limitations under the License.
+%%------------------------------------------------------------------------------
 -module(consumer_SUITE).
--author("dlive").
-
 %% API
 -export([]).
 
@@ -21,7 +27,7 @@
 %% Info = [tuple()]
 %%--------------------------------------------------------------------
 suite() ->
-  [{timetrap,{seconds,60}}].
+    [{timetrap, {seconds, 60}}].
 
 %%--------------------------------------------------------------------
 %% Function: init_per_suite(Config0) ->
@@ -30,25 +36,25 @@ suite() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_suite(Config) ->
-  logger:add_handler(testttt,logger_std_h,#{
-    level => debug
-  }),
-  Start = application:ensure_all_started(dubboerl),
+    logger:add_handler(testttt, logger_std_h, #{
+        level => debug
+    }),
+    Start = application:ensure_all_started(dubboerl),
 %%  dubboerl:init(),
-  dubboerl:start_provider(),
-  timer:sleep(2000),
-  dubboerl:start_consumer(),
-  dubbo_service_app:register_type_list(),
-  timer:sleep(5000),
-  io:format(user,"test case start info ~p~n",[Start]),
-  [{appid,1}].
+    dubboerl:start_provider(),
+    timer:sleep(2000),
+    dubboerl:start_consumer(),
+    dubbo_service_app:register_type_list(),
+    timer:sleep(5000),
+    io:format(user, "test case start info ~p~n", [Start]),
+    [{appid, 1}].
 
 %%--------------------------------------------------------------------
 %% Function: end_per_suite(Config0) -> term() | {save_config,Config1}
 %% Config0 = Config1 = [tuple()]
 %%--------------------------------------------------------------------
 end_per_suite(_Config) ->
-  ok.
+    ok.
 
 %%--------------------------------------------------------------------
 %% Function: init_per_group(GroupName, Config0) ->
@@ -58,7 +64,7 @@ end_per_suite(_Config) ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_group(_GroupName, Config) ->
-  Config.
+    Config.
 
 %%--------------------------------------------------------------------
 %% Function: end_per_group(GroupName, Config0) ->
@@ -67,7 +73,7 @@ init_per_group(_GroupName, Config) ->
 %% Config0 = Config1 = [tuple()]
 %%--------------------------------------------------------------------
 end_per_group(_GroupName, _Config) ->
-  ok.
+    ok.
 
 %%--------------------------------------------------------------------
 %% Function: init_per_testcase(TestCase, Config0) ->
@@ -77,7 +83,7 @@ end_per_group(_GroupName, _Config) ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 init_per_testcase(_TestCase, Config) ->
-  Config.
+    Config.
 
 %%--------------------------------------------------------------------
 %% Function: end_per_testcase(TestCase, Config0) ->
@@ -87,7 +93,7 @@ init_per_testcase(_TestCase, Config) ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 end_per_testcase(_TestCase, _Config) ->
-  ok.
+    ok.
 
 %%--------------------------------------------------------------------
 %% Function: groups() -> [Group]
@@ -102,9 +108,9 @@ end_per_testcase(_TestCase, _Config) ->
 %% N = integer() | forever
 %%--------------------------------------------------------------------
 groups() ->
-  [
-    {consumer1,[sequence],[lib_type_register,json_sync_invoker,hessian_sync_invoker]}
-  ].
+    [
+        {consumer1, [sequence], [lib_type_register, json_sync_invoker, hessian_sync_invoker]}
+    ].
 
 %%--------------------------------------------------------------------
 %% Function: all() -> GroupsAndTestCases | {skip,Reason}
@@ -114,14 +120,14 @@ groups() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 all() ->
-  [{group,consumer1}].
+    [{group, consumer1}].
 
 %%--------------------------------------------------------------------
 %% Function: TestCase() -> Info
 %% Info = [tuple()]
 %%--------------------------------------------------------------------
 lib_type_register() ->
-  [].
+    [].
 
 %%--------------------------------------------------------------------
 %% Function: TestCase(Config0) ->
@@ -132,19 +138,19 @@ lib_type_register() ->
 %% Comment = term()
 %%--------------------------------------------------------------------
 lib_type_register(_Config) ->
-  ok.
+    ok.
 
-json_sync_invoker(_Config)->
-  application:set_env(dubboerl,protocol,json),
-  R1 = user2:queryUserInfo(#userInfoRequest{username = "name",requestId = "111"},#{sync=> true}),
-  io:format(user,"json_sync_invoker result ~p ~n",[R1]),
-  R2 = user2:genUserId(),
-  io:format(user,"json_sync_invoker result2 ~p ~n",[R2]),
-  ok.
-hessian_sync_invoker(_Config)->
-  application:set_env(dubboerl,protocol,hessian),
-  R1 = user2:queryUserInfo(#userInfoRequest{username = "name",requestId = "111"},#{sync=> true}),
-  io:format(user,"json_sync_invoker result ~p ~n",[R1]),
-  R2 = user2:genUserId(),
-  io:format(user,"json_sync_invoker result2 ~p ~n",[R2]),
-  ok.
+json_sync_invoker(_Config) ->
+    application:set_env(dubboerl, protocol, json),
+    R1 = user2:queryUserInfo(#userInfoRequest{username = "name", requestId = "111"}, #{sync=> true}),
+    io:format(user, "json_sync_invoker result ~p ~n", [R1]),
+    R2 = user2:genUserId(),
+    io:format(user, "json_sync_invoker result2 ~p ~n", [R2]),
+    ok.
+hessian_sync_invoker(_Config) ->
+    application:set_env(dubboerl, protocol, hessian),
+    R1 = user2:queryUserInfo(#userInfoRequest{username = "name", requestId = "111"}, #{sync=> true}),
+    io:format(user, "json_sync_invoker result ~p ~n", [R1]),
+    R2 = user2:genUserId(),
+    io:format(user, "json_sync_invoker result2 ~p ~n", [R2]),
+    ok.

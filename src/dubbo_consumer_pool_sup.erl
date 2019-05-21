@@ -1,18 +1,25 @@
-%%%-------------------------------------------------------------------
-%%% @author dlive
-%%% @copyright (C) 2017, <COMPANY>
-%%% @doc
-%%%
-%%% @end
-%%% Created : 30. Dec 2017 9:58 AM
-%%%-------------------------------------------------------------------
+%%------------------------------------------------------------------------------
+%% Licensed to the Apache Software Foundation (ASF) under one or more
+%% contributor license agreements.  See the NOTICE file distributed with
+%% this work for additional information regarding copyright ownership.
+%% The ASF licenses this file to You under the Apache License, Version 2.0
+%% (the "License"); you may not use this file except in compliance with
+%% the License.  You may obtain a copy of the License at
+%%
+%%     http://www.apache.org/licenses/LICENSE-2.0
+%%
+%% Unless required by applicable law or agreed to in writing, software
+%% distributed under the License is distributed on an "AS IS" BASIS,
+%% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%% See the License for the specific language governing permissions and
+%% limitations under the License.
+%%------------------------------------------------------------------------------
 -module(dubbo_consumer_pool_sup).
--author("dlive").
 
 -behaviour(supervisor).
 
 %% API
--export([start_link/0,add_children/1,stop_children/1]).
+-export([start_link/0, add_children/1, stop_children/1]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -65,10 +72,10 @@ init([]) ->
     {ok, {SupFlags, []}}.
 
 
-add_children(ChildSpec)->
-    supervisor:start_child(?SERVER,ChildSpec).
-stop_children(ChildID)->
-    supervisor:terminate_child(?SERVER,ChildID).
+add_children(ChildSpec) ->
+    supervisor:start_child(?SERVER, ChildSpec).
+stop_children(ChildID) ->
+    supervisor:terminate_child(?SERVER, ChildID).
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================

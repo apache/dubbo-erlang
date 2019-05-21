@@ -1,30 +1,37 @@
-%%%-------------------------------------------------------------------
-%%% @author dlive
-%%% @copyright (C) 2019, <COMPANY>
-%%% @doc
-%%%
-%%% @end
-%%% Created : 07. May 2019 00:27
-%%%-------------------------------------------------------------------
+%%------------------------------------------------------------------------------
+%% Licensed to the Apache Software Foundation (ASF) under one or more
+%% contributor license agreements.  See the NOTICE file distributed with
+%% this work for additional information regarding copyright ownership.
+%% The ASF licenses this file to You under the Apache License, Version 2.0
+%% (the "License"); you may not use this file except in compliance with
+%% the License.  You may obtain a copy of the License at
+%%
+%%     http://www.apache.org/licenses/LICENSE-2.0
+%%
+%% Unless required by applicable law or agreed to in writing, software
+%% distributed under the License is distributed on an "AS IS" BASIS,
+%% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%% See the License for the specific language governing permissions and
+%% limitations under the License.
+%%------------------------------------------------------------------------------
 -module(dubbo_adapter).
--author("dlive").
 
 -include("dubbo.hrl").
 %% API
 -export([reference/1]).
 
--spec(reference(Data::#dubbo_rpc_invocation{}) -> dubbo_request()).
-reference(Data)->
-  #dubbo_request{
-    is_event = false,
-    is_twoway = true,
-    mid = dubbo_id_generator:gen_id(),
-    data = Data,
-    mversion= <<"0.0.0">>,
-    serialize_type = serialize_value(application:get_env(dubboerl,protocol,hessian))
-  }.
+-spec(reference(Data :: #dubbo_rpc_invocation{}) -> dubbo_request()).
+reference(Data) ->
+    #dubbo_request{
+        is_event = false,
+        is_twoway = true,
+        mid = dubbo_id_generator:gen_id(),
+        data = Data,
+        mversion = <<"0.0.0">>,
+        serialize_type = serialize_value(application:get_env(dubboerl, protocol, hessian))
+    }.
 
-serialize_value(json)->
-  ?SERIALIZATION_FASTJSON;
-serialize_value(_)->
-  ?SERIALIZATION_HESSIAN.
+serialize_value(json) ->
+    ?SERIALIZATION_FASTJSON;
+serialize_value(_) ->
+    ?SERIALIZATION_HESSIAN.

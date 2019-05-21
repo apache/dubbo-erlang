@@ -1,18 +1,25 @@
-%%%-------------------------------------------------------------------
-%%% @author dlive
-%%% @copyright (C) 2018, <COMPANY>
-%%% @doc
-%%%
-%%% @end
-%%% Created : 11. Mar 2018 8:08 PM
-%%%-------------------------------------------------------------------
+%%------------------------------------------------------------------------------
+%% Licensed to the Apache Software Foundation (ASF) under one or more
+%% contributor license agreements.  See the NOTICE file distributed with
+%% this work for additional information regarding copyright ownership.
+%% The ASF licenses this file to You under the Apache License, Version 2.0
+%% (the "License"); you may not use this file except in compliance with
+%% the License.  You may obtain a copy of the License at
+%%
+%%     http://www.apache.org/licenses/LICENSE-2.0
+%%
+%% Unless required by applicable law or agreed to in writing, software
+%% distributed under the License is distributed on an "AS IS" BASIS,
+%% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%% See the License for the specific language governing permissions and
+%% limitations under the License.
+%%------------------------------------------------------------------------------
 -module(dubbo_provider_worker).
--author("dlive").
 
 -behaviour(gen_server).
 
 %% API
--export([start_link/1,process_request/2]).
+-export([start_link/1, process_request/2]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -27,10 +34,10 @@
 -include("dubboerl.hrl").
 -include("dubbo_type.hrl").
 
--record(heartbeat,{last_write=0,last_read=0,timeout=50000,max_timeout=9000}).
--record(state, {provider_config,socket =undefined,
-    heartbeat=#heartbeat{},
-    recv_buffer= <<>>          %%从客户端接收的数据
+-record(heartbeat, {last_write = 0, last_read = 0, timeout = 50000, max_timeout = 9000}).
+-record(state, {provider_config, socket = undefined,
+    heartbeat = #heartbeat{},
+    recv_buffer = <<>>          %%从客户端接收的数据
 }).
 
 %%%===================================================================
@@ -99,14 +106,14 @@ handle_call(_Request, _From, State) ->
     {noreply, NewState :: #state{}} |
     {noreply, NewState :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term(), NewState :: #state{}}).
-handle_cast({request,Request,SourcePid},State)->
+handle_cast({request, Request, SourcePid}, State) ->
 %%    #dubbo_request{mid=Mid} = Request,
 
 %%    Data = #databaseOperateResponse{databaseOperateRsp = "ha-ha"},
 %%    Data2 =#dubbo_rpc_invocation{parameters = [Data]},
 %%    {ok,Content }= de_codec:encode_response(#dubbo_response{mid=Mid,is_event = false,data= Data2}),
-    {ok,Content} = invoker_implement(Request),
-    gen_server:cast(SourcePid,{send_response,Content}),
+    {ok, Content} = invoker_implement(Request),
+    gen_server:cast(SourcePid, {send_response, Content}),
 
     {noreply, State};
 handle_cast(_Request, State) ->
@@ -162,10 +169,10 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 
-process_request(Request,SourcePid)->
+process_request(Request, SourcePid) ->
     Worker = poolboy:checkout(?PROVIDER_WORKER),
     try
-        gen_server:cast(Worker,{request,Request,SourcePid})
+        gen_server:cast(Worker, {request, Request, SourcePid})
     after
         ok = poolboy:checkin(?PROVIDER_WORKER, Worker)
     end.
@@ -174,30 +181,30 @@ process_request(Request,SourcePid)->
 %%% Internal functions
 %%%===================================================================
 
--spec invoker_implement(#dubbo_request{})-> {ok,response_content()}.
-invoker_implement(Request)->
-    #dubbo_rpc_invocation{className = Interface,methodName = MethodName,parameters = Parameters} = Request#dubbo_request.data,
+-spec invoker_implement(#dubbo_request{}) -> {ok, response_content()}.
+invoker_implement(Request) ->
+    #dubbo_rpc_invocation{className = Interface, methodName = MethodName, parameters = Parameters} = Request#dubbo_request.data,
     case dubbo_provider_protocol:select_impl_provider(Interface) of
-        {ok,ImplModule}->
-            case apply(ImplModule,binary_to_atom(MethodName,latin1),Parameters) of
-                {error}->
+        {ok, ImplModule} ->
+            case apply(ImplModule, binary_to_atom(MethodName, latin1), Parameters) of
+                {error} ->
                     ok;
-                #dubbo_rpc_invocation{}=ResultInvoca ->
+                #dubbo_rpc_invocation{} = ResultInvoca ->
                     #dubbo_request{mid = Mid} = Request,
-                    {ok,Content }=
+                    {ok, Content} =
                         dubbo_codec:encode_response(#dubbo_response{
                             serialize_type = Request#dubbo_request.serialize_type,
-                            mid=Mid,
+                            mid = Mid,
                             is_event = false,
-                            data= ResultInvoca}),
-                    {ok,Content};
-                ResultObj->
+                            data = ResultInvoca}),
+                    {ok, Content};
+                ResultObj ->
 %%                    Data = #databaseOperateResponse{databaseOperateRsp = "ha-ha"},
                     #dubbo_request{mid = Mid} = Request,
-                    Data2 =#dubbo_rpc_invocation{parameters = [ResultObj]},
-                    {ok,Content }= dubbo_codec:encode_response(#dubbo_response{serialize_type = Request#dubbo_request.serialize_type,mid=Mid,is_event = false,data= Data2}),
-                    {ok,Content}
+                    Data2 = #dubbo_rpc_invocation{parameters = [ResultObj]},
+                    {ok, Content} = dubbo_codec:encode_response(#dubbo_response{serialize_type = Request#dubbo_request.serialize_type, mid = Mid, is_event = false, data = Data2}),
+                    {ok, Content}
             end;
-        {error,Reason}  ->
-            {error,Reason}
+        {error, Reason} ->
+            {error, Reason}
     end.

@@ -1,13 +1,20 @@
-%%%-------------------------------------------------------------------
-%%% @author dlive
-%%% @copyright (C) 2016, <COMPANY>
-%%% @doc
-%%%
-%%% @end
-%%% Created : 17. 十月 2016 上午11:12
-%%%-------------------------------------------------------------------
+%%------------------------------------------------------------------------------
+%% Licensed to the Apache Software Foundation (ASF) under one or more
+%% contributor license agreements.  See the NOTICE file distributed with
+%% this work for additional information regarding copyright ownership.
+%% The ASF licenses this file to You under the Apache License, Version 2.0
+%% (the "License"); you may not use this file except in compliance with
+%% the License.  You may obtain a copy of the License at
+%%
+%%     http://www.apache.org/licenses/LICENSE-2.0
+%%
+%% Unless required by applicable law or agreed to in writing, software
+%% distributed under the License is distributed on an "AS IS" BASIS,
+%% WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+%% See the License for the specific language governing permissions and
+%% limitations under the License.
+%%------------------------------------------------------------------------------
 -module(dubbo_id_generator).
--author("dlive").
 
 -behaviour(gen_server).
 
@@ -21,11 +28,11 @@
     handle_info/2,
     terminate/2,
     code_change/3]).
--export([gen_id/0,get_index/2]).
+-export([gen_id/0, get_index/2]).
 
 -define(SERVER, ?MODULE).
--define(INDEX_ETS_TABLE,dubbo_id_count_table).
--define(MAX_NUM,9223372036854775807).
+-define(INDEX_ETS_TABLE, dubbo_id_count_table).
+-define(MAX_NUM, 9223372036854775807).
 -record(state, {}).
 
 %%%===================================================================
@@ -144,34 +151,34 @@ terminate(_Reason, _State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-gen_id()->
-    try ets:update_counter(?INDEX_ETS_TABLE,cur_index,{2,1,?MAX_NUM,1}) of
+gen_id() ->
+    try ets:update_counter(?INDEX_ETS_TABLE, cur_index, {2, 1, ?MAX_NUM, 1}) of
         NewCount ->
             NewCount
     catch
         _Type:_Reason ->
-            (catch ets:insert(?INDEX_ETS_TABLE,{cur_index,1})),
-            ets:update_counter(?INDEX_ETS_TABLE,cur_index,{2,1,?MAX_NUM,1})
+            (catch ets:insert(?INDEX_ETS_TABLE, {cur_index, 1})),
+            ets:update_counter(?INDEX_ETS_TABLE, cur_index, {2, 1, ?MAX_NUM, 1})
     end.
 
-get_index(Type,Max)->
-    try ets:update_counter(?INDEX_ETS_TABLE,Type,{2,1,Max,1}) of
+get_index(Type, Max) ->
+    try ets:update_counter(?INDEX_ETS_TABLE, Type, {2, 1, Max, 1}) of
         NewCount ->
             NewCount
     catch
         _Type:_Reason ->
-            (catch ets:insert(?INDEX_ETS_TABLE,{Type,1})),
-            ets:update_counter(?INDEX_ETS_TABLE,Type,{2,1,Max,1})
+            (catch ets:insert(?INDEX_ETS_TABLE, {Type, 1})),
+            ets:update_counter(?INDEX_ETS_TABLE, Type, {2, 1, Max, 1})
     end.
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-init_table()->
-    try ets:new(?INDEX_ETS_TABLE, [public,named_table]) of
+init_table() ->
+    try ets:new(?INDEX_ETS_TABLE, [public, named_table]) of
         ?INDEX_ETS_TABLE ->
-            ets:insert(?INDEX_ETS_TABLE,{cur_index,1}),
+            ets:insert(?INDEX_ETS_TABLE, {cur_index, 1}),
             ok
     catch
         _Type:Reason ->
-            logger:error("[DUBBO] error init auto inc table reason:~p",[Reason])
+            logger:error("[DUBBO] error init auto inc table reason:~p", [Reason])
     end.

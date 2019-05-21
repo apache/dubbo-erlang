@@ -1,5 +1,21 @@
-package org.apache.dubbo.erlang.analysis.utils;
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package org.apache.dubbo.erlang.analysis.utils;
 
 import org.apache.maven.shared.invoker.*;
 import org.slf4j.Logger;
@@ -10,9 +26,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 
-/**
- * Created by dlive on 16/5/31.
- */
 public class MavenJarUtil {
     private String groupid;
     private String artifactId;
@@ -21,7 +34,7 @@ public class MavenJarUtil {
     private String rootDir;
     private static Logger log = LoggerFactory.getLogger(MavenJarUtil.class);
 
-    public MavenJarUtil(String groupid, String artifactId, String version){
+    public MavenJarUtil(String groupid, String artifactId, String version) {
         this.groupid = groupid;
         this.artifactId = artifactId;
         this.version = version;
@@ -29,38 +42,38 @@ public class MavenJarUtil {
 
     }
 
-    public boolean copyDependence(){
-        String mvn_home =  System.getenv("MAVEN_HOME");
-        this.rootDir = genProjectDir(System.getProperty("project_save_dir",System.getProperty("user.dir")+File.separator+"mavenDown"));
-        if(rootDir==null){
+    public boolean copyDependence() {
+        String mvn_home = System.getenv("MAVEN_HOME");
+        this.rootDir = genProjectDir(System.getProperty("project_save_dir", System.getProperty("user.dir") + File.separator + "mavenDown"));
+        if (rootDir == null) {
             return false;
         }
 
-        log.info("down load lib jar dir:"+rootDir);
-        String pomPathJar = genPomFile(this.rootDir,"jar");
+        log.info("down load lib jar dir:" + rootDir);
+        String pomPathJar = genPomFile(this.rootDir, "jar");
 
         InvocationRequest request = new DefaultInvocationRequest();
-        request.setPomFile( new File( pomPathJar ) );
-        request.setGoals( Collections.singletonList( "compile" ) );
+        request.setPomFile(new File(pomPathJar));
+        request.setGoals(Collections.singletonList("compile"));
 
         Invoker invoker = new DefaultInvoker();
         try {
-            if(mvn_home!=null){
-                log.info("use MAVEN_HOME:"+mvn_home);
+            if (mvn_home != null) {
+                log.info("use MAVEN_HOME:" + mvn_home);
                 invoker.setMavenHome(new File(mvn_home));
             }
 
             invoker.setWorkingDirectory(new File(rootDir));
-            InvocationResult result = invoker.execute( request );
-            if(result.getExitCode()!=0){
-                String pomPathWar = genPomFile(this.rootDir,"war");
+            InvocationResult result = invoker.execute(request);
+            if (result.getExitCode() != 0) {
+                String pomPathWar = genPomFile(this.rootDir, "war");
                 InvocationRequest requestWar = new DefaultInvocationRequest();
                 requestWar.setPomFile(new File(pomPathWar));
                 requestWar.setGoals(Collections.singletonList("compile"));
                 invoker.setWorkingDirectory(new File(rootDir));
-                InvocationResult resultWar = invoker.execute( requestWar );
-                if(resultWar.getExitCode()!=0){
-                    log.error("mvn run result exception:"+resultWar.getExecutionException());
+                InvocationResult resultWar = invoker.execute(requestWar);
+                if (resultWar.getExitCode() != 0) {
+                    log.error("mvn run result exception:" + resultWar.getExecutionException());
                     return false;
                 }
             }
@@ -71,7 +84,7 @@ public class MavenJarUtil {
         return true;
     }
 
-    private String genPomFile(String rootDir,String pomDependenType ){
+    private String genPomFile(String rootDir, String pomDependenType) {
 
         String pomContent = String.format("<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
                 "  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">\n" +
@@ -92,7 +105,7 @@ public class MavenJarUtil {
                 "          <groupId>log4j</groupId>\n" +
                 "          <artifactId>log4j</artifactId>\n" +
                 "        </exclusion>\n" +
-                "      </exclusions>"+
+                "      </exclusions>" +
                 "\t  </dependency>\n" +
                 "  </dependencies>\n" +
                 "    <build>\n" +
@@ -113,23 +126,23 @@ public class MavenJarUtil {
                 "                            <excludeScope>provided</excludeScope>\n" +
                 "                        </configuration> -->\n" +
                 "                    </execution>\n" +
-                "                </executions>"+
+                "                </executions>" +
                 "               <configuration>\n" +
                 "\t\t\t\t\t         <outputDirectory>${basedir}/lib</outputDirectory>\n" +
                 "\t\t\t\t\t         <excludeScope>provided</excludeScope>\n" +
                 "                  <excludeArtifactIds>commons-logging</excludeArtifactIds>\n" +
-                "                </configuration>"+
+                "                </configuration>" +
                 "            </plugin>\n" +
                 "        </plugins>\n" +
                 "    </build>\n" +
-                "</project>\n",groupid,artifactId,version,pomDependenType);
+                "</project>\n", groupid, artifactId, version, pomDependenType);
         //logback-core,logback-classic,
-        String pompath = rootDir+File.separator+"pom.xml";
-        log.info("will create pom file:"+pompath);
+        String pompath = rootDir + File.separator + "pom.xml";
+        log.info("will create pom file:" + pompath);
         File pomfile = new File(pompath);
         try {
             //pomfile.createNewFile();
-            FileOutputStream out=new FileOutputStream(pomfile);
+            FileOutputStream out = new FileOutputStream(pomfile);
             out.write(pomContent.getBytes());
             out.close();
         } catch (IOException e) {
@@ -139,18 +152,18 @@ public class MavenJarUtil {
         return pompath;
     }
 
-    private String  genProjectDir(String savedir){
+    private String genProjectDir(String savedir) {
 
 
         String tmpSavePath;
-        if(savedir.endsWith(File.separator)){
-            tmpSavePath=String.format("%s%s%s%s",savedir,this.artifactId,File.separator,this.version);
-        }else{
-            tmpSavePath=String.format("%s%s%s%s%s",savedir,File.separator,this.artifactId,File.separator,this.version);
+        if (savedir.endsWith(File.separator)) {
+            tmpSavePath = String.format("%s%s%s%s", savedir, this.artifactId, File.separator, this.version);
+        } else {
+            tmpSavePath = String.format("%s%s%s%s%s", savedir, File.separator, this.artifactId, File.separator, this.version);
         }
         File rootDir = new File(tmpSavePath);
-        if(!rootDir.exists()){
-            if(!rootDir.mkdirs()){
+        if (!rootDir.exists()) {
+            if (!rootDir.mkdirs()) {
                 return null;
             }
         }
@@ -158,8 +171,8 @@ public class MavenJarUtil {
     }
 
     public String getMainJarPath() {
-        if(mainJarPath==null){
-            mainJarPath=String.format("%s%slib%s%s-%s.jar",rootDir,File.separator,File.separator,artifactId,version);
+        if (mainJarPath == null) {
+            mainJarPath = String.format("%s%slib%s%s-%s.jar", rootDir, File.separator, File.separator, artifactId, version);
         }
         return mainJarPath;
     }
@@ -168,7 +181,7 @@ public class MavenJarUtil {
         return rootDir;
     }
 
-    public String getArtifactId(){
+    public String getArtifactId() {
         return artifactId;
     }
 

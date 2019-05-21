@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.dubbo.erlang.analysis.parse;
 
 
@@ -40,47 +57,48 @@ public class MethodInfo {
     }
 
 
-    public String getParameterNameString(){
-        return String.join(",",parameterName);
+    public String getParameterNameString() {
+        return String.join(",", parameterName);
     }
 
     public void setParameterName(String[] parameterName) {
-        for(int i=0;i<parameterName.length;i++){
+        for (int i = 0; i < parameterName.length; i++) {
             parameterName[i] = parameterName[i].substring(0, 1).toUpperCase() + parameterName[i].substring(1);
         }
         this.parameterName = parameterName;
     }
 
-    public String getParameterTypeDef(){
+    public String getParameterTypeDef() {
         ArrayList<String> retList = new ArrayList<>();
         Type[] types = Type.getArgumentTypes(methodDescriptor);
-        for(int i=0;i<types.length;i++){
-            String def= ErlTypeTransformUtil.fullClassNameToTypeDef(types[i].getClassName());
+        for (int i = 0; i < types.length; i++) {
+            String def = ErlTypeTransformUtil.fullClassNameToTypeDef(types[i].getClassName());
             retList.add(def);
         }
-        return String.join(",\n",retList);
+        return String.join(",\n", retList);
     }
 
-    public Map<String,String> getParameterTypeList(){
+    public Map<String, String> getParameterTypeList() {
         Type[] types = Type.getArgumentTypes(methodDescriptor);
-        Map<String,String> retInfo = new LinkedHashMap<>();
-        for(int i=0;i<types.length;i++){
-            String def=ErlTypeTransformUtil.fullClassNameToErlType(types[i].getClassName());
-            retInfo.put(parameterName[i],def);
+        Map<String, String> retInfo = new LinkedHashMap<>();
+        for (int i = 0; i < types.length; i++) {
+            String def = ErlTypeTransformUtil.fullClassNameToErlType(types[i].getClassName());
+            retInfo.put(parameterName[i], def);
         }
         return retInfo;
     }
 
     /**
      * get -spec return type
+     *
      * @return
      */
-    public String getReturnErlType(){
+    public String getReturnErlType() {
         Type types = Type.getReturnType(methodDescriptor);
         return ErlTypeTransformUtil.fullClassNameToErlType(types.getClassName());
     }
 
-    public String getResponseTypeDef(){
+    public String getResponseTypeDef() {
         Type types = Type.getReturnType(methodDescriptor);
         return ErlTypeTransformUtil.fullClassNameToTypeDef(types.getClassName());
     }
