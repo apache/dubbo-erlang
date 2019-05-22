@@ -22,21 +22,21 @@
 %% When a tuple is to be encoded at run-time, a lookup is performed against
 %% the type tag. This must resolve to some type definition,
 %% otherwise no type information can be encoded into the output stream.
--record(encoding_state,{pool = dict:new(), count = -1}).
+-record(encoding_state, {pool = dict:new(), count = -1}).
 
 -export([init/0]).
--export([enlist/1,enlist/2]).
+-export([enlist/1, enlist/2]).
 -export([visit/2]).
 
 %% Facility to register a particular type to the pool of known types.
 %% Adds the type to the pool of known types if it doesn't already exist.
-init()->
+init() ->
     #encoding_state{}.
 
-enlist(TypeDef) -> enlist(TypeDef,#encoding_state{}).
+enlist(TypeDef) -> enlist(TypeDef, #encoding_state{}).
 enlist(TypeDef = #type_def{native_type = Key},
-         State = #encoding_state{pool = OldPool}) ->
-    case dict:is_key(Key,OldPool) of
+    State = #encoding_state{pool = OldPool}) ->
+    case dict:is_key(Key, OldPool) of
         true ->
             State;
         false ->
@@ -53,39 +53,39 @@ enlist(TypeDef = #type_def{native_type = Key},
 %%
 %% If it already has been written out, it must be back-referenced.
 visit(NativeType, State = #encoding_state{pool = Pool}) ->
-    logger:debug("[encode] visit ~p",[NativeType]),
-    case dict:find(NativeType,Pool) of
-        {ok,{-1, TypeDef}} ->
+    logger:debug("[encode] visit ~p", [NativeType]),
+    case dict:find(NativeType, Pool) of
+        {ok, {-1, TypeDef}} ->
             %% The type needs hashing and it's reference needs updating
-            {Ref,NewTypeDef,NewState} = assign_reference(TypeDef, State),
+            {Ref, NewTypeDef, NewState} = assign_reference(TypeDef, State),
 %%            Hash = erlang:phash2(TypeDef),
             %%%%%%%%%%%%%%%%%%%%%%%%%%
             %% LOOK INTO THIS DEPENDENCY, MAYBE EXTRACT IT OUT
 %%            type_decoding:hash_store(NewTypeDef,NewState),  %% 貌似这个没用,可以去掉.
             %%%%%%%%%%%%%%%%%%%%%%%%%%
-            {hash, Ref,NewTypeDef , NewState};
-        {ok,{Ref, TypeDef} } ->
+            {hash, Ref, NewTypeDef, NewState};
+        {ok, {Ref, TypeDef}} ->
             {ref, Ref};
         error ->
             case get_deftype_public_pool(NativeType) of
                 undefined ->
-                    throw("unkonw native type "++ atom_to_list(NativeType));
+                    throw("unkonw native type " ++ atom_to_list(NativeType));
                 TypeDefTmp ->
-                    State2 = enlist(TypeDefTmp,State),
-                    visit(NativeType,State2)
+                    State2 = enlist(TypeDefTmp, State),
+                    visit(NativeType, State2)
             end
     end.
 
 %% This increments the reference count for the current scope and updates the
 %% reference in the pool of known types
 assign_reference(TypeDef = #type_def{native_type = Key},
-                 #encoding_state{pool = OldPool, count = Count}) ->
+    #encoding_state{pool = OldPool, count = Count}) ->
     NewCount = Count + 1,
     NewTypeDef = TypeDef#type_def{defineNo = NewCount},
     Value = {NewCount, NewTypeDef},
     NewPool = dict:store(Key, Value, OldPool),
-    logger:debug("[encode] assign_reference type ~p definedNo ~p",[Key,NewCount]),
-    {NewCount,NewTypeDef,#encoding_state{pool = NewPool, count = NewCount}}.
+    logger:debug("[encode] assign_reference type ~p definedNo ~p", [Key, NewCount]),
+    {NewCount, NewTypeDef, #encoding_state{pool = NewPool, count = NewCount}}.
 
-get_deftype_public_pool(NativeType)->
+get_deftype_public_pool(NativeType) ->
     type_register:lookup_native_type(NativeType).

@@ -1,3 +1,20 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.apache.dubbo.erlang.analysis.parse;
 
 import org.objectweb.asm.Type;
@@ -15,7 +32,7 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 
 public class ParseJarInterfaceInfo {
-    private final static Logger logger= LoggerFactory.getLogger(ParseJarInterfaceInfo.class);
+    private final static Logger logger = LoggerFactory.getLogger(ParseJarInterfaceInfo.class);
 
     static final String CLAZZ = ".class";
 
@@ -31,20 +48,20 @@ public class ParseJarInterfaceInfo {
 
             }
         } catch (IOException e) {
-            logger.debug("parse:",e);
-        }finally {
-            if(jarFile!=null) {
+            logger.debug("parse:", e);
+        } finally {
+            if (jarFile != null) {
                 try {
                     jarFile.close();
                 } catch (IOException e) {
-                    logger.error("",e);
+                    logger.error("", e);
                 }
             }
-            if(inputInteface!=null)
+            if (inputInteface != null)
                 try {
                     inputInteface.close();
                 } catch (IOException e) {
-                    logger.error("",e);
+                    logger.error("", e);
                 }
         }
 //        parseArgs(jarfile);
@@ -63,39 +80,39 @@ public class ParseJarInterfaceInfo {
                 name = jarEntry.getName();
                 if (name.endsWith(CLAZZ)) {
                     logger.debug(name);
-                    if(name.indexOf("WEB-INF/classes/")>-1)
-                        name = name.substring(16,name.length());
-                    name = name.replace("/",".").substring(0,name.length()-6);
-                    logger.debug("get interfaceName {}",name);
-                    Class tmpClass = Class.forName(name,false,Thread.currentThread().getContextClassLoader());
-                    if(tmpClass.isInterface()){
+                    if (name.indexOf("WEB-INF/classes/") > -1)
+                        name = name.substring(16, name.length());
+                    name = name.replace("/", ".").substring(0, name.length() - 6);
+                    logger.debug("get interfaceName {}", name);
+                    Class tmpClass = Class.forName(name, false, Thread.currentThread().getContextClassLoader());
+                    if (tmpClass.isInterface()) {
                         InterfaceInfo newInterface = new InterfaceInfo();
                         newInterface.setInterfaceName(name);
-                        parseClassMethods(tmpClass,newInterface);
+                        parseClassMethods(tmpClass, newInterface);
                         list_interfaces.add(newInterface);
                     }
                 }
                 jarEntry = jarFile.getNextJarEntry();
             }
         } catch (IOException e) {
-            logger.error("",e);
-        }catch (Exception e){
-            logger.error("",e);
-        }finally {
+            logger.error("", e);
+        } catch (Exception e) {
+            logger.error("", e);
+        } finally {
             if (jarFile != null) {
                 try {
                     jarFile.close();
                 } catch (IOException e) {
-                    logger.error("",e);
+                    logger.error("", e);
                 }
             }
         }
         return list_interfaces;
     }
 
-    private void parseClassMethods(Class classObj,InterfaceInfo interfaceInfo){
+    private void parseClassMethods(Class classObj, InterfaceInfo interfaceInfo) {
         Method[] methodsList = classObj.getDeclaredMethods();
-        for(int i=0;i<methodsList.length;i++){
+        for (int i = 0; i < methodsList.length; i++) {
             Method method = methodsList[i];
             MethodInfo methodInfo = new MethodInfo();
             methodInfo.setName(method.getName());
@@ -103,17 +120,17 @@ public class ParseJarInterfaceInfo {
             methodInfo.setMethodDescriptor(methodDescriptor);
 
             int tmpIndex = methodDescriptor.indexOf(")");
-            String argsDescriptor=methodDescriptor.substring(1,tmpIndex);
-            String returnDescriptor=methodDescriptor.substring(tmpIndex);
+            String argsDescriptor = methodDescriptor.substring(1, tmpIndex);
+            String returnDescriptor = methodDescriptor.substring(tmpIndex);
             methodInfo.setArgsType(argsDescriptor);
             methodInfo.setReturnType(returnDescriptor);
 
             methodInfo.setArgsLength(Type.getArgumentTypes(method).length);
 
             Parameter[] parameters = method.getParameters();
-            String[] paramterNames=new String[parameters.length];
-            for(int index=0;index < parameters.length;index++){
-                paramterNames[index]=parameters[index].getName();
+            String[] paramterNames = new String[parameters.length];
+            for (int index = 0; index < parameters.length; index++) {
+                paramterNames[index] = parameters[index].getName();
             }
             methodInfo.setParameterName(paramterNames);
 //          通过asm获取存在为null的情况。
@@ -137,12 +154,14 @@ public class ParseJarInterfaceInfo {
             checkCommonType(Type.getReturnType(method));
         }
     }
-    private void checkCommonType(Type[] types){
-        for(int i=0;i<types.length;i++){
+
+    private void checkCommonType(Type[] types) {
+        for (int i = 0; i < types.length; i++) {
             checkCommonType(types[i]);
         }
     }
-    private void checkCommonType(Type type){
+
+    private void checkCommonType(Type type) {
         CommonTypeInfo.add(type.getClassName());
 
 //        switch (type.getSort()){
@@ -178,19 +197,19 @@ public class ParseJarInterfaceInfo {
 //        return  methodIds;
 //    }
 
-    private String formatData(List<String> list,String prefix,String suffix,boolean isJsonFormat){
+    private String formatData(List<String> list, String prefix, String suffix, boolean isJsonFormat) {
         StringBuilder jsonSb = new StringBuilder(prefix);
-        for(String key : list){
-            if(jsonSb.length()>1)
+        for (String key : list) {
+            if (jsonSb.length() > 1)
                 jsonSb.append(",");
-            if(isJsonFormat)
-                jsonSb.append("\""+key+"\":"+",\"\"") ;
+            if (isJsonFormat)
+                jsonSb.append("\"" + key + "\":" + ",\"\"");
             else
                 jsonSb.append(key);
         }
         jsonSb.append(suffix);
-        if(jsonSb.length()<2)
-            jsonSb.delete(0,jsonSb.length());
+        if (jsonSb.length() < 2)
+            jsonSb.delete(0, jsonSb.length());
         return jsonSb.toString();
     }
 }

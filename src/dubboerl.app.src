@@ -1,16 +1,16 @@
 {application, dubboerl,
- [{description, "An OTP application"},
-  {vsn, "0.3.0"},
-  {registered, []},
-  {mod, { dubboerl_app, []}},
-  {applications,
-   [kernel,
-    stdlib,xmerl,ranch,erlzk,poolboy,inets
-   ]},
-  {env,[]},
-  {modules, []},
+    [{description, "An OTP application"},
+        {vsn, "0.3.0"},
+        {registered, []},
+        {mod, {dubboerl_app, []}},
+        {applications,
+            [kernel,
+                stdlib, xmerl, ranch, erlzk, poolboy, inets
+            ]},
+        {env, []},
+        {modules, []},
 
-  {maintainers, []},
-  {licenses, []},
-  {links, [{"Github", "https://github.com/dubboerl/dubboerl"}]}
- ]}.
+        {maintainers, []},
+        {licenses, []},
+        {links, [{"Github", "https://github.com/dubboerl/dubboerl"}]}
+    ]}.
