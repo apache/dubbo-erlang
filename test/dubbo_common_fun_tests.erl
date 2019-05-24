@@ -23,16 +23,16 @@ request_gen_test() ->
     ?assert(is_integer(Id)).
 
 string_join_test() ->
-    Result1 = lists_util:join([<<"a">>, <<"b">>], <<",">>),
+    Result1 = dubbo_lists_util:join([<<"a">>, <<"b">>], <<",">>),
     ?assertEqual(Result1, <<"a,b">>),
 
-    Result2 = lists_util:join([], <<",">>),
+    Result2 = dubbo_lists_util:join([], <<",">>),
     ?assertEqual(Result2, <<"">>),
 
-    Result3 = lists_util:join([<<"a">>, "b", ttt], <<",">>),
+    Result3 = dubbo_lists_util:join([<<"a">>, "b", ttt], <<",">>),
     ?assertEqual(Result3, <<"a,b">>),
     ok.
 
 list_dup_test() ->
-    R = lists_util:del_duplicate([a, b, a]),
+    R = dubbo_lists_util:del_duplicate([a, b, a]),
     ?assertEqual(length(R), 2).

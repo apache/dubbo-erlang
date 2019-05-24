@@ -17,9 +17,9 @@
 -module(dubbo_service_user_impl).
 
 
--behaviour(user2).
+-behaviour(userOperator).
 
--include_lib("dubbo_service.hrl").
+-include_lib("dubbo_sample_service.hrl").
 -include_lib("dubboerl/include/hessian.hrl").
 -include_lib("dubboerl/include/dubbo.hrl").
 %% API

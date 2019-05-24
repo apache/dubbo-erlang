@@ -14,7 +14,7 @@
 %   limitations under the License.
 % ---------------------------------------------------------------------------
 
--module(type_encoding).
+-module(dubbo_type_encoding).
 
 -include("hessian.hrl").
 
@@ -88,4 +88,4 @@ assign_reference(TypeDef = #type_def{native_type = Key},
     {NewCount, NewTypeDef, #encoding_state{pool = NewPool, count = NewCount}}.
 
 get_deftype_public_pool(NativeType) ->
-    type_register:lookup_native_type(NativeType).
+    dubbo_type_register:lookup_native_type(NativeType).

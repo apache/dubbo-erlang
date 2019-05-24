@@ -14,7 +14,7 @@
 %   limitations under the License.
 % ---------------------------------------------------------------------------
 
--module(type_decoding).
+-module(dubbo_type_decoding).
 -include("hessian.hrl").
 
 %% The encoding state contains all of the statically known tuple types.

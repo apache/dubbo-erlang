@@ -33,7 +33,7 @@
 
 -define(SERVER, ?MODULE).
 
--record(heartbeat, {last_write = 0, last_read = 0, timeout = 60000, max_timeout = 61000}).
+-record(heartbeat, {last_write = 0, last_read = 0, timeout = 60000, max_timeout = 180000}).
 -record(state, {provider_config, socket = undefined,
     heartbeat = #heartbeat{},
     recv_buffer = <<>>,         %%从服务端接收的数据
@@ -83,7 +83,7 @@ init([HostFlag, ProviderConfig, Index]) ->
                 {error, _Reason} ->
                     #state{}
             end,
-    NowStamp = time_util:timestamp_ms(),
+    NowStamp = dubbo_time_util:timestamp_ms(),
     HeartBeatInfo = #heartbeat{last_read = NowStamp, last_write = NowStamp},
     logger:info("netty client start ~p", [HostFlag]),
     start_heartbeat_timer(HeartBeatInfo),
@@ -293,13 +293,13 @@ start_heartbeat_timer(HeartbeatInfo) ->
     erlang:start_timer(HeartbeatInfo#heartbeat.timeout, self(), {heartbeat_timer}),
     ok.
 update_heartbeat(write, Info) ->
-    Info#heartbeat{last_write = time_util:timestamp_ms()};
+    Info#heartbeat{last_write = dubbo_time_util:timestamp_ms()};
 update_heartbeat(read, Info) ->
-    Info#heartbeat{last_read = time_util:timestamp_ms()}.
+    Info#heartbeat{last_read = dubbo_time_util:timestamp_ms()}.
 
 
 check_heartbeat_state(#state{heartbeat = HeartBeatInfo} = _State) ->
-    Now = time_util:timestamp_ms(),
+    Now = dubbo_time_util:timestamp_ms(),
     #heartbeat{last_read = LastRead, last_write = LastWrite, timeout = Timeout, max_timeout = MaxTimeout} = HeartBeatInfo,
     if
         (Now - LastRead) > Timeout ->
@@ -317,7 +317,7 @@ send_heartbeat_msg(Mid, NeedResponse, State) ->
     {ok, Bin} = dubbo_heartbeat:generate_request(Mid, NeedResponse),
     NewState = case send_msg(Bin, State) of
                    ok ->
-                       logger:info("send one heartbeat msg to server"),
+                       logger:info("send one heartbeat to server"),
                        State;
                    {error, Reason} ->
                        logger:warning("dubbo connection send heartbeat error ~p", [Reason]),
@@ -414,6 +414,9 @@ process_response(false, ResponseInfo, RestData, State) ->
 process_response(true, _ResponseInfo, _RestData, State) ->
     {ok, State}.
 
+process_request(true, #dubbo_request{data = <<"R">>}, State) ->
+    {ok, _} = dubbo_consumer_pool:update_connection_readonly(self(), true),
+    {ok, State};
 process_request(true, Request, State) ->
     {ok, NewState} = send_heartbeat_msg(Request#dubbo_request.mid, false, State),
     {ok, NewState};

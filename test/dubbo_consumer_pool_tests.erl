@@ -14,36 +14,20 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(lists_util).
-%% API
--export([join/2, del_duplicate/1]).
+-module(dubbo_consumer_pool_tests).
+-author("dlive").
 
--spec(join(List :: list(), Separator :: binary()) -> binary()).
-join(List, _Separator) when length(List) == 0 ->
-    <<"">>;
-join(List, Separator) ->
-    [First | Rst] = List,
-    Acc2 = lists:foldl(fun(Item, Acc) ->
-        if
-            is_binary(Item) ->
-                <<Acc/binary, Separator/binary, Item/binary>>;
-            is_list(Item) ->
-                Item2 = list_to_binary(Item),
-                <<Acc/binary, Separator/binary, Item2/binary>>;
-            true ->
-                Acc
-        end
-                       end, First, Rst),
-    Acc2.
+-include_lib("eunit/include/eunit.hrl").
+-include("dubbo.hrl").
 
-
-del_duplicate(List) ->
-    lists:foldl(
-        fun(X, List2) ->
-            case lists:member(X, List2) of
-                true ->
-                    List2;
-                _ ->
-                    [X] ++ List2
-            end
-        end, [], List).
+update_readonly_test() ->
+    dubbo_consumer_pool:start_link(),
+    InterfaceName= <<"testinterfacename">>,
+    HostFalg= <<"127.0.0.1/20880">>,
+    ConnectionList = [
+        #connection_info{connection_id=1,pid= testpid,weight = 30,host_flag = HostFalg},
+        #connection_info{connection_id=2,pid= testpid2,weight = 30,host_flag = HostFalg}
+    ],
+    dubbo_consumer_pool:update_connection_info(InterfaceName,HostFalg,ConnectionList,true),
+    {ok,Size} = dubbo_consumer_pool:update_connection_readonly(testpid,false),
+    ?assertEqual(1,Size).

@@ -254,7 +254,7 @@ check_and_create_path(Pid, RootPath, [{Item, CreateType} | Rst]) ->
 
 gen_consumer_node_info(Consumer) ->
     %% revision参数字段的作用是什么？ 暂时不添加
-    Methods = lists_util:join(Consumer#consumer_config.methods, <<",">>),
+    Methods = dubbo_lists_util:join(Consumer#consumer_config.methods, <<",">>),
     Value = io_lib:format(<<"consumer://~s/~s?application=~s&category=~s&check=~p&default.timeout=~p&dubbo=~s&interface=~s&methods=~s&side=~s&timestamp=~p">>,
         [dubbo_common_fun:local_ip_v4_str(),
             Consumer#consumer_config.interface,
@@ -266,7 +266,7 @@ gen_consumer_node_info(Consumer) ->
             Consumer#consumer_config.interface,
             Methods,
             Consumer#consumer_config.side,
-            time_util:timestamp_ms()
+            dubbo_time_util:timestamp_ms()
         ]),
     list_to_binary(Value).
 

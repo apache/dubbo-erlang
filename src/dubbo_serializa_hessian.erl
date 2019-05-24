@@ -25,7 +25,7 @@
 
 
 encode_request_data(Request) ->
-    State = type_encoding:init(),
+    State = dubbo_type_encoding:init(),
     DataType = case Request#dubbo_request.is_event of
                    true ->
                        dubbo_event;
@@ -62,7 +62,7 @@ encode_request_data(dubbo_rpc_invocation, _Request, Data, State) ->
 
 
 encode_response_data(Response) ->
-    State = type_encoding:init(),
+    State = dubbo_type_encoding:init(),
     DataType = case Response#dubbo_response.is_event of
                    true ->
                        dubbo_event;
@@ -98,7 +98,7 @@ encode_response_data(dubbo_rpc_invocation, _Response, Data, State) ->
 
 encode_arguments(Data, State) ->
     {StateNew} = lists:foldl(fun(X, {StateTmp}) ->
-        StateTmpNew = type_encoding:enlist(X, StateTmp),
+        StateTmpNew = dubbo_type_encoding:enlist(X, StateTmp),
         {StateTmpNew} end,
         {State}, Data#dubbo_rpc_invocation.parameterTypes),
     {Bin, State2} = lists:foldl(fun(X, {BinTmp, StateTmp2}) ->
@@ -190,29 +190,14 @@ decode_request(Req, Data) ->
     end.
 
 decode_request(dubbo_rpc_invocation, Req, Data) ->
-    {ResultList, NewState, RestData} = decode_request_body(Data, cotton_hessian:init(), [dubbo, path, version, method_name, desc_and_args, attachments]),
-    [DubboVersion, Path, Version, MethodName, Desc, ArgsObj, Attachments] = ResultList,
+    {ResultList, _NewState, _RestData} = decode_request_body(Data, cotton_hessian:init(), [dubbo, path, version, method_name, desc_and_args, attachments]),
+    [_DubboVersion, Path, Version, MethodName, Desc, ArgsObj, Attachments] = ResultList,
     RpcData = #dubbo_rpc_invocation{className = Path, classVersion = Version, methodName = MethodName, parameterDesc = Data, parameters = ArgsObj, attachments = Attachments},
     Req2 = Req#dubbo_request{data = RpcData},
     {ok, Req2};
-%%    {Rest,Dubbo,State} = cotton_hessian:decode(Data,cotton_hessian:init()),
-%%    {Rest1,ClassName,State1} = cotton_hessian:decode(Data,State),
-%%    {Rest2,ClassName,State2} = cotton_hessian:decode(Rest1,State1),
-%%    case Type of
-%%        1 ->
-%%            {_,Object,DecodeState} = cotton_hessian:decode(Rest,State),
-%%            {ok,Req#dubbo_request{data = Object,decode_state = DecodeState}};
-%%        2 ->
-%%            {ok,Req#dubbo_request{data = null,decode_state = State}};
-%%        _->
-%%            logger:warning("decode unkonw type ~p ~p",[Type,Rest]),
-%%            {Rest2,Object2,DecodeState2} = cotton_hessian:decode(Rest,State),
-%%            logger:warning("decode unkonw type2 ~p ~p",[Object2,Rest2]),
-%%            {ok,Req#dubbo_request{data = Object2,decode_state = DecodeState2}}
-%%    end;
 decode_request(dubbo_event, Req, Data) ->
-    {_Rest, undefined, _NewState} = cotton_hessian:decode(Data, cotton_hessian:init()),
-    {ok, Req#dubbo_request{data = undefined}}.
+    {_Rest, EventData, _NewState} = cotton_hessian:decode(Data, cotton_hessian:init()),
+    {ok, Req#dubbo_request{data = EventData}}.
 
 decode_request_body(Data, State, List) ->
     {ResultList, NewState, RestData} = decode_request_body(List, Data, State, []),

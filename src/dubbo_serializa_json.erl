@@ -261,7 +261,7 @@ string_encode(Data) when is_tuple(Data) ->
     [Name | _] = tuple_to_list(Data),
 %%    Size = record_info(size, Name),
 %%    Fields = record_info(fields, Name),
-    case type_register:lookup_native_type(Name) of
+    case dubbo_type_register:lookup_native_type(Name) of
         undefined ->
             <<"data encode error">>;
         #type_def{fieldnames = Fields, foreign_type = _ForeignType} ->
