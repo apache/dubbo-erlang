@@ -21,7 +21,7 @@
 -compile(export_all).
 
 -include_lib("common_test/include/ct.hrl").
--include("dubbo_service.hrl").
+-include("dubbo_sample_service.hrl").
 %%--------------------------------------------------------------------
 %% Function: suite() -> Info
 %% Info = [tuple()]
@@ -44,7 +44,7 @@ init_per_suite(Config) ->
     dubboerl:start_provider(),
     timer:sleep(2000),
     dubboerl:start_consumer(),
-    dubbo_service_app:register_type_list(),
+    dubbo_sample_service_app:register_type_list(),
     timer:sleep(5000),
     io:format(user, "test case start info ~p~n", [Start]),
     [{appid, 1}].
@@ -142,15 +142,15 @@ lib_type_register(_Config) ->
 
 json_sync_invoker(_Config) ->
     application:set_env(dubboerl, protocol, json),
-    R1 = user2:queryUserInfo(#userInfoRequest{username = "name", requestId = "111"}, #{sync=> true}),
+    R1 = userOperator:queryUserInfo(#userInfoRequest{username = "name", requestId = "111"}, #{sync=> true}),
     io:format(user, "json_sync_invoker result ~p ~n", [R1]),
-    R2 = user2:genUserId(),
+    R2 = userOperator:genUserId(),
     io:format(user, "json_sync_invoker result2 ~p ~n", [R2]),
     ok.
 hessian_sync_invoker(_Config) ->
     application:set_env(dubboerl, protocol, hessian),
-    R1 = user2:queryUserInfo(#userInfoRequest{username = "name", requestId = "111"}, #{sync=> true}),
+    R1 = userOperator:queryUserInfo(#userInfoRequest{username = "name", requestId = "111"}, #{sync=> true}),
     io:format(user, "json_sync_invoker result ~p ~n", [R1]),
-    R2 = user2:genUserId(),
+    R2 = userOperator:genUserId(),
     io:format(user, "json_sync_invoker result2 ~p ~n", [R2]),
     ok.
