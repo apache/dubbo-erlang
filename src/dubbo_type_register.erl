@@ -14,7 +14,7 @@
 %   limitations under the License.
 % ---------------------------------------------------------------------------
 
--module(type_register).
+-module(dubbo_type_register).
 %% API
 -export([init/0, regiest_foreign_native/1, lookup_foreign_type/1, lookup_native_type/1]).
 -include("hessian.hrl").

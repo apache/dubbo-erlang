@@ -14,7 +14,7 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(java_type_defined).
+-module(dubbo_java_type_defined).
 -include("java_type.hrl").
 %% API
 -export([get_list/0]).

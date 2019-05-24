@@ -47,7 +47,7 @@ java_to_native(Data, _) ->
 
 get_deftype(ForeignType) ->
 
-    case type_register:lookup_foreign_type(ForeignType) of
+    case dubbo_type_register:lookup_foreign_type(ForeignType) of
         undefined ->
             logger:debug("get deftype undefined ~p", [ForeignType]),
             false;
@@ -62,7 +62,7 @@ get_deftype(ForeignType) ->
 pre_process_typedef(NativeType, ForeignType, FieldsNames) ->
     Type = #type_def{native_type = NativeType, foreign_type = ForeignType, fieldnames = FieldsNames},
 %%            Type2=type_decoding:hash_store(Type),
-    type_register:regiest_foreign_native(Type),
+    dubbo_type_register:regiest_foreign_native(Type),
     logger:debug("pre_process_typedef ~p,~p", [NativeType, ForeignType]),
     ok.
 
@@ -70,7 +70,7 @@ pre_process_typedef(NativeType, ForeignType, FieldsNames) ->
 jsonobj_to_native(Type, JsonObj, State) ->
     ClassName = java_desc_name_to_dot(Type),
     %% todo need recursion transfer
-    case type_register:lookup_foreign_type(ClassName) of
+    case dubbo_type_register:lookup_foreign_type(ClassName) of
         undefined ->
             JsonObj;
         #type_def{fieldnames = Fields, native_type = NativeType} ->

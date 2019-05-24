@@ -96,7 +96,7 @@ gen_provider_parameter(Providerconfig) ->
         {<<"executes">>, integer_to_binary(Providerconfig#provider_config.executes)},
         {<<"methods">>, Method2},
         {<<"side">>, Providerconfig#provider_config.side},
-        {<<"timestamp">>, integer_to_binary(time_util:timestamp_ms())}
+        {<<"timestamp">>, integer_to_binary(dubbo_time_util:timestamp_ms())}
     ],
     List2 = [io_lib:format("~ts=~ts", [Key, Value]) || {Key, Value} <- List],
     lists:flatten(string:join(List2, "&")).

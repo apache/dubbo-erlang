@@ -41,13 +41,13 @@ stop(_State) ->
 env_init() ->
     ets:new(?PROVIDER_IMPL_TABLE, [public, named_table]),
     dubbo_traffic_control:init(),
-    type_register:init(),
+    dubbo_type_register:init(),
     register_type_list().
 %%    type_decoding:init().
 
 
 register_type_list() ->
-    List = java_type_defined:get_list(),
+    List = dubbo_java_type_defined:get_list(),
     lists:map(
         fun({NativeType, ForeignType, Fields}) ->
             dubbo_type_transfer:pre_process_typedef(NativeType, ForeignType, Fields)

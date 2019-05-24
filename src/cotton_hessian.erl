@@ -216,7 +216,7 @@ encode(object, Input, State) when is_record(Input, object) ->
 encode(class_object,Input,State)->
   [NativeType|Values] = tuple_to_list(Input),
   {ClassEncodingBin, EncodedRef, NewState} =
-    case type_encoding:visit(NativeType,State) of
+    case dubbo_type_encoding:visit(NativeType,State) of
       {ref, Ref} ->
 %%				encode_object(type_information, {ref, Ref}, State);
         %% todo need check

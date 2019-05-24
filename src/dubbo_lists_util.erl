@@ -14,7 +14,7 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(lists_util).
+-module(dubbo_lists_util).
 %% API
 -export([join/2, del_duplicate/1]).
 
