@@ -29,7 +29,7 @@
     terminate/2,
     code_change/3]).
 
--export([select_connection/1, select_connection/2]).
+-export([select_connection/1, select_connection/2, update_connection_readonly/2]).
 
 -include("dubbo.hrl").
 -define(SERVER, ?MODULE).
@@ -38,6 +38,10 @@
 -define(PROVIDER_NODE_LIST_TABLE, provider_node_list).
 
 -record(state, {}).
+
+-ifdef(TEST).
+-compile([export_all]).
+-endif.
 
 
 %%%===================================================================
@@ -229,12 +233,12 @@ get_host_flag(ProviderConfig) ->
 
 update_connection_info(Interface, HostFlag, ConnectionList, IsUpdateProvideNode) ->
     lists:map(fun(Item) ->
-        I1 = ets:insert(?INTERFCE_LIST_TABLE, #interface_list{interface = Interface, connection_info = Item}),
-        logger:debug("save INTERFCE_LIST_TABLE ~p info:~p", [Interface, I1]),
+        I1 = ets:insert(?INTERFCE_LIST_TABLE, #interface_list{interface = Interface, pid = Item#connection_info.pid, connection_info = Item}),
+        logger:debug("insert interface conection info ~p ~p ~p", [Interface, Item#connection_info.pid, I1]),
         case IsUpdateProvideNode of
             true ->
                 I2 = ets:insert(?PROVIDER_NODE_LIST_TABLE, #provider_node_list{host_flag = HostFlag, connection_info = Item}),
-                logger:debug("save PROVIDER_NODE_LIST_TABLE ~p info:~p", [HostFlag, I2]);
+                logger:debug("insert PROVIDER_NODE_LIST_TABLE ~p info:~p", [HostFlag, I2]);
             false ->
                 ok
         end,
@@ -248,7 +252,7 @@ get_interface_provider_node(Interface) ->
             [];
         List ->
             ListRet = [Item#interface_list.connection_info#connection_info.host_flag || Item <- List],
-            lists_util:del_duplicate(ListRet)
+            dubbo_lists_util:del_duplicate(ListRet)
     end.
 
 select_connection(Interface) ->
@@ -265,6 +269,19 @@ select_connection(Interface, RandNum) ->
             {ok, InterfaceListItem#interface_list.connection_info}
     end.
 
+-spec(update_connection_readonly(pid(), boolean()) -> ok).
+update_connection_readonly(ConnectionPid, Readonly) ->
+    Pattern = #interface_list{pid = ConnectionPid, _ = '_'},
+    Objects = ets:match_object(?INTERFCE_LIST_TABLE, Pattern),
+    lists:map(fun(#interface_list{interface = Interface, pid = Pid, connection_info = ConnectionInfo} = InterferConnection) ->
+        logger:debug("[dubbo] update interface ~p ~p readonly", [Interface, Pid]),
+        NewConnectionInfo = ConnectionInfo#connection_info{readonly = Readonly},
+        NewObject = InterferConnection#interface_list{connection_info = NewConnectionInfo},
+        ets:delete_object(?INTERFCE_LIST_TABLE, InterferConnection),
+        ets:insert(?INTERFCE_LIST_TABLE, NewObject)
+              end, Objects),
+    {ok, length(Objects)}.
+
 clean_invalid_provider([]) ->
     ok;
 clean_invalid_provider([HostFlag | DeleteProverList]) ->
@@ -272,7 +289,7 @@ clean_invalid_provider([HostFlag | DeleteProverList]) ->
         [] ->
             ok;
         ProviderNodeList ->
-            ProviderNodeList1 = lists_util:del_duplicate(ProviderNodeList),
+            ProviderNodeList1 = dubbo_lists_util:del_duplicate(ProviderNodeList),
             clean_connection_info(ProviderNodeList1)
     end,
     clean_invalid_provider(DeleteProverList).
