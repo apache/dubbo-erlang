@@ -2,8 +2,8 @@ dubboerl
 =====
 Apache Dubbo Erlang Implementation.
 
-[![Build Status](https://travis-ci.org/apache/incubator-dubbo-erlang.svg?branch=master)](https://travis-ci.org/apache/incubator-dubbo-erlang)
-[![codecov](https://codecov.io/gh/apache/incubator-dubbo-erlang/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/incubator-dubbo-erlang)
+[![Build Status](https://travis-ci.org/apache/dubbo-erlang.svg?branch=master)](https://travis-ci.org/apache/dubbo-erlang)
+[![codecov](https://codecov.io/gh/apache/dubbo-erlang/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/dubbo-erlang)
 
 Feature list
 -----
