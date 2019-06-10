@@ -19,3 +19,6 @@
 -define(PROVIDER_WORKER,provider_worker).
 
 -define(TRAFFIC_CONTROL,traffic_control).
+
+
+-record(dubbo_url,{scheme,user_info,host,port,path,parameters,fragment}).

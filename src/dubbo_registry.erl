@@ -14,10 +14,34 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(dubbo_invoker).
+-module(dubbo_registry).
+-include("dubboerl.hrl").
+
+-callback start(Url :: binary) -> ok.
+-callback register(Url::binary())-> term().
+-callback subscribe(SubcribeUrl::binary(),NotifyFun::function())->ok.
 
 %% API
--export([]).
+-export([setup_register/1,register/2]).
+
+-spec(setup_register(UrlInfo :: map()) -> {ok, RegistryProcessName :: atom()}|{error, term()}).
+setup_register(UrlInfo) ->
+    RegistryModuleName = get_registry_module(UrlInfo),
+    case whereis(RegistryModuleName) of
+        undefined ->
+            apply(RegistryModuleName, start, [UrlInfo]),
+            {ok, RegistryModuleName};
+        _ ->
+            {ok, RegistryModuleName}
+    end.
+
+register(RegistryName,Url) ->
+    logger:info("call ~p register url ~p",[RegistryName,Url]),
+    Result = apply(RegistryName,register,[Url]),
+    Result.
 
 
--callback(invoke(Invoker,Invocation) -> ok).
+get_registry_module(Info) ->
+    RegistryName = Info#dubbo_url.scheme,
+    FullName = << <<"dubbo_registry_">>, RegistryName/binary>>,
+    binary_to_existing_atom(FullName).

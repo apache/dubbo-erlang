@@ -14,10 +14,13 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(dubbo_invoker).
+-module(dubbo_protocol).
+
+-callback refer(InterfaceClassInfo,Url)->ok.
 
 %% API
--export([]).
+-export([refer/2]).
 
 
--callback(invoke(Invoker,Invocation) -> ok).
+refer(InterfaceClassInfo,Url)->
+    dubbo_hooker(protocol_wapper,refer,[InterfaceClassInfo,Url]).

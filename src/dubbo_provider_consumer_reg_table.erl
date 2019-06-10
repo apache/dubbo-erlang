@@ -14,10 +14,8 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(dubbo_invoker).
+-module(dubbo_provider_consumer_reg_table).
+-author("dlive").
 
 %% API
 -export([]).
-
-
--callback(invoke(Invoker,Invocation) -> ok).
