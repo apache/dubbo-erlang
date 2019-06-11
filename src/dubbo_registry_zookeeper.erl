@@ -240,7 +240,7 @@ register_provider_path(Provider, State) ->
 get_provider_list(InterfaceName,ZkPid,NotifyFun) ->
     InterfacePath = <<<<"/dubbo/">>/binary, InterfaceName/binary, <<"/providers">>/binary>>,
     ChildList= get_provider_and_start(ZkPid, InterfaceName, InterfacePath),
-    NotifyFun(ChildList),
+    NotifyFun(InterfaceName,ChildList),
     ok.
 get_provider_and_start(Pid, Interface, Path) ->
     case erlzk:get_children(Pid, Path, spawn(dubbo_registry_zookeeper, provider_watcher, [Interface])) of

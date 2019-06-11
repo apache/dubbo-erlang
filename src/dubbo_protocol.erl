@@ -16,7 +16,7 @@
 %%------------------------------------------------------------------------------
 -module(dubbo_protocol).
 
--callback refer(InterfaceClassInfo,Url)->ok.
+-callback refer(Url)->ok.
 
 %% API
 -export([refer/2]).

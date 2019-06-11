@@ -35,7 +35,7 @@ create_proxy(InitConfigMap)->
     InterfaceClassInfo = #{},
     Para = gen_parameter(),
     Url = gen_registry_url(Para),
-    dubbo_extension:run(protoco_wapper,refer,[InterfaceClassInfo,Url]),
+    dubbo_extension:run(protocol_wapper,refer,[Url]),
     ok.
 
     %%application=hello-world&dubbo=2.0.2&pid=68901&refer=application=hello-world&default.check=false&default.lazy=false&default.retries=0&default.sticky=false&default.timeout=300000&dubbo=2.0.2&interface=org.apache.dubbo.erlang.sample.service.facade.UserOperator&lazy=false&methods=queryUserInfo,queryUserList,genUserId,getUserInfo&pid=68901&register.ip=127.0.0.1&release=2.7.1&retries=0&side=consumer&sticky=false&timestamp=1559727789953&registry=zookeeper&release=2.7.1&timestamp=1559727842451

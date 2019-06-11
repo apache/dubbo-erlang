@@ -18,4 +18,8 @@
 -author("dlive").
 
 %% API
--export([]).
+-export([refer/1]).
+
+refer(Url)->
+
+    {ok,todo}.

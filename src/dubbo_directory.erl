@@ -18,7 +18,7 @@
 
 -behaviour(gen_server).
 
--export([subscribe/2,notify/1]).
+-export([subscribe/2,notify/2]).
 %% API
 -export([start_link/0]).
 
@@ -80,9 +80,30 @@ subscribe(RegistryName,SubcribeUrl)->
             {error,Reason}
     end.
 
-notify(UrlList)->
-    dubbo_consumer_pool:start_consumer(Interface, UrlList),
+notify(Interface,UrlList)->
+    %% @todo if UrlList size is 1, and protocol is empty ,need destroyAllInvokers
+
+    case dubbo_extension:run_fold(protocol,refer,[UrlList],{error,no_protocol}) of
+        {ok,Invokers} ->
+            ok;
+        {error,no_protocol}->
+            error
+    end,
+%%    dubbo_consumer_pool:start_consumer(Interface, UrlList),
     ok.
+
+refresh_invoker(UrlList)->
+    NewInvokers = refresh_invoker(UrlList,[]).
+
+refresh_invoker([Url|Rest],Acc)->
+    case dubbo_extension:run_fold(protocol,refer,[Url],undefined) of
+        undefined ->
+            refresh_invoker(Rest,Acc);
+        {ok,Invoker} ->
+            refresh_invoker(Rest,[Invoker|Acc]);
+        {stop,_}->
+            refresh_invoker(Rest,Acc)
+    end.
 
 %%--------------------------------------------------------------------
 %% @private
