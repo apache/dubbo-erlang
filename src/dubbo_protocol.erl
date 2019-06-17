@@ -16,11 +16,11 @@
 %%------------------------------------------------------------------------------
 -module(dubbo_protocol).
 
--callback refer(Url)->ok.
+-callback refer(Url,Acc)->ok.
 
-%% API
--export([refer/2]).
-
-
-refer(InterfaceClassInfo,Url)->
-    dubbo_hooker(protocol_wapper,refer,[InterfaceClassInfo,Url]).
+%%%% API
+%%-export([refer/2]).
+%%
+%%
+%%refer(InterfaceClassInfo,Url)->
+%%    dubbo_hooker(protocol_wapper,refer,[InterfaceClassInfo,Url]).

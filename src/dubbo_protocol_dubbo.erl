@@ -15,11 +15,21 @@
 %% limitations under the License.
 %%------------------------------------------------------------------------------
 -module(dubbo_protocol_dubbo).
--author("dlive").
+
+-include("dubboerl.hrl").
 
 %% API
--export([refer/1]).
+-export([refer/2]).
 
-refer(Url)->
+refer(Url,Acc)->
+    {ok,UrlInfo} = dubbo_common_fun:parse_url(Url),
+    case UrlInfo#dubbo_url.scheme of
+        <<"dubbo">> ->
+            {ok,todo};
+        _ ->
+            {skip,Acc}
+    end.
 
-    {ok,todo}.
+do_refer(UrlInfo)->
+
+    ok.

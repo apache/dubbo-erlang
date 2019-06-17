@@ -83,12 +83,7 @@ subscribe(RegistryName,SubcribeUrl)->
 notify(Interface,UrlList)->
     %% @todo if UrlList size is 1, and protocol is empty ,need destroyAllInvokers
 
-    case dubbo_extension:run_fold(protocol,refer,[UrlList],{error,no_protocol}) of
-        {ok,Invokers} ->
-            ok;
-        {error,no_protocol}->
-            error
-    end,
+    refresh_invoker(UrlList),
 %%    dubbo_consumer_pool:start_consumer(Interface, UrlList),
     ok.
 

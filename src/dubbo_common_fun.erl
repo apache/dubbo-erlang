@@ -32,7 +32,7 @@ local_ip_v4_str() ->
     list_to_binary(io_lib:format("~p.~p.~p.~p", [V1, V2, V3, V4])).
 
 
--spec(parse_url(Url :: binary()|list()) -> {ok, map()}).
+-spec(parse_url(Url :: binary()|list()) -> {ok, #dubbo_url{}}).
 parse_url(Url) when is_binary(Url) ->
     parse_url(binary_to_list(Url));
 parse_url(Url) ->
