@@ -14,12 +14,12 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(dubbo_consumer_pool_sup).
+-module(dubbo_transport_pool_sup).
 
 -behaviour(supervisor).
 
 %% API
--export([start_link/0, add_children/1, stop_children/1]).
+-export([start_link/0, add_children/2, stop_children/1]).
 
 %% Supervisor callbacks
 -export([init/1]).
@@ -63,17 +63,18 @@ start_link() ->
     ignore |
     {error, Reason :: term()}).
 init([]) ->
-    RestartStrategy = one_for_one,
+    RestartStrategy = simple_one_for_one,
     MaxRestarts = 1000,
     MaxSecondsBetweenRestarts = 3600,
 
     SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
+    Child = {dubbo_client_default, {dubbo_client_default, start_link, []}, permanent, 2000, worker, [dubbo_client_default]},
+    {ok, {SupFlags, [Child]}}.
 
-    {ok, {SupFlags, []}}.
 
+add_children(ProvideConfig, Handler) ->
+    supervisor:start_child(?SERVER, [ProvideConfig, Handler]).
 
-add_children(ChildSpec) ->
-    supervisor:start_child(?SERVER, ChildSpec).
 stop_children(ChildID) ->
     supervisor:terminate_child(?SERVER, ChildID).
 %%%===================================================================

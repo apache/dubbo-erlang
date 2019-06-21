@@ -40,7 +40,7 @@ invoke_request(Interface, Request, RequestOption) ->
     {ok, reference(), Data :: any(), RpcContent :: list()}|
     {error, Reason :: timeout|no_provider|request_full|any()}.
 invoke_request(Interface, Request, RpcContext, RequestState, CallBackPid) ->
-    case dubbo_consumer_pool:select_connection(Interface, Request#dubbo_request.mid) of
+    case dubbo_provider_consumer_reg_table:select_connection(Interface, Request#dubbo_request.mid) of
         {ok, #connection_info{pid = Pid, host_flag = HostFlag}} ->
             case dubbo_traffic_control:check_goon(HostFlag, 199) of
                 ok ->

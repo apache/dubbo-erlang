@@ -102,7 +102,7 @@
 
 
 -record(interface_list, {interface, pid, connection_info}).
--record(provider_node_list, {host_flag, connection_info}).
+-record(provider_node_list, {host_flag, pid, weight, readonly = false}).
 -record(connection_info, {connection_id, pid, weight, host_flag, readonly = false}).
 
 -type dubbo_request() :: #dubbo_request{}.

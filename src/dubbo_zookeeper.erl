@@ -272,5 +272,5 @@ gen_consumer_node_info(Consumer) ->
 
 %%dubbo_zookeeper:register_consumer(<<"com.ifcoder.abcd">>,[]).
 start_provider_process(Interface, ProviderList) ->
-    dubbo_consumer_pool:start_consumer(Interface, ProviderList).
+    dubbo_provider_consumer_reg_table:start_consumer(Interface, ProviderList).
 

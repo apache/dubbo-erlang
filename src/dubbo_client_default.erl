@@ -14,13 +14,12 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(dubbo_netty_client).
+-module(dubbo_client_default).
 
 -behaviour(gen_server).
 
+
 -include("dubbo.hrl").
-%% API
--export([start_link/4]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -29,6 +28,8 @@
     handle_info/2,
     terminate/2,
     code_change/3]).
+-export([start_link/1]).
+
 -export([check_recv_data/2]).
 
 -define(SERVER, ?MODULE).
@@ -38,7 +39,8 @@
     heartbeat = #heartbeat{},
     recv_buffer = <<>>,         %%从服务端接收的数据
     host_flag,
-    reconnection_timer
+    reconnection_timer,
+    handler
 }).
 
 %%%===================================================================
@@ -51,10 +53,10 @@
 %%
 %% @end
 %%--------------------------------------------------------------------
--spec(start_link(Name :: binary(), HostFlag :: binary(), ProviderConfig :: #provider_config{}, integer()) ->
+-spec(start_link(Name :: binary(), ProviderConfig :: #provider_config{}) ->
     {ok, Pid :: pid()} | ignore | {error, Reason :: term()}).
-start_link(Name, HostFlag, ProviderConfig, Index) ->
-    gen_server:start_link({local, Name}, ?MODULE, [HostFlag, ProviderConfig, Index], []).
+start_link(ProviderConfig) ->
+    gen_server:start_link(?MODULE, [ProviderConfig], []).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -74,8 +76,7 @@ start_link(Name, HostFlag, ProviderConfig, Index) ->
 -spec(init(Args :: term()) ->
     {ok, State :: #state{}} | {ok, State :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term()} | ignore).
-init([HostFlag, ProviderConfig, Index]) ->
-    erlang:process_flag(min_bin_vheap_size, 1024 * 1024),
+init([HostFlag, ProviderConfig]) ->
     #provider_config{host = Host, port = Port} = ProviderConfig,
     State = case open(Host, Port) of
                 {ok, Socket} ->

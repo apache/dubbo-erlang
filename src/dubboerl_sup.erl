@@ -45,8 +45,8 @@ init([]) ->
 %%    NettySer = {dubbo_netty_client,{dubbo_netty_client, start_link, []},transient,5000,worker,[dubbo_netty_client]},
     Id_count = {dubbo_id_generator, {dubbo_id_generator, start_link, []}, transient, 5000, worker, [dubbo_id_generator]},
     ProviderPoolSup = {dubbo_provider_worker_sup, {dubbo_provider_worker_sup, start_link, []}, transient, 5000, supervisor, [dubbo_provider_worker_sup]},
-    ConsumerPoolSup = {dubbo_consumer_pool_sup, {dubbo_consumer_pool_sup, start_link, []}, transient, 5000, supervisor, [dubbo_consumer_pool_sup]},
-    ConsumerPool = {dubbo_consumer_pool, {dubbo_consumer_pool, start_link, []}, transient, 5000, worker, [dubbo_consumer_pool]},
+    ConsumerPoolSup = {dubbo_transport_pool_sup, {dubbo_transport_pool_sup, start_link, []}, transient, 5000, supervisor, [dubbo_transport_pool_sup]},
+    ConsumerPool = {dubbo_provider_consumer_reg_table, {dubbo_provider_consumer_reg_table, start_link, []}, transient, 5000, worker, [dubbo_provider_consumer_reg_table]},
     ListNew1 =
         case application:get_env(dubboerl, registry, false) of
             true ->

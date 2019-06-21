@@ -14,20 +14,27 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(dubbo_consumer_pool_tests).
--author("dlive").
+-module(dubbo_exchanger).
 
--include_lib("eunit/include/eunit.hrl").
 -include("dubbo.hrl").
 
-update_readonly_test() ->
-    dubbo_provider_consumer_reg_table:start_link(),
-    InterfaceName= <<"testinterfacename">>,
-    HostFalg= <<"127.0.0.1/20880">>,
-    ConnectionList = [
-        #connection_info{connection_id=1,pid= testpid,weight = 30,host_flag = HostFalg},
-        #connection_info{connection_id=2,pid= testpid2,weight = 30,host_flag = HostFalg}
-    ],
-    dubbo_provider_consumer_reg_table:update_connection_info(InterfaceName,HostFalg,ConnectionList,true),
-    {ok,Size} = dubbo_provider_consumer_reg_table:update_connection_readonly(testpid,false),
-    ?assertEqual(1,Size).
+%% API
+-export([connect/2]).
+
+connect(Url,Handler) ->
+    case dubbo_node_config_util:parse_provider_info(Url) of
+        {ok, ProviderConfig} ->
+            HostFlag= dubbo_provider_consumer_reg_table:get_host_flag(ProviderConfig),
+            {ok, Pid} = dubbo_transport_pool_sup:add_children(ProviderConfig,Handler),
+            logger:info("start provider ~p pid info ~p~n", [HostFlag, Pid]),
+            {ok,#connection_info{ pid = Pid, weight = get_weight(ProviderConfig), host_flag = HostFlag}};
+        {error, R1} ->
+            logger:error("parse provider info error reason ~p", [R1]),
+            {error,R1}
+    end.
+
+
+
+get_weight(_ProviderConfig)->
+    %% todo get weight from provider info
+    30.
