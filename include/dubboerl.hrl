@@ -14,11 +14,13 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--define(PROVIDER_IMPL_TABLE,provider_impl_table).
+-define(PROVIDER_IMPL_TABLE, provider_impl_table).
 
--define(PROVIDER_WORKER,provider_worker).
+-define(PROVIDER_WORKER, provider_worker).
 
--define(TRAFFIC_CONTROL,traffic_control).
+-define(TRAFFIC_CONTROL, traffic_control).
 
 
--record(dubbo_url,{scheme,user_info,host,port,path,parameters,fragment}).
+-record(dubbo_url, {scheme, user_info, host, port, path, parameters, fragment}).
+
+-record(dubbo_invoker, {host_flag, handle}).

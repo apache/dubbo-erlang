@@ -29,7 +29,8 @@
     terminate/2,
     code_change/3]).
 
--export([update_consumer_connections/2,get_host_connections/2, select_connection/1, select_connection/2, update_connection_readonly/2, get_host_flag/1, get_host_flag/2]).
+-export([update_consumer_connections/2,update_node_conections/2,get_interface_provider_node/1,get_host_connections/2, select_connection/1,
+    select_connection/2, update_connection_readonly/2, get_host_flag/1, get_host_flag/2,clean_invalid_provider/1]).
 
 -include("dubbo.hrl").
 -define(SERVER, ?MODULE).
@@ -193,11 +194,7 @@ start_consumer(Interface, ProviderNodeInfo) ->
 get_host_connections(Host, Port) ->
     HostFlag = get_host_flag(Host, Port),
     List = ets:lookup(?PROVIDER_NODE_LIST_TABLE, HostFlag),
-    List2 = lists:map(
-        fun(#provider_node_list{host_flag = HostFlag,pid = Pid,readonly = Readonly}) ->
-            #connection_info{host_flag = HostFlag,pid = Pid,readonly = Readonly}
-        end, List),
-    List2.
+    List.
 
 
 %%%===================================================================
@@ -239,14 +236,29 @@ get_host_connections(Host, Port) ->
 %%                               end, ExecutesList),
 %%    ConnectionList.
 
+
+update_node_conections(HostFlag,Connections)->
+    lists:map(
+        fun(Item) ->
+            HostFlag= Item#connection_info.host_flag,
+            case ets:lookup_element(?PROVIDER_NODE_LIST_TABLE,#connection_info{host_flag = HostFlag,pid = Item#connection_info.pid,_="_"}) of
+                '$end_of_table' ->
+                    I2 = ets:insert(?PROVIDER_NODE_LIST_TABLE, Item),
+                    logger:debug("insert PROVIDER_NODE_LIST_TABLE ~p info:~p", [HostFlag, I2]);
+                _ ->
+                    ok
+            end
+        end, Connections),
+    ok.
+
 update_consumer_connections(Interface, Connections) ->
     lists:map(
         fun(Item) ->
             HostFlag= Item#connection_info.host_flag,
 
-            case ets:lookup_element(?PROVIDER_NODE_LIST_TABLE,#provider_node_list{host_flag = HostFlag,pid = Item#connection_info.pid,_="_"}) of
+            case ets:lookup_element(?PROVIDER_NODE_LIST_TABLE,#connection_info{host_flag = HostFlag,pid = Item#connection_info.pid,_="_"}) of
                 '$end_of_table' ->
-                    I2 = ets:insert(?PROVIDER_NODE_LIST_TABLE, #provider_node_list{host_flag = HostFlag,pid = Item#connection_info.pid}),
+                    I2 = ets:insert(?PROVIDER_NODE_LIST_TABLE, Item),
                     logger:debug("insert PROVIDER_NODE_LIST_TABLE ~p info:~p", [HostFlag, I2]);
                 {_ObjectList,_Continuation} ->
                     ok
@@ -269,7 +281,7 @@ update_connection_info(Interface, HostFlag, ConnectionList, IsUpdateProvideNode)
         logger:debug("insert interface conection info ~p ~p ~p", [Interface, Item#connection_info.pid, I1]),
         case IsUpdateProvideNode of
             true ->
-                I2 = ets:insert(?PROVIDER_NODE_LIST_TABLE, #provider_node_list{host_flag = HostFlag, connection_info = Item}),
+                I2 = ets:insert(?PROVIDER_NODE_LIST_TABLE, Item),
                 logger:debug("insert PROVIDER_NODE_LIST_TABLE ~p info:~p", [HostFlag, I2]);
             false ->
                 ok
@@ -320,18 +332,17 @@ clean_invalid_provider([HostFlag | DeleteProverList]) ->
     case ets:lookup(?PROVIDER_NODE_LIST_TABLE, HostFlag) of
         [] ->
             ok;
-        ProviderNodeList ->
-            ProviderNodeList1 = dubbo_lists_util:del_duplicate(ProviderNodeList),
-            clean_connection_info(ProviderNodeList1)
+        ProviderNodeConnections ->
+            ProviderNodeConnections1 = dubbo_lists_util:del_duplicate(ProviderNodeConnections),
+            clean_connection_info(ProviderNodeConnections1)
     end,
     clean_invalid_provider(DeleteProverList).
 
-clean_connection_info(ProviderNodeList) ->
+clean_connection_info(ProviderNodeConnections) ->
     lists:map(fun(Item) ->
-        Pid = Item#provider_node_list.connection_info#connection_info.pid,
-        ConnectionId = Item#provider_node_list.connection_info#connection_info.connection_id,
+        Pid = Item#connection_info.pid,
         Pattern = #interface_list{pid = Pid, _ = '_'},
         ets:delete_object(?INTERFCE_LIST_TABLE, Pattern),
-        dubbo_transport_pool_sup:stop_children(ConnectionId)
-              end, ProviderNodeList),
+        dubbo_transport_pool_sup:stop_children(Pid)
+              end, ProviderNodeConnections),
     ok.

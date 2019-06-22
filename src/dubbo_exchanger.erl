@@ -21,20 +21,14 @@
 %% API
 -export([connect/2]).
 
-connect(Url,Handler) ->
-    case dubbo_node_config_util:parse_provider_info(Url) of
-        {ok, ProviderConfig} ->
-            HostFlag= dubbo_provider_consumer_reg_table:get_host_flag(ProviderConfig),
-            {ok, Pid} = dubbo_transport_pool_sup:add_children(ProviderConfig,Handler),
-            logger:info("start provider ~p pid info ~p~n", [HostFlag, Pid]),
-            {ok,#connection_info{ pid = Pid, weight = get_weight(ProviderConfig), host_flag = HostFlag}};
-        {error, R1} ->
-            logger:error("parse provider info error reason ~p", [R1]),
-            {error,R1}
-    end.
+connect(ProviderConfig, Handler) ->
+    HostFlag = dubbo_provider_consumer_reg_table:get_host_flag(ProviderConfig),
+    {ok, Pid} = dubbo_transport_pool_sup:add_children(ProviderConfig, Handler),
+    logger:info("start provider ~p pid info ~p~n", [HostFlag, Pid]),
+    {ok, #connection_info{pid = Pid, weight = get_weight(ProviderConfig), host_flag = HostFlag}}.
 
 
 
-get_weight(_ProviderConfig)->
+get_weight(_ProviderConfig) ->
     %% todo get weight from provider info
     30.
