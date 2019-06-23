@@ -33,8 +33,9 @@ start_consumer() ->
     ApplicationName = application:get_env(dubboerl, application, <<"defaultApplication">>),
     lists:map(fun({Interface, Option}) ->
         ConsumerInfo = dubbo_config_util:gen_consumer(ApplicationName, Interface, Option),
-        dubbo_zookeeper:register_consumer(ConsumerInfo),
-        logger:info("register consumer success ~p", [Interface])
+%%        dubbo_zookeeper:register_consumer(ConsumerInfo),
+        dubbo_reference_config:init_reference(ConsumerInfo),
+        logger:info("consumer refer success ~p", [Interface])
               end, ConsumerList),
     ok.
 

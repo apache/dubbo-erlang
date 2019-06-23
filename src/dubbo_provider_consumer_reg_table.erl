@@ -36,6 +36,9 @@
 -define(SERVER, ?MODULE).
 
 -define(INTERFCE_LIST_TABLE, interface_list).
+
+-define(INTERFAE_INFO_TABLE,dubbo_interface_info).
+
 -define(PROVIDER_NODE_LIST_TABLE, provider_node_list).
 
 -record(state, {}).
@@ -87,16 +90,21 @@ init_ets_table() ->
             ok
     catch
         _Type:Reason ->
-            logger:error("new ets table error ~p", [Reason]),
-            error
+            logger:error("new ets table INTERFCE_LIST_TABLE error ~p", [Reason])
     end,
     try ets:new(?PROVIDER_NODE_LIST_TABLE, [bag, public, named_table, {keypos, 2}]) of
         ?PROVIDER_NODE_LIST_TABLE ->
             ok
     catch
         _Type1:Reason1 ->
-            logger:error("new ets table error ~p", [Reason1]),
-            error
+            logger:error("new ets table  PROVIDER_NODE_LIST_TABLE error ~p", [Reason1])
+    end,
+    try ets:new(?INTERFAE_INFO_TABLE, [public, named_table, {keypos, 2}]) of
+        ?INTERFAE_INFO_TABLE ->
+            ok
+    catch
+        _Type1:Reason1 ->
+            logger:error("new ets table  PROVIDER_NODE_LIST_TABLE error ~p", [Reason1])
     end,
     ok.
 %%--------------------------------------------------------------------
@@ -195,6 +203,9 @@ get_host_connections(Host, Port) ->
     HostFlag = get_host_flag(Host, Port),
     List = ets:lookup(?PROVIDER_NODE_LIST_TABLE, HostFlag),
     List.
+
+update_interface_info(InterfaceInfo)->
+    ets:insert(?INTERFAE_INFO_TABLE,InterfaceInfo).
 
 
 %%%===================================================================

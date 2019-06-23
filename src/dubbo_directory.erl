@@ -18,6 +18,8 @@
 
 -behaviour(gen_server).
 -include("dubboerl.hrl").
+-include("dubbo.hrl").
+
 -export([subscribe/2,notify/2]).
 %% API
 -export([start_link/0]).
@@ -92,15 +94,15 @@ refresh_invoker(UrlList)->
     case pick_interface(UrlList) of
         {error,Reason}->
             fail;
-        {"empty",Interface}->
+        {"empty",Interface,_}->
             todo_destroy;
-        {_,Interface} ->
+        {_,Interface,LoadBalance} ->
             OldProviderHosts = dubbo_provider_consumer_reg_table:get_interface_provider_node(Interface),
             NewInvokers = refresh_invoker(UrlList,[]),
             NewProviderHosts = [Item#dubbo_invoker.host_flag || Item <- NewInvokers],
             DeleteProverList = OldProviderHosts -- NewProviderHosts,
-            dubbo_provider_consumer_reg_table:clean_invalid_provider(DeleteProverList)
-
+            dubbo_provider_consumer_reg_table:clean_invalid_provider(DeleteProverList),
+            dubbo_provider_consumer_reg_table:update_connection_info(#interface_info{interface = Interface,loadbalance = LoadBalance})
     end.
 %%    OldProviderHosts =
 
@@ -119,7 +121,8 @@ pick_interface([Url | _]) ->
     case dubbo_common_fun:parse_url(Url) of
         {ok,UrlInfo}->
             Interface = maps:get("interface",UrlInfo#dubbo_url.parameters),
-            {UrlInfo#dubbo_url.scheme,Interface};
+            LoadBalance = list_to_atom("dubbo_loadbalance_" ++ maps:get("loadbalance",UrlInfo#dubbo_url.parameters,"random")),
+            {UrlInfo#dubbo_url.scheme,Interface,LoadBalance};
         {error,Reason} ->
             {error,Reason}
     end.

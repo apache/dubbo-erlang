@@ -49,5 +49,5 @@ gen_consumer_url(UrlInfo)->
         path = Interface,
         parameters = Parameters2
     },
-    ConsumerUrl = dubbo_common_fun:map_to_url(ConsumerUrlInfo),
+    ConsumerUrl = dubbo_common_fun:url_to_binary(ConsumerUrlInfo),
     ConsumerUrl.

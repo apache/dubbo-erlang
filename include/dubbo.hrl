@@ -100,6 +100,7 @@
 }).
 
 
+-record(interface_info, {interface, loadbalance}).
 
 -record(interface_list, {interface, pid, connection_info}).
 %%-record(provider_node_list, {host_flag, pid, weight, readonly = false}).

@@ -18,7 +18,7 @@
 
 -include("dubboerl.hrl").
 %% API
--export([local_ip_v4/0, local_ip_v4_str/0, parse_url/1, map_to_url/1]).
+-export([local_ip_v4/0, local_ip_v4_str/0, parse_url/1, url_to_binary/1]).
 
 local_ip_v4() ->
     {ok, Addrs} = inet:getifaddrs(),
@@ -67,7 +67,7 @@ parse_url_parameter([Item | Rest], Parameters) ->
     end.
 
 
-map_to_url(UrlInfo) ->
+url_to_binary(UrlInfo) ->
     ParameterStr =
         case UrlInfo#dubbo_url.parameters of
             undefined ->
@@ -79,10 +79,11 @@ map_to_url(UrlInfo) ->
                 ParameterStr2 = ["?" | ParameterStr1],
                 list_to_binary(ParameterStr2)
         end,
-    Value = io_lib:format(<<"~s://~s/~s?~s">>,
+    Value = io_lib:format(<<"~s://~s:~p/~s?~s">>,
         [
             UrlInfo#dubbo_url.scheme,
             UrlInfo#dubbo_url.host,
+            UrlInfo#dubbo_url.port,
             UrlInfo#dubbo_url.path,
             ParameterStr
         ]),
