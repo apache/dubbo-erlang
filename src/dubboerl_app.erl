@@ -27,9 +27,14 @@
 %%====================================================================
 
 start(_StartType, _StartArgs) ->
-    io:format("[START] dubbo framework server start~n"),
-%%    env_init(),
-    dubboerl_sup:start_link().
+    logger:info("[START] dubbo framework server start"),
+    case dubboerl_sup:start_link() of
+        {ok,Pid} ->
+            init_default_hooks(),
+            {ok,Pid};
+        Result ->
+            Result
+    end.
 
 %%--------------------------------------------------------------------
 stop(_State) ->
@@ -38,6 +43,11 @@ stop(_State) ->
 %%====================================================================
 %% Internal functions
 %%====================================================================
+init_default_hooks()->
+    dubbo_extension:register(protocol,dubbo_protocol_dubbo,10),
+    dubbo_extension:register(protocol_wapper,dubbo_protocol_registry,10),
+
+    ok.
 env_init() ->
     ets:new(?PROVIDER_IMPL_TABLE, [public, named_table]),
     dubbo_traffic_control:init(),
