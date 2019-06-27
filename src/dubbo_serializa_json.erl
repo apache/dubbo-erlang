@@ -48,12 +48,12 @@ encode_request_data(dubbo_rpc_invocation, _Request, Data, State) ->
         ?LINE_SEPERATOR
     ],
     {ArgsBin, _} = encode_arguments(Data, State),
-    AttachBinay = jiffy:encode({Data#dubbo_rpc_invocation.attachments}, []),
+    AttachBinay = jsx:encode(Data#dubbo_rpc_invocation.attachments),
     RequestData = erlang:iolist_to_binary(RequestList ++ [ArgsBin, AttachBinay, ?LINE_SEPERATOR]),
     {ok, RequestData};
 encode_request_data(dubbo_event, _Request, Data, _State) ->
     %% @todo 确认该数据类型
-    Bin = jiffy:encode(Data),
+    Bin = jsx:encode(Data),
     {ok, Bin}.
 
 
@@ -74,7 +74,7 @@ encode_response_data(Response) ->
     {ok, Bin}.
 
 encode_response_data(dubbo_event, _Response, Data, State) ->
-    Bin = jiffy:encode(Data, []),
+    Bin = jsx:encode(Data),
     {ok, Bin};
 encode_response_data(dubbo_rpc_invocation, _Response, Data, State) ->
     Result = case Data of
@@ -156,19 +156,19 @@ decode_response(dubbo_rpc_invocation, Res, Data) ->
     DataList = binary:split(Data, <<"\n">>, [global]),
     [TypeBin | DataList1] = DataList,
 %%    {Rest,Type,State} = cotton_hessian:decode(Data,cotton_hessian:init()),
-    Type = jiffy:decode(TypeBin),
+    Type = jsx:decode(TypeBin),
 
     case Type of
         ?RESPONSE_VALUE ->
 %%            {_,Object,DecodeState} = cotton_hessian:decode(Rest,State),
             [Value | _] = DataList1,
-            Object = jiffy:decode(Value, [return_maps]),
+            Object = jsx:decode(Value, [return_maps]),
             {ok, Res#dubbo_response{data = Object}};
         ?RESPONSE_NULL_VALUE ->
             {ok, Res#dubbo_response{data = null}};
         ?RESPONSE_WITH_EXCEPTION ->
             [ExceptionValue | _] = DataList1,
-            ExceptionObject = jiffy:decode(ExceptionValue),
+            ExceptionObject = jsx:decode(ExceptionValue),
             {ok, Res#dubbo_response{data = ExceptionObject}};
         Other ->
             logger:error("server response unkonw info ~p", [Other]),
@@ -196,10 +196,8 @@ decode_request(dubbo_rpc_invocation, Req, Data) ->
     {ok, Req2};
 
 decode_request(dubbo_event, Req, Data) ->
-%%    DataList = binary:split(Data,<<"\n">>),
     logger:debug("dubbo_event datalist ~w", [Data]),
-    Result = jiffy:decode(Data, []),
-%%    {_Rest,undefined,_NewState} = cotton_hessian:decode(Data,cotton_hessian:init()),
+    Result = jsx:decode(Data),
     {ok, Req#dubbo_request{data = Result}}.
 
 decode_request_body(Data, State, List) ->
@@ -217,13 +215,11 @@ decode_request_body(Data, State, List) ->
 
 decode_request_body([ParseType | List], [DataItem | Data], State, ResultList)
     when ParseType == dubbo;ParseType == path;ParseType == version;ParseType == method_name ->
-    DecodeData = jiffy:decode(DataItem, [return_maps]),
+    DecodeData = jsx:decode(DataItem, [return_maps]),
     decode_request_body(List, Data, State, [DecodeData] ++ ResultList);
 
 decode_request_body([desc_and_args | List], [DescBin | Data], State, ResultList) ->
-    ParameterDesc = jiffy:decode(DescBin, []),
-
-%%    {Rest,ParameterDesc,State1 } = cotton_hessian:decode(Data,State),
+    ParameterDesc = jsx:decode(DescBin),
     if
         size(ParameterDesc) == 0 ->
             decode_request_body(List, Data, State, [[], []] ++ ResultList);
@@ -233,7 +229,7 @@ decode_request_body([desc_and_args | List], [DescBin | Data], State, ResultList)
             decode_request_body(List, RestData, NewState, [ArgsObjList, ParameterDesc] ++ ResultList)
     end;
 decode_request_body([attachments | List], [DataItem | Data], State, ResultList) ->
-    Attachments = jiffy:decode(DataItem, [return_maps]),
+    Attachments = jsx:decode(DataItem, [return_maps]),
 %%    AttachmentsList = dict:to_list(Attachments#map.dict),
     decode_request_body(List, Data, State, [Attachments] ++ ResultList);
 decode_request_body([_Type1 | List], Data, State, ResultList) ->
@@ -250,7 +246,7 @@ decode_request_body_args([ArgsType | RestList], Data, State, ArgsObjList) when A
     decode_request_body_args(RestList, Data, State, ArgsObjList);
 
 decode_request_body_args([ArgsType | RestList], [DataItem | Data], State, ArgsObjList) ->
-    ArgObj = jiffy:decode(DataItem, [return_maps]),
+    ArgObj = jsx:decode(DataItem, [return_maps]),
 %%    {Rest,ArgObj,NewState } = cotton_hessian:decode(Data,State),
     ArgObj2 = dubbo_type_transfer:jsonobj_to_native(ArgsType, ArgObj, State),
     decode_request_body_args(RestList, Data, State, ArgsObjList ++ [ArgObj2]).
@@ -270,8 +266,8 @@ string_encode(Data) when is_tuple(Data) ->
                 fun({I, E}, Acc) ->
                     Acc#{E => element(I, Data)}
                 end, #{}, lists:zip(lists:seq(2, length(Fields) + 1), Fields)),
-            jiffy:encode(MapValue)
+            jsx:encode(MapValue)
     end;
 
 string_encode(Data) ->
-    jiffy:encode(Data).
+    jsx:encode(Data).

@@ -30,7 +30,7 @@ Start
 Add dubblerl to rebar.config with your project
 ```erlang
 {deps, [
-    {dubboerl, {git, "https://github.com/apache/incubator-dubbo-erlang.git", {branch, "master"}}}
+    {dubboerl, {git, "https://github.com/apache/dubbo-erlang.git", {branch, "master"}}}
 ]}.
 ```
 
@@ -77,5 +77,5 @@ Reference the demo project [dubboerl_demo](./samples/dubboerl_demo)
 
 More Documents
 ------
-Reference [Docs](docs/index.md)
+Reference [Docs](http://dubbo.apache.org/en-us/docs/user/languages/erlang/start.html)
 
