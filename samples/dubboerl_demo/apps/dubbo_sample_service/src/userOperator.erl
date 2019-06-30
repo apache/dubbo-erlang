@@ -67,7 +67,7 @@ getUserInfo(Arg0, RequestOption)->
         ]
     },
     Request = dubbo_adapter:reference(Data),
-    dubbo_invoker_old:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
+    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 
 
 -spec genUserId()->
@@ -96,7 +96,7 @@ genUserId( RequestOption)->
         ]
     },
     Request = dubbo_adapter:reference(Data),
-    dubbo_invoker_old:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
+    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 
 
 -spec queryUserInfo(Arg0::#userInfoRequest{})->
@@ -127,7 +127,7 @@ queryUserInfo(Arg0, RequestOption)->
         ]
     },
     Request = dubbo_adapter:reference(Data),
-    dubbo_invoker_old:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
+    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 
 
 -spec queryUserList(Arg0::list())->
@@ -158,5 +158,5 @@ queryUserList(Arg0, RequestOption)->
         ]
     },
     Request = dubbo_adapter:reference(Data),
-    dubbo_invoker_old:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
+    dubbo_invoker:invoke_request(?CURRENT_CLASS_NAME,Request,RequestOption).
 

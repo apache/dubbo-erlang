@@ -10,8 +10,8 @@
 
     <dubbo:consumer check="false" timeout="300000" id="dubboConsumerConfig" retries="0"/>
 
-<!--    <bean id="userService" class="org.apache.dubbo.erlang.sample.service.impl.UserOperatorImpl"/>-->
-<!--    <dubbo:service interface="org.apache.dubbo.erlang.sample.service.facade.UserOperator" ref="userService"/>-->
+    <bean id="userService" class="org.apache.dubbo.erlang.sample.service.impl.UserOperatorImpl"/>
+    <dubbo:service interface="org.apache.dubbo.erlang.sample.service.facade.UserOperator" ref="userService"/>
 
-    <dubbo:reference  id="userInterface" interface="org.apache.dubbo.erlang.sample.service.facade.UserOperator" retries="0" />
+<!--    <dubbo:reference  id="userInterface" interface="org.apache.dubbo.erlang.sample.service.facade.UserOperator" retries="0" />-->
 </beans>

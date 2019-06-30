@@ -15,7 +15,6 @@
 %% limitations under the License.
 %%------------------------------------------------------------------------------
 -module(dubbo_consumer_pool_tests).
--author("dlive").
 
 -include_lib("eunit/include/eunit.hrl").
 -include("dubbo.hrl").
@@ -25,8 +24,8 @@ update_readonly_test() ->
     InterfaceName= <<"testinterfacename">>,
     HostFalg= <<"127.0.0.1/20880">>,
     ConnectionList = [
-        #connection_info{connection_id=1,pid= testpid,weight = 30,host_flag = HostFalg},
-        #connection_info{connection_id=2,pid= testpid2,weight = 30,host_flag = HostFalg}
+        #connection_info{pid= testpid,weight = 30,host_flag = HostFalg},
+        #connection_info{pid= testpid2,weight = 30,host_flag = HostFalg}
     ],
     dubbo_provider_consumer_reg_table:update_connection_info(InterfaceName,HostFalg,ConnectionList,true),
     {ok,Size} = dubbo_provider_consumer_reg_table:update_connection_readonly(testpid,false),

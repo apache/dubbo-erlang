@@ -15,7 +15,11 @@
 %% limitations under the License.
 %%------------------------------------------------------------------------------
 -module(dubbo_cluster).
--author("dlive").
 
-%% API
--export([]).
+
+
+select(Interface) ->
+    ok.
+
+get_loadbalance() ->
+    ok.

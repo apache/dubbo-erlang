@@ -18,7 +18,7 @@
 -behaviour(gen_server).
 
 %% API
--export([run/3,run_fold/4,register/3,unregister/3]).
+-export([run/3, run_fold/4, run_fold/5, register/3, unregister/3, invoke/5, invoke_foldr/4]).
 
 
 -export([start_link/0]).
@@ -31,70 +31,104 @@
 -record(state, {}).
 
 
--spec reg(HookName::hookname(), Module::atom(),Priority::integer()) -> ok | {error, term()}.
-register(HookName, Module,Priority) ->
-    gen_server:call(?MODULE, {register, HookName, {Priority, {Module}}}).
+-spec register(HookName :: atom(), Module :: atom(), Priority :: integer()) -> ok | {error, term()}.
+register(HookName, Module, Priority) ->
+    gen_server:call(?MODULE, {register, HookName, {Priority, Module}}).
 
--spec unregister(HookName::hookname(), Module::atom(),Priority::integer()) -> ok.
-unregister(HookName, Module,Priority) ->
+-spec unregister(HookName :: atom(), Module :: atom(), Priority :: integer()) -> ok.
+unregister(HookName, Module, Priority) ->
     gen_server:call(?MODULE, {unregister, HookName, {Priority, Module}}).
 
-%% @doc run all hooks registered for the HookName.
-%% Execution can be interrupted if an hook return the atom `stop'.
--spec run(HookName::hookname(), Args::list()) -> ok.
-run(HookName,Fun, Args) ->
+-spec run(HookName :: atom(), Fun :: atom(), Args :: list()) -> ok.
+run(HookName, Fun, Args) ->
     case find_hooks(HookName) of
         no_hook -> ok;
-        Hooks -> run1(Hooks, HookName,Fun, Args)
+        Hooks ->
+            run1(Hooks, HookName, Fun, Args)
     end.
 
-run1([], _HookName,_Fun, _Args) ->
+run1([], _HookName, _Fun, _Args) ->
     ok;
 run1([M | Rest], HookName, Fun, Args) ->
     Ret = (catch apply(M, Fun, Args)),
     case Ret of
         {'EXIT', Reason} ->
+            io:format(user, "~p~n error running extension: ~p~n", [HookName, Reason]),
             logger:error("~p~n error running extension: ~p~n", [HookName, Reason]),
-            run1(Rest, HookName,Fun, Args);
+            run1(Rest, HookName, Fun, Args);
         stop ->
             ok;
         _ ->
-            run1(Rest, HookName,Fun, Args)
+            run1(Rest, HookName, Fun, Args)
     end.
 
--spec run_fold(HookName::hookname(), Args::list(), Acc::any()) -> Acc2::any().
+-spec run_fold(HookName :: atom(), Fun :: atom(), Args :: list(), Acc :: any()) -> Acc2 :: any().
 run_fold(HookName, Fun, Args, Acc) ->
     case find_hooks(HookName) of
         no_hook -> Acc;
-        Hooks -> run_fold1(Hooks,HookName, Fun, Args, Acc)
+        Hooks -> run_fold1(Hooks, HookName, Fun, Args, Acc)
     end.
 
+run_fold(HookName, Fun, Args, Acc, AppendExtension) ->
+    case find_hooks(HookName) of
+        no_hook -> Acc;
+        Hooks ->
+            run_fold1(Hooks ++ AppendExtension, HookName, Fun, Args, Acc)
+    end.
 
-run_fold1([], _HookName,_Fun, _Args,  Acc) ->
+run_fold1([], _HookName, _Fun, _Args, Acc) ->
     Acc;
-run_fold1([M | Rest], HookName,Fun, Args0,  Acc) ->
+run_fold1([M | Rest], HookName, Fun, Args0, Acc) ->
     Args = Args0 ++ [Acc],
     Ret = (catch apply(M, Fun, Args)),
     case Ret of
         {'EXIT', Reason} ->
-            error_logger:error_msg("~p~n error running hook: ~p~n",
-                [HookName, Reason]),
-            run_fold1(Rest, HookName,Fun,Args0, Acc);
+            logger:error("~p~n error running hook: ~p~n", [HookName, Reason]),
+            run_fold1(Rest, HookName, Fun, Args0, Acc);
         stop ->
             Acc;
         {stop, NewAcc} ->
             NewAcc;
         _ ->
-            run_fold1(Rest, HookName,Fun,Args0, Ret)
+            run_fold1(Rest, HookName, Fun, Args0, Ret)
+    end.
+
+invoke_foldr(HookName, Fun, Args, Acc) ->
+    case find_hooks(HookName) of
+        no_hook -> Acc;
+        Hooks ->
+            do_invoke(lists:reverse(Hooks), HookName, Fun, Args, Acc)
+    end.
+
+invoke(HookName, Fun, Args, Acc, AppendExtension) ->
+    case find_hooks(HookName) of
+        no_hook -> Acc;
+        Hooks ->
+            do_invoke(Hooks ++ AppendExtension, HookName, Fun, Args, Acc)
+    end.
+
+do_invoke([], _HookName, _Fun, _Args, Acc) ->
+    Acc;
+do_invoke([M | Rest], HookName, Fun, Args0, Acc) ->
+    Args = Args0 ++ [Acc],
+    Ret = (catch apply(M, Fun, Args)),
+    case Ret of
+        {'EXIT', Reason} ->
+            logger:error("~p~n error running hook: ~p~n", [HookName, Reason]),
+            do_invoke(Rest, HookName, Fun, Args0, Acc);
+        stop ->
+            Acc;
+        {stop, NewAcc} ->
+            NewAcc;
+        {ok, Args2, NewAcc2} ->
+            do_invoke(Rest, HookName, Fun, [Args2], NewAcc2)
     end.
 
 
-
-
 %% @doc retrieve the lists of registered functions for an hook.
--spec find(HookName::hookname()) -> {ok, [{atom(), atom()}]} | error.
+-spec find(HookName :: atom()) -> {ok, [{atom(), atom()}]} | error.
 find(HookName) ->
-    case ?find_hook(HookName) of
+    case find_hooks(HookName) of
         no_hook -> error;
         Hooks -> {ok, Hooks}
     end.
@@ -144,7 +178,7 @@ code_change(_OldVsn, State, _Extra) ->
 terminate(_Reason, _Srv) ->
     ok.
 
-do_register(HookName, {_Priority, ModuleName}=Hook) ->
+do_register(HookName, {_Priority, ModuleName} = Hook) ->
     check_module(ModuleName),
     update_hooks(HookName, [Hook]).
 
@@ -180,10 +214,11 @@ check_module(ModuleName) ->
     _ = code:ensure_loaded(ModuleName),
     ok.
 
-find_hooks(HookName)->
-    case ets:lookup(?TAB,HookName) of
-        []->
+find_hooks(HookName) ->
+    case ets:lookup(?TAB, HookName) of
+        [] ->
             no_hook;
-        [{_, Modules}]->
-            Modules
+        [{_, Modules}] ->
+            Modules1 = [Module || {_, Module} <- Modules],
+            Modules1
     end.

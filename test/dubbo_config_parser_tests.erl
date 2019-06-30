@@ -19,7 +19,7 @@
 -include("dubbo.hrl").
 
 gen_provice_config_test() ->
-    ProviderConfigInfo = dubbo_config_util:gen_provider(<<"defaultApp">>, 20880, <<"org.apache.dubbo.test.interface">>, [method1], []),
+    ProviderConfigInfo = dubbo_config_util:gen_provider(<<"defaultApp">>, 20880, <<"org.apache.dubbo.test.interface">>, [method1],dubbo_service_user_impl, []),
     ProvideNode = dubbo_node_config_util:gen_provider_info(ProviderConfigInfo),
     ?assert(is_binary(ProvideNode)).
 

@@ -29,15 +29,15 @@
     terminate/2,
     code_change/3]).
 
--export([update_consumer_connections/2,update_node_conections/2,get_interface_provider_node/1,get_host_connections/2, select_connection/1,
-    select_connection/2, update_connection_readonly/2, get_host_flag/1, get_host_flag/2,clean_invalid_provider/1]).
+-export([update_consumer_connections/2, update_node_conections/2, query_node_connections/1, get_interface_provider_node/1, get_host_connections/2, select_connection/1,
+    update_connection_readonly/2, get_host_flag/1, get_host_flag/2, clean_invalid_provider/1, update_interface_info/1, get_interface_info/1]).
 
 -include("dubbo.hrl").
 -define(SERVER, ?MODULE).
 
 -define(INTERFCE_LIST_TABLE, interface_list).
 
--define(INTERFAE_INFO_TABLE,dubbo_interface_info).
+-define(INTERFACE_INFO_TABLE, dubbo_interface_info).
 
 -define(PROVIDER_NODE_LIST_TABLE, provider_node_list).
 
@@ -99,12 +99,12 @@ init_ets_table() ->
         _Type1:Reason1 ->
             logger:error("new ets table  PROVIDER_NODE_LIST_TABLE error ~p", [Reason1])
     end,
-    try ets:new(?INTERFAE_INFO_TABLE, [public, named_table, {keypos, 2}]) of
-        ?INTERFAE_INFO_TABLE ->
+    try ets:new(?INTERFACE_INFO_TABLE, [public, named_table, {keypos, 2}]) of
+        ?INTERFACE_INFO_TABLE ->
             ok
     catch
-        _Type1:Reason1 ->
-            logger:error("new ets table  PROVIDER_NODE_LIST_TABLE error ~p", [Reason1])
+        _Type2:Reason2 ->
+            logger:error("new ets table  INTERFACE_INFO_TABLE error ~p", [Reason2])
     end,
     ok.
 %%--------------------------------------------------------------------
@@ -123,13 +123,13 @@ init_ets_table() ->
     {stop, Reason :: term(), Reply :: term(), NewState :: #state{}} |
     {stop, Reason :: term(), NewState :: #state{}}).
 
-handle_call({add_consumer, Interface, ProviderNodeList}, _From, State) ->
-
-    OldProviderList = get_interface_provider_node(Interface),
-    NewProviderList = add_consumer(ProviderNodeList, []),
-    DeleteProverList = OldProviderList -- NewProviderList,
-    clean_invalid_provider(DeleteProverList),
-    {reply, ok, State};
+%%handle_call({add_consumer, Interface, ProviderNodeList}, _From, State) ->
+%%
+%%    OldProviderList = get_interface_provider_node(Interface),
+%%    NewProviderList = add_consumer(ProviderNodeList, []),
+%%    DeleteProverList = OldProviderList -- NewProviderList,
+%%    clean_invalid_provider(DeleteProverList),
+%%    {reply, ok, State};
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
 
@@ -204,9 +204,19 @@ get_host_connections(Host, Port) ->
     List = ets:lookup(?PROVIDER_NODE_LIST_TABLE, HostFlag),
     List.
 
-update_interface_info(InterfaceInfo)->
-    ets:insert(?INTERFAE_INFO_TABLE,InterfaceInfo).
 
+
+update_interface_info(InterfaceInfo) ->
+    ets:insert(?INTERFACE_INFO_TABLE, InterfaceInfo).
+
+
+get_interface_info(Interface) ->
+    case ets:lookup(?INTERFACE_INFO_TABLE, Interface) of
+        [] ->
+            undefined;
+        [Result] ->
+            Result
+    end.
 
 %%%===================================================================
 %%% Internal functions
@@ -248,32 +258,27 @@ update_interface_info(InterfaceInfo)->
 %%    ConnectionList.
 
 
-update_node_conections(HostFlag,Connections)->
+update_node_conections(Interface, Connections) ->
     lists:map(
         fun(Item) ->
-            HostFlag= Item#connection_info.host_flag,
-            case ets:lookup_element(?PROVIDER_NODE_LIST_TABLE,#connection_info{host_flag = HostFlag,pid = Item#connection_info.pid,_="_"}) of
-                '$end_of_table' ->
+            HostFlag = Item#connection_info.host_flag,
+            case ets:match_object(?PROVIDER_NODE_LIST_TABLE, #connection_info{host_flag = HostFlag, pid = Item#connection_info.pid, _ = "_"}) of
+                [] ->
                     I2 = ets:insert(?PROVIDER_NODE_LIST_TABLE, Item),
-                    logger:debug("insert PROVIDER_NODE_LIST_TABLE ~p info:~p", [HostFlag, I2]);
+                    logger:debug("update_node_conections insert one record ~p result:~p", [HostFlag, I2]);
                 _ ->
+                    logger:debug("update_node_conections hostflag ~p already exit ", [HostFlag]),
                     ok
             end
         end, Connections),
     ok.
 
+query_node_connections(Hostflag) ->
+    ets:lookup(?PROVIDER_NODE_LIST_TABLE, Hostflag).
+
 update_consumer_connections(Interface, Connections) ->
     lists:map(
         fun(Item) ->
-            HostFlag= Item#connection_info.host_flag,
-
-            case ets:lookup_element(?PROVIDER_NODE_LIST_TABLE,#connection_info{host_flag = HostFlag,pid = Item#connection_info.pid,_="_"}) of
-                '$end_of_table' ->
-                    I2 = ets:insert(?PROVIDER_NODE_LIST_TABLE, Item),
-                    logger:debug("insert PROVIDER_NODE_LIST_TABLE ~p info:~p", [HostFlag, I2]);
-                {_ObjectList,_Continuation} ->
-                    ok
-            end,
             I1 = ets:insert(?INTERFCE_LIST_TABLE, #interface_list{interface = Interface, pid = Item#connection_info.pid, connection_info = Item}),
             logger:debug("insert interface conection info ~p ~p ~p", [Interface, Item#connection_info.pid, I1]),
             ok
@@ -281,10 +286,10 @@ update_consumer_connections(Interface, Connections) ->
     ok.
 
 get_host_flag(ProviderConfig) ->
-    HostFlag = <<(list_to_binary(ProviderConfig#provider_config.host))/binary, <<"_">>/binary, (integer_to_binary(ProviderConfig#provider_config.port))/binary>>,
+    HostFlag = <<(ProviderConfig#provider_config.host)/binary, <<"_">>/binary, (integer_to_binary(ProviderConfig#provider_config.port))/binary>>,
     HostFlag.
 get_host_flag(Host, Port) ->
-    <<(list_to_binary(Host))/binary, <<"_">>/binary, (integer_to_binary(Port))/binary>>.
+    <<Host/binary, <<"_">>/binary, (integer_to_binary(Port))/binary>>.
 
 update_connection_info(Interface, HostFlag, ConnectionList, IsUpdateProvideNode) ->
     lists:map(fun(Item) ->
@@ -311,17 +316,12 @@ get_interface_provider_node(Interface) ->
     end.
 
 select_connection(Interface) ->
-    RandNum = rand:uniform(2048),
-    select_connection(Interface, RandNum).
-select_connection(Interface, RandNum) ->
     case ets:lookup(?INTERFCE_LIST_TABLE, Interface) of
         [] ->
             {error, none};
         List ->
-            Len = length(List),
-            RemNum = (RandNum rem Len) + 1,
-            InterfaceListItem = lists:nth(RemNum, List),
-            {ok, InterfaceListItem#interface_list.connection_info}
+            Ret = [Item#interface_list.connection_info || Item <- List],
+            {ok, Ret}
     end.
 
 -spec(update_connection_readonly(pid(), boolean()) -> ok).

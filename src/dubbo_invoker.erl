@@ -21,11 +21,8 @@
 -export([]).
 
 
--callback(invoke(Invoker,Invocation) -> ok).
-
-
 %% API
--export([invoke_request/2, invoke_request/3, invoke_request/5]).
+-export([invoke_request/2, invoke_request/3, invoke_request/5, invoke_response/2]).
 
 -spec invoke_request(Interface :: binary(), Request :: #dubbo_request{}) ->
     {ok, reference()}|
@@ -39,7 +36,8 @@ invoke_request(Interface, Request) ->
     {ok, reference(), Data :: any(), RpcContent :: list()}|
     {error, Reason :: timeout|no_provider|any()}.
 invoke_request(Interface, Request, RequestOption) ->
-    invoke_request(Interface, Request, maps:get(ctx, RequestOption, []), RequestOption, self()).
+    invoke_request(Interface, Request, RequestOption, self()).
+%%    invoke_request(Interface, Request, maps:get(ctx, RequestOption, []), RequestOption, self()).
 
 
 -spec invoke_request(Interface :: binary(), Request :: #dubbo_request{}, RpcContext :: list(), RequestState :: map(), CallBackPid :: pid()) ->
@@ -68,6 +66,27 @@ invoke_request(Interface, Request, RpcContext, RequestState, CallBackPid) ->
             {error, no_provider}
     end.
 
+invoke_request(Interface, Request, RequestOption, CallBackPid) ->
+    case dubbo_provider_consumer_reg_table:get_interface_info(Interface) of
+        undefined ->
+            {error, no_provider};
+        #interface_info{protocol = Protocol, loadbalance = LoadBalance} ->
+            ReferenceConfig = #reference_config{sync = is_sync(RequestOption)},
+            Ref = get_ref(RequestOption),
+            Invocation = Request#dubbo_request.data#dubbo_rpc_invocation{
+                loadbalance = LoadBalance,
+                call_ref = Ref,
+                reference_ops = ReferenceConfig,
+                source_pid = CallBackPid
+            },
+            Result = dubbo_extension:invoke(filter, invoke, [Invocation], {ok, Ref}, [Protocol]),
+            Result
+    end.
+
+invoke_response(Invocation, Result) ->
+    Result2 = dubbo_extension:invoke_foldr(filter, do_response, [Invocation], Result),
+    gen_server:cast(Invocation#dubbo_rpc_invocation.source_pid, {response_process, Invocation#dubbo_rpc_invocation.call_ref, Invocation#dubbo_rpc_invocation.attachments, Result2}),
+    ok.
 
 is_sync(Option) ->
     maps:is_key(sync, Option).

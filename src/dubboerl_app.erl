@@ -29,9 +29,9 @@
 start(_StartType, _StartArgs) ->
     logger:info("[START] dubbo framework server start"),
     case dubboerl_sup:start_link() of
-        {ok,Pid} ->
+        {ok, Pid} ->
             init_default_hooks(),
-            {ok,Pid};
+            {ok, Pid};
         Result ->
             Result
     end.
@@ -43,13 +43,14 @@ stop(_State) ->
 %%====================================================================
 %% Internal functions
 %%====================================================================
-init_default_hooks()->
-    dubbo_extension:register(protocol,dubbo_protocol_dubbo,10),
-    dubbo_extension:register(protocol_wapper,dubbo_protocol_registry,10),
-
+init_default_hooks() ->
+    dubbo_extension:register(protocol, dubbo_protocol_dubbo, 10),
+    dubbo_extension:register(protocol_wapper, dubbo_protocol_registry, 10),
+    dubbo_extension:register(filter, application:get_env(dubboerl, cluster, dubbo_cluster_failfast), 1),
     ok.
 env_init() ->
     ets:new(?PROVIDER_IMPL_TABLE, [public, named_table]),
+    ets:new(?SERVICE_EXPORT_TABLE, [public, named_table]),
     dubbo_traffic_control:init(),
     dubbo_type_register:init(),
     register_type_list().

@@ -14,7 +14,10 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(dubbo_common).
 
-%% API
--export([]).
+
+-define(CATEGORY_KEY, <<"category">>).
+
+-define(PROVIDERS_CATEGORY, <<"providers">>).
+
+-define(CONSUMERS_CATEGORY, <<"consumers">>).

@@ -28,7 +28,7 @@ reference(Data) ->
         mid = dubbo_id_generator:gen_id(),
         data = Data,
         mversion = <<"0.0.0">>,
-        serialize_type = serialize_value(application:get_env(dubboerl, protocol, hessian))
+        serialize_type = serialize_value(application:get_env(dubboerl, serialization, hessian))
     }.
 
 serialize_value(json) ->

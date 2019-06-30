@@ -14,10 +14,9 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(consumer_SUITE).
-%% API
--export([]).
+-module(reference_config_SUITE).
 
+%% API
 -compile(export_all).
 
 -include_lib("common_test/include/ct.hrl").
@@ -40,12 +39,7 @@ init_per_suite(Config) ->
         level => debug
     }),
     Start = application:ensure_all_started(dubboerl),
-%%  dubboerl:init(),
-    dubboerl:start_provider(),
-    timer:sleep(2000),
-    dubboerl:start_consumer(),
-    dubbo_sample_service_app:register_type_list(),
-    timer:sleep(5000),
+%%    dubboerl:init(),
     io:format(user, "test case start info ~p~n", [Start]),
     [{appid, 1}].
 
@@ -109,7 +103,7 @@ end_per_testcase(_TestCase, _Config) ->
 %%--------------------------------------------------------------------
 groups() ->
     [
-        {consumer1, [sequence], [lib_type_register, json_sync_invoker, hessian_sync_invoker]}
+        {reference_test, [sequence], [registry_interface]}
     ].
 
 %%--------------------------------------------------------------------
@@ -120,37 +114,11 @@ groups() ->
 %% Reason = term()
 %%--------------------------------------------------------------------
 all() ->
-    [{group, consumer1}].
+    [{group, reference_test}].
 
-%%--------------------------------------------------------------------
-%% Function: TestCase() -> Info
-%% Info = [tuple()]
-%%--------------------------------------------------------------------
-lib_type_register() ->
-    [].
 
-%%--------------------------------------------------------------------
-%% Function: TestCase(Config0) ->
-%%               ok | exit() | {skip,Reason} | {comment,Comment} |
-%%               {save_config,Config1} | {skip_and_save,Reason,Config1}
-%% Config0 = Config1 = [tuple()]
-%% Reason = term()
-%% Comment = term()
-%%--------------------------------------------------------------------
-lib_type_register(_Config) ->
-    ok.
-
-json_sync_invoker(_Config) ->
-    application:set_env(dubboerl, serialization, json),
-    R1 = userOperator:queryUserInfo(#userInfoRequest{username = "name", requestId = "111"}, #{sync=> true}),
-    io:format(user, "json_sync_invoker result ~p ~n", [R1]),
-    R2 = userOperator:genUserId(),
-    io:format(user, "json_sync_invoker result2 ~p ~n", [R2]),
-    ok.
-hessian_sync_invoker(_Config) ->
-    application:set_env(dubboerl, serialization, hessian),
-    R1 = userOperator:queryUserInfo(#userInfoRequest{username = "name", requestId = "111"}, #{sync=> true}),
-    io:format(user, "json_sync_invoker result ~p ~n", [R1]),
-    R2 = userOperator:genUserId(),
-    io:format(user, "json_sync_invoker result2 ~p ~n", [R2]),
+registry_interface(_Config) ->
+    ConsumerInfo = dubbo_config_util:gen_consumer("test_app", <<"org.apache.dubbo.erlang.sample.service.facade.UserOperator">>, []),
+%%        dubbo_zookeeper:register_consumer(ConsumerInfo),
+    dubbo_reference_config:init_reference(ConsumerInfo),
     ok.

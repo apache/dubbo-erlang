@@ -30,7 +30,7 @@ public class App {
     public static void main(String[] args) throws IOException {
         System.out.println("将要监听服务");
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-                new String[]{"applicationProvider.xml"});
+                new String[]{"applicationConsumer.xml"});
         context.start();
         UserOperator userOperator = (UserOperator) context.getBean("userInterface");
         UserInfo result = userOperator.getUserInfo("hh-bb");

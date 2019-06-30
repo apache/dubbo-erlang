@@ -18,7 +18,7 @@
 
 -include("dubbo.hrl").
 %% API
--export([gen_consumer/3, gen_provider/5]).
+-export([gen_consumer/3, gen_provider/6]).
 
 
 gen_consumer(Application, Interface, Option) ->
@@ -34,7 +34,7 @@ gen_consumer(Application, Interface, Option) ->
         side = <<"consumers">>
     }.
 
-gen_provider(Application, Port, Interface, MethodList, Option) ->
+gen_provider(Application, Port, Interface, MethodList, ImplModuleName, _Option) ->
     Host = dubbo_network_tools:local_ipv4_binary(),
     MethodList2 = [atom_to_binary(Item, utf8) || Item <- MethodList],
     #provider_config{
@@ -46,5 +46,6 @@ gen_provider(Application, Port, Interface, MethodList, Option) ->
         executes = 10,
         application = Application,
         methods = MethodList2,
-        side = <<"provider">>
+        side = <<"provider">>,
+        impl_handle = ImplModuleName
     }.

@@ -19,12 +19,12 @@
 -include("dubbo.hrl").
 -include("dubboerl.hrl").
 
--record(dubbo_interface_info,{}).
+-record(dubbo_interface_info, {}).
 
 %% API
 -export([init_reference/1]).
 
-init_reference(ConsumerInfo)->
+init_reference(ConsumerInfo) ->
 %%    InitConfigMap= #{
 %%
 %%    },
@@ -33,25 +33,23 @@ init_reference(ConsumerInfo)->
     ok.
 
 
-create_proxy(ConsumerInfo)->
-
-
+create_proxy(ConsumerInfo) ->
 
     Para = gen_parameter(ConsumerInfo),
     Url = gen_registry_url(Para),
-    dubbo_extension:run(protocol_wapper,refer,[Url]),
+    ok = dubbo_extension:run_fold(protocol_wapper, refer, [Url], ok),
     ok.
 
-    %%application=hello-world&dubbo=2.0.2&pid=68901&refer=application=hello-world&default.check=false&default.lazy=false&default.retries=0&default.sticky=false&default.timeout=300000&dubbo=2.0.2&interface=org.apache.dubbo.erlang.sample.service.facade.UserOperator&lazy=false&methods=queryUserInfo,queryUserList,genUserId,getUserInfo&pid=68901&register.ip=127.0.0.1&release=2.7.1&retries=0&side=consumer&sticky=false&timestamp=1559727789953&registry=zookeeper&release=2.7.1&timestamp=1559727842451
+%%application=hello-world&dubbo=2.0.2&pid=68901&refer=application=hello-world&default.check=false&default.lazy=false&default.retries=0&default.sticky=false&default.timeout=300000&dubbo=2.0.2&interface=org.apache.dubbo.erlang.sample.service.facade.UserOperator&lazy=false&methods=queryUserInfo,queryUserList,genUserId,getUserInfo&pid=68901&register.ip=127.0.0.1&release=2.7.1&retries=0&side=consumer&sticky=false&timestamp=1559727789953&registry=zookeeper&release=2.7.1&timestamp=1559727842451
 
 
-gen_registry_url(Para)->
+gen_registry_url(Para) ->
     %%todo 组装para & url
-    {Host,Port} = get_registry_host_port(),
+    {Host, Port} = dubbo_registry:get_registry_host_port(),
     UrlInfo = #dubbo_url{
         scheme = <<"registry">>,
         host = list_to_binary(Host),
-        port = integer_to_binary(Port),
+        port = Port,
         path = <<"org.apache.dubbo.registry.RegistryService">>,
         parameters = Para
     },
@@ -59,53 +57,45 @@ gen_registry_url(Para)->
 %%    Url = "registry://127.0.0.1:2181/org.apache.dubbo.registry.RegistryService?application=hello-world&dubbo=2.0.2&pid=68901&refer=application%3Dhello-world%26default.check%3Dfalse%26default.lazy%3Dfalse%26default.retries%3D0%26default.sticky%3Dfalse%26default.timeout%3D300000%26dubbo%3D2.0.2%26interface%3Dorg.apache.dubbo.erlang.sample.service.facade.UserOperator%26lazy%3Dfalse%26methods%3DqueryUserInfo%2CqueryUserList%2CgenUserId%2CgetUserInfo%26pid%3D68901%26register.ip%3D127.0.0.1%26release%3D2.7.1%26retries%3D0%26side%3Dconsumer%26sticky%3Dfalse%26timestamp%3D1559727789953&registry=zookeeper&release=2.7.1&timestamp=1559727842451",
 %%    Url.
 
-get_registry_host_port()->
-    %% @todo need adapter other registry
-    RegistryList = application:get_env(dubboerl,zookeeper_list,[{"127.0.0.1",2181}]),
-    [Item|_] = RegistryList,
-    Item.
 
-gen_parameter(ConsumerInfo)->
+gen_parameter(ConsumerInfo) ->
     Para = #{
         <<"application">> => get_appname(ConsumerInfo),
         <<"dubbo">> => <<"2.0.2">>,
-        <<"pid">> => get_pid(),
+        <<"pid">> => list_to_binary(get_pid()),
         <<"refer">> => get_refinfo(ConsumerInfo),
-        <<"registry">> => get_registry_type(),
+        <<"registry">> => dubbo_registry:get_registry_type(),
         <<"release">> => <<"2.7.1">>,
         <<"timestamp">> => integer_to_binary(dubbo_time_util:timestamp_ms())
     },
-
     Para.
 
-get_appname(ConsumerInfo)->
+get_appname(ConsumerInfo) ->
     ConsumerInfo#consumer_config.application.
-get_pid()->
+get_pid() ->
     os:getpid().
-get_refinfo(ConsumerInfo)->
-    KeyValues=[
-        {"application",ConsumerInfo#consumer_config.application},
-        {"default.check",ConsumerInfo#consumer_config.check},
-        {"default.lazy","false"},
-        {"default.retries","0"},
-        {"default.sticky","false"},
-        {"default.timeout","300000"},
-        {"dubbo","2.0.2"},
-        {"interface",ConsumerInfo#consumer_config.interface},
-        {"lazy","false"},
-        {"methods",ConsumerInfo#consumer_config.methods},
-        {"register.ip",ConsumerInfo#consumer_config.application},
-        {"release","2.7.1"},
-        {"pid",get_pid()},
-        {"side","consumer"},
-        {"sticky","false"},
-        {"timestamp",dubbo_time_util:timestamp_ms()}
+get_refinfo(ConsumerInfo) ->
+    KeyValues = [
+        {"application", ConsumerInfo#consumer_config.application},
+        {"default.check", atom_to_list(ConsumerInfo#consumer_config.check)},
+        {"default.lazy", "false"},
+        {"default.retries", "0"},
+        {"default.sticky", "false"},
+        {"default.timeout", "300000"},
+        {"dubbo", "2.0.2"},
+        {"interface", ConsumerInfo#consumer_config.interface},
+        {"lazy", "false"},
+        {"methods", string:join(ConsumerInfo#consumer_config.methods, ",")},
+        {"register.ip", ConsumerInfo#consumer_config.application},
+        {"release", "2.7.1"},
+        {"pid", get_pid()},
+        {"side", "consumer"},
+        {"sticky", "false"},
+        {"timestamp", integer_to_list(dubbo_time_util:timestamp_ms())}
     ],
-    KeyValues2 = [io_lib:format("~s=~p", [Key, Value]) || {Key, Value} <= KeyValues],
+    KeyValues2 = [io_lib:format("~s=~s", [Key, Value]) || {Key, Value} <- KeyValues],
     ParameterStr1 = string:join(KeyValues2, "&"),
     list_to_binary(http_uri:encode(ParameterStr1)).
 %%    <<"application%3Dhello-world%26default.check%3Dfalse%26default.lazy%3Dfalse%26default.retries%3D0%26default.sticky%3Dfalse%26default.timeout%3D300000%26dubbo%3D2.0.2%26interface%3Dorg.apache.dubbo.erlang.sample.service.facade.UserOperator%26lazy%3Dfalse%26methods%3DqueryUserInfo%2CqueryUserList%2CgenUserId%2CgetUserInfo%26pid%3D68901%26register.ip%3D127..0.1%26release%3D2.7.1%26retries%3D0%26side%3Dconsumer%26sticky%3Dfalse%26timestamp%3D1559727789953">>.
 
-get_registry_type()->
-    %%todo
-    atom_to_binary(application:get_env(dubboerl,registry,zookeeper)).
+

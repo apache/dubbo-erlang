@@ -16,11 +16,8 @@
 %%------------------------------------------------------------------------------
 -module(dubbo_protocol).
 
--callback refer(Url,Acc)->ok.
+-include("dubbo.hrl").
 
-%%%% API
-%%-export([refer/2]).
-%%
-%%
-%%refer(InterfaceClassInfo,Url)->
-%%    dubbo_hooker(protocol_wapper,refer,[InterfaceClassInfo,Url]).
+-callback refer(Url :: binary(), Acc :: term()) -> ok.
+
+-callback export(Invoker :: #invoker{}, Acc :: term()) -> ok.

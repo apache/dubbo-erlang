@@ -23,7 +23,7 @@
 
 
 %% API
--export([start_link/4, register_impl_provider/3, select_impl_provider/1]).
+-export([start_link/4, register_impl_provider/2, select_impl_provider/1]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -58,10 +58,11 @@ start_link(Ref, Socket, Transport, Opts) ->
 %% we can use the -behaviour(gen_server) attribute.
 %init([]) -> {ok, undefined}.
 
-init({Ref, Socket, Transport, _Opts = []}) ->
-    logger:info("provider connected"),
+init({Ref, Socket, Transport, _Opts}) ->
+    {ok, {IP, Port}} = inet:peername(Socket),
+    logger:info("consumer ~p:~p connect the server", [IP, Port]),
     ok = ranch:accept_ack(Ref),
-%%    ok = Transport:setopts(Socket, [{active, once}]),
+
     ok = Transport:setopts(Socket, [{active, true}, {packet, 0}]),
     gen_server:enter_loop(?MODULE, [],
         #state{socket = Socket, transport = Transport},
@@ -114,8 +115,8 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 
-register_impl_provider(Interface, ImplModuleName, ModuleName) ->
-    ets:insert(?PROVIDER_IMPL_TABLE, {Interface, ImplModuleName, ModuleName}),
+register_impl_provider(Interface, ImplModuleName) ->
+    ets:insert(?PROVIDER_IMPL_TABLE, {Interface, ImplModuleName}),
     ok.
 
 -spec select_impl_provider(Interface :: binary()) -> {ok, binary()} | {error, term()}.
@@ -123,7 +124,7 @@ select_impl_provider(Interface) ->
     case ets:lookup(?PROVIDER_IMPL_TABLE, Interface) of
         [] ->
             {error, no_provider};
-        [{Interface, ImplModuleName, ModuleName}] ->
+        [{Interface, ImplModuleName}] ->
             {ok, ImplModuleName}
     end.
 

@@ -41,20 +41,23 @@ start_link() ->
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
     dubboerl_app:env_init(),
-    ZK = {dubbo_zookeeper, {dubbo_zookeeper, start_link, []}, transient, 5000, worker, [dubbo_zookeeper]},
-%%    NettySer = {dubbo_netty_client,{dubbo_netty_client, start_link, []},transient,5000,worker,[dubbo_netty_client]},
+    %% @todo registry need move registry sup
+    ZK = {dubbo_registry_zookeeper, {dubbo_registry_zookeeper, start_link, []}, transient, 5000, worker, [dubbo_registry_zookeeper]},
+
+    ExtensionSer = {dubbo_extension, {dubbo_extension, start_link, []}, transient, 5000, worker, [dubbo_extension]},
     Id_count = {dubbo_id_generator, {dubbo_id_generator, start_link, []}, transient, 5000, worker, [dubbo_id_generator]},
     ProviderPoolSup = {dubbo_provider_worker_sup, {dubbo_provider_worker_sup, start_link, []}, transient, 5000, supervisor, [dubbo_provider_worker_sup]},
     ConsumerPoolSup = {dubbo_transport_pool_sup, {dubbo_transport_pool_sup, start_link, []}, transient, 5000, supervisor, [dubbo_transport_pool_sup]},
     ConsumerPool = {dubbo_provider_consumer_reg_table, {dubbo_provider_consumer_reg_table, start_link, []}, transient, 5000, worker, [dubbo_provider_consumer_reg_table]},
-    ListNew1 =
-        case application:get_env(dubboerl, registry, false) of
-            true ->
-                [ZK];
-            false ->
-                []
-        end,
-    ListNew = ListNew1 ++ [Id_count, ConsumerPool, ConsumerPoolSup, ProviderPoolSup],
+    ShutdownSer = {dubbo_shutdown, {dubbo_shutdown, start_link, []}, transient, 10000, worker, [dubbo_shutdown]},
+%%    ListNew1 =
+%%        case application:get_env(dubboerl, registry, false) of
+%%            true ->
+%%                [ZK];
+%%            false ->
+%%                []
+%%        end,
+    ListNew = [Id_count, ExtensionSer, ZK, ConsumerPool, ConsumerPoolSup, ProviderPoolSup, ShutdownSer],
     {ok, {{one_for_one, 60, 10}, ListNew}}.
 
 %%====================================================================
