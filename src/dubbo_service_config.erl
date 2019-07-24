@@ -39,8 +39,6 @@ do_export_protocol(ProviderInfo) ->
     ok.
 
 
-
-
 get_registry_url(ProviderInfo) ->
     {Host, Port} = dubbo_registry:get_registry_host_port(),
     UrlInfo = #dubbo_url{

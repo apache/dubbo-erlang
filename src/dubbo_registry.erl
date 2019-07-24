@@ -17,9 +17,9 @@
 -module(dubbo_registry).
 -include("dubboerl.hrl").
 
--callback start(Url :: binary) -> ok.
--callback register(Url :: binary()) -> term().
--callback subscribe(SubcribeUrl :: binary(), NotifyFun :: function()) -> ok.
+-callback start(Url :: binary) -> ok | {error,Reason::term()}.
+-callback register(Url :: binary()) -> ok | {error,Reason::term()}.
+-callback subscribe(SubcribeUrl :: binary(), NotifyFun :: function()) -> ok | {error,Reason::term()}.
 
 %% API
 -export([setup_register/1, register/2, unregister/2, get_registry_host_port/0, get_registry_type/0, get_registry_module/1]).

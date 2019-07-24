@@ -15,6 +15,7 @@
 %% limitations under the License.
 %%------------------------------------------------------------------------------
 -module(dubbo_protocol_dubbo).
+-behaviour(dubbo_protocol).
 
 -include("dubboerl.hrl").
 -include("dubbo.hrl").
@@ -30,7 +31,7 @@ refer(Url, Acc) ->
             {ok, Invoker} = do_refer(UrlInfo),
             {ok, Invoker};
         _ ->
-            {skip, Acc}
+            {ok, Acc}
     end.
 
 do_refer(UrlInfo) ->

@@ -89,8 +89,8 @@ run_fold1([M | Rest], HookName, Fun, Args0, Acc) ->
             Acc;
         {stop, NewAcc} ->
             NewAcc;
-        _ ->
-            run_fold1(Rest, HookName, Fun, Args0, Ret)
+        {ok,NewAcc2} ->
+            run_fold1(Rest, HookName, Fun, Args0, NewAcc2)
     end.
 
 invoke_foldr(HookName, Fun, Args, Acc) ->
@@ -116,8 +116,6 @@ do_invoke([M | Rest], HookName, Fun, Args0, Acc) ->
         {'EXIT', Reason} ->
             logger:error("~p~n error running hook: ~p~n", [HookName, Reason]),
             do_invoke(Rest, HookName, Fun, Args0, Acc);
-        stop ->
-            Acc;
         {stop, NewAcc} ->
             NewAcc;
         {ok, Args2, NewAcc2} ->

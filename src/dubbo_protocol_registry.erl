@@ -34,8 +34,7 @@ refer(Url, Acc) ->
     dubbo_registry:register(RegistryName, ConsumerUrl),
 
     dubbo_directory:subscribe(RegistryName, ConsumerUrl),
-
-    ok.
+    {ok,Acc}.
 
 export(Invoker, Acc) ->
     {ok, UrlInfo} = dubbo_common_fun:parse_url(Invoker#invoker.url),
@@ -48,15 +47,13 @@ export(Invoker, Acc) ->
     dubbo_registry:register(RegistryName, ProtocolUrl),
 
     register_export_info(ProtocolUrl, RegistryName, InterfaceKey),
-    {ok, Invoker}.
+    {ok, Acc}.
 
 destroy() ->
     List = ets:tab2list(?SERVICE_EXPORT_TABLE),
     lists:map(
         fun(Item) ->
-
             {ProtocolUrl, RegistryModule, _} = Item,
-            io:format(user, "destroy url ~p~n", [ProtocolUrl]),
             unexport(RegistryModule, ProtocolUrl)
         end, List),
     ok.
