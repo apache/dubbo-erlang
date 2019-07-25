@@ -156,15 +156,13 @@ handle_cast(_Request, State) ->
 
 
 handle_info({tcp, _Port, Data}, #state{recv_buffer = RecvBuffer} = State) ->
-%%    inet:setopts(State#state.socket, [{active, once}]),
-%%    logger:debug("[INFO] recv one data ~w",[Data]),
     {ok, NextBuffer, NewState} = case check_recv_data(<<RecvBuffer/binary, Data/binary>>, State) of
                                      {next_buffer, NextBuffer2, State3} ->
                                          logger:debug("recv one data state wait next_buffer"),
                                          {ok, NextBuffer2, State3}
                                  end,
-%%    HeartbeatInfo =update_heartbeat(write,NewState#state.heartbeat),
-    {noreply, NewState#state{recv_buffer = NextBuffer}};
+    HeartbeatInfo = update_heartbeat(read, NewState#state.heartbeat),
+    {noreply, NewState#state{recv_buffer = NextBuffer, heartbeat = HeartbeatInfo}};
 handle_info({tcp_closed, Port}, State) ->
     logger:info("dubbo connection closed ~p", [Port]),
     NewState = reconnect(State),
@@ -186,12 +184,6 @@ handle_info({timeout, _TimerRef, {heartbeat_timer}}, State) ->
     {noreply, NewState#state{heartbeat = HeartbeatInfo}};
 handle_info(_Info, State) ->
     logger:warning("[INFO] get one info:~p", [_Info]),
-%%    inet:setopts(State#state.socket, [{active, once}]),
-%%    case State#state.tmp_pid of
-%%        undefined  ->ok;
-%%        Pid ->
-%%            gen_server:cast(Pid,{msg_back})
-%%    end,
     HeartbeatInfo = update_heartbeat(write, State#state.heartbeat),
     {noreply, State#state{heartbeat = HeartbeatInfo}}.
 
@@ -328,7 +320,7 @@ send_heartbeat_msg(Mid, NeedResponse, State) ->
     {ok, NewState}.
 
 %%%=================================================================
-%%% 接收数据处理
+%%% receive data process
 %%%=================================================================
 -spec check_recv_data(Data :: binary(), State :: #state{}) -> {ready, ReadyData :: binary()} | {ready, ReadyData :: binary(), NextBuffer :: binary()}.
 check_recv_data(<<?DUBBO_MEGIC_HIGH, ?DUBBO_MEGIC_LOW, Rest/binary>> = Data, State) when byte_size(Rest) < 14 ->
@@ -346,7 +338,6 @@ check_recv_data(<<?DUBBO_MEGIC_HIGH, ?DUBBO_MEGIC_LOW, _OtherFlag:80, DataLen:32
             <<ReadyData:DataLen/binary, NextBuffer/binary>> = Rest,
             OneData = <<?DUBBO_MEGIC_HIGH:8, ?DUBBO_MEGIC_LOW:8, _OtherFlag:80, DataLen:32, ReadyData/binary>>,
             {ok, State3} = process_data(OneData, State),
-%%            logger:warning("recevi more data ~w ",[NextBuffer]),
             check_recv_data(NextBuffer, State3)
     end;
 check_recv_data(<<Error/integer, Data/binary>>, State) ->
@@ -361,7 +352,7 @@ process_data(Data, #state{handler = ProtocolHandle} = State) ->
         ok ->
             ok;
         {do_heartbeat, Mid} ->
-            send_heartbeat_msg(Mid, false,State),
+            send_heartbeat_msg(Mid, false, State),
             ok
     end,
     {ok, State}.

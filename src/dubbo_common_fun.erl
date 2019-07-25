@@ -93,13 +93,10 @@ url_to_binary(UrlInfo) ->
         ])),
     list_to_binary(Value).
 format_path(<< ?URL_PATH_SEPARATOR:8,Rest/binary>>) ->
-    logger:debug("format_path1 ~p",[Rest]),
     Rest;
 format_path([?URL_PATH_SEPARATOR|Rest]) ->
-    logger:debug("format_path3 ~p",[Rest]),
     Rest;
 format_path(Value) ->
-    logger:debug("format_path2 ~p",[Value]),
     Value.
 
 format_parameter(undefined) ->

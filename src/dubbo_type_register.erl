@@ -32,7 +32,6 @@ init() ->
     end,
     case ets:info(?NATIVE_FOREIGN_TABLE) of
         undefined ->
-            io:format("init decoding native_foreign_table table pid ~p~n", [self()]),
             ?NATIVE_FOREIGN_TABLE = ets:new(?NATIVE_FOREIGN_TABLE, [public, named_table]); %% public
         _ ->
             ets:delete(?NATIVE_FOREIGN_TABLE),

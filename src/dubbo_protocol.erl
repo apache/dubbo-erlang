@@ -18,6 +18,6 @@
 
 -include("dubbo.hrl").
 
--callback refer(Url :: binary(), Acc :: term()) -> {ok,Acc}.
+-callback refer(Url :: binary(), Acc :: term()) -> {ok, Acc :: term()}.
 
--callback export(Invoker :: #invoker{}, Acc :: term()) -> {ok,Acc}.
+-callback export(Invoker :: #invoker{}, Acc :: term()) -> {ok, Acc :: term()}.

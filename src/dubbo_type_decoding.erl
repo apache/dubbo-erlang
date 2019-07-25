@@ -186,7 +186,6 @@ init(Delete) when is_boolean(Delete) ->
 %%    end,
     case ets:info(?TYPEPOOL_TABLE) of
         undefined ->
-            io:format("init decoding type_pool table pid ~p~n", [self()]),
             ets:new(?TYPEPOOL_TABLE, [public, named_table]); %% public
         _ ->
 %%            io:format("type decoding etsinfo ~p~n",[EtsInfo]),
@@ -200,7 +199,6 @@ init(Delete) when is_boolean(Delete) ->
     end,
     case ets:info(?REFERENCEPOOL_TABLE) of
         undefined ->
-            io:format("init decoding REFERENCEPOOL_TABLE table pid ~p~n", [self()]),
             ets:new(?REFERENCEPOOL_TABLE, [public, named_table]); %% public
         _ ->
             if

@@ -23,7 +23,6 @@
 init() ->
     case ets:info(?TRAFFIC_CONTROL) of
         undefined ->
-            io:format("init decoding TRAFFIC_CONTROL table pid ~p~n", [self()]),
             ets:new(?TRAFFIC_CONTROL, [public, named_table, {write_concurrency, true}]); %% public
         _ ->
             ets:delete(?TRAFFIC_CONTROL),

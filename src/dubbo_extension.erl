@@ -53,7 +53,6 @@ run1([M | Rest], HookName, Fun, Args) ->
     Ret = (catch apply(M, Fun, Args)),
     case Ret of
         {'EXIT', Reason} ->
-            io:format(user, "~p~n error running extension: ~p~n", [HookName, Reason]),
             logger:error("~p~n error running extension: ~p~n", [HookName, Reason]),
             run1(Rest, HookName, Fun, Args);
         stop ->

@@ -68,7 +68,6 @@ start_link() ->
     {stop, Reason :: term()} | ignore).
 init([]) ->
     process_flag(trap_exit, true),
-    io:format("start shutdown ser"),
     {ok, #state{}}.
 
 %%--------------------------------------------------------------------
