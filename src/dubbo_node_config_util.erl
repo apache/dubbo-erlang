@@ -31,18 +31,6 @@ parse_provider_info(#dubbo_url{scheme = Scheme, host = Host, port = Port, parame
     logger:debug("parse provider,result: ~p", [ProviderConfig]),
     {ok, ProviderConfig}.
 
-parse_parameter([], Config) ->
-    Config;
-parse_parameter([Item | Rest], Config) ->
-    case string:tokens(Item, "=") of
-        KeyPair when length(KeyPair) == 2 ->
-            [Key, Value] = KeyPair,
-            ConfigNew = parse_parameter(Key, Value, Config),
-            parse_parameter(Rest, ConfigNew);
-        KeyPair2 ->
-            logger:error("parse parameter error, keypair ~p", [KeyPair2]),
-            parse_parameter(Rest, Config)
-    end.
 parse_parameter(<<"anyhost">>, Value, Config) ->
     Config#provider_config{anyhost = binary_to_existing_atom(Value, latin1)};
 parse_parameter(<<"application">>, Value, Config) ->

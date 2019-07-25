@@ -89,14 +89,13 @@ init([]) ->
     {stop, Reason :: term(), Reply :: term(), NewState :: #state{}} |
     {stop, Reason :: term(), NewState :: #state{}}).
 handle_call({do_register, Url}, _From, State) ->
-    io:format(user,"debug do_register ~p~n",[Url]),
     do_register(State#state.zk_pid, Url),
     {reply, ok, State};
 handle_call({do_unregister, Url}, _From, State) ->
     do_unregister(State#state.zk_pid, Url),
     {reply, ok, State};
 handle_call({subscribe_provider, InterfaceName, NotifyFun}, _From, #state{zk_pid = ZkPid} = State) ->
-    logger:debug("subscribe provider ~p notify fun ~p",[InterfaceName,NotifyFun]),
+    logger:debug("subscribe provider ~p notify fun ~p", [InterfaceName, NotifyFun]),
     NewState = State#state{provider_notify_fun = NotifyFun},
     List = get_provider_list(InterfaceName, ZkPid),
     notify_provider_change(NotifyFun, InterfaceName, List),
@@ -174,17 +173,9 @@ code_change(_OldVsn, State, _Extra) ->
 %%----------------------------------------------
 %% dubbo_registry
 %%----------------------------------------------
-start(Url) ->
+start(_Url) ->
+    dubbo_registry_sup:start_child(?MODULE, {?MODULE, start_link, []}, ?MODULE),
     ok.
-%%register(Url) ->
-%%    {ok, UrlInfo} = dubbo_common_fun:parse_url(Url),
-%%    InterfaceName = maps:get(<<"interface">>, UrlInfo#dubbo_url.parameters),
-%%    register(UrlInfo#dubbo_url.scheme, InterfaceName, Url),
-%%    ok.
-
-%%register(<<"consumer">>, InterfaceName, Url) ->
-%%    gen_server:call(?SERVER, {add_consumer, InterfaceName, Url}),
-%%    ok.
 
 register(Url) ->
     gen_server:call(?SERVER, {do_register, Url}, 10000),

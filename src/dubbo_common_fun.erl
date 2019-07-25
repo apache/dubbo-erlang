@@ -72,11 +72,11 @@ parse_url_parameter([], Parameters) ->
     Parameters;
 parse_url_parameter([Item | Rest], Parameters) ->
     case string:tokens(Item, "=") of
-        KeyPair when length(KeyPair) == 2 ->
-            [Key, Value] = KeyPair,
+        [Key,Value] ->
             parse_url_parameter(Rest, maps:put(list_to_binary(Key), list_to_binary(Value), Parameters));
-        KeyPair2 ->
-            logger:error("parse parameter error, keypair ~p", [KeyPair2]),
+        [Key] ->
+            parse_url_parameter(Rest, maps:put(list_to_binary(Key), <<"">>, Parameters));
+        [] ->
             parse_url_parameter(Rest, Parameters)
     end.
 
