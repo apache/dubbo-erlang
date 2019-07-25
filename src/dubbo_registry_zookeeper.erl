@@ -89,6 +89,7 @@ init([]) ->
     {stop, Reason :: term(), Reply :: term(), NewState :: #state{}} |
     {stop, Reason :: term(), NewState :: #state{}}).
 handle_call({do_register, Url}, _From, State) ->
+    io:format(user,"debug do_register ~p~n",[Url]),
     do_register(State#state.zk_pid, Url),
     {reply, ok, State};
 handle_call({do_unregister, Url}, _From, State) ->

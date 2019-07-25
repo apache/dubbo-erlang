@@ -121,10 +121,8 @@ refresh_invoker([Url | Rest], Acc) ->
     case dubbo_extension:run_fold(protocol, refer, [Url], undefined) of
         undefined ->
             refresh_invoker(Rest, Acc);
-        {ok, Invoker} ->
-            refresh_invoker(Rest, [Invoker | Acc]);
-        {stop, _} ->
-            refresh_invoker(Rest, Acc)
+        Invoker ->
+            refresh_invoker(Rest, [Invoker | Acc])
     end.
 
 pick_interface([Url | _]) ->
