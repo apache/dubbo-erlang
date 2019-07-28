@@ -21,7 +21,7 @@
        xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
     <dubbo:application name="hello-world"/><!-- 注册地址 -->
-    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+    <dubbo:registry address="zookeeper://127.0.0.1:2181" check="false" />
     <dubbo:protocol name="dubbo" port="20880"/>
 
     <dubbo:reference  id="userInterface" interface="org.apache.dubbo.erlang.sample.service.facade.UserOperator" retries="0" />

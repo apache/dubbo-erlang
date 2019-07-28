@@ -47,14 +47,25 @@ init_default_hooks() ->
     dubbo_extension:register(protocol, dubbo_protocol_dubbo, 10),
     dubbo_extension:register(protocol_wapper, dubbo_protocol_registry, 10),
     dubbo_extension:register(filter, application:get_env(dubboerl, cluster, dubbo_cluster_failfast), 1),
+    init_filter_hooks(),
     ok.
+
+init_filter_hooks() ->
+    FilterList = application:get_env(dubboerl, filter, []),
+    lists:mapfoldl(
+        fun(Filter,Acc) ->
+            dubbo_extension:register(filter, Filter, Acc),
+            Acc +1
+        end,100,FilterList
+    ),
+    ok.
+
 env_init() ->
     ets:new(?PROVIDER_IMPL_TABLE, [public, named_table]),
     ets:new(?SERVICE_EXPORT_TABLE, [public, named_table]),
     dubbo_traffic_control:init(),
     dubbo_type_register:init(),
     register_type_list().
-%%    type_decoding:init().
 
 
 register_type_list() ->

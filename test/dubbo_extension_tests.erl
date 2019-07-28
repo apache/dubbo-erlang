@@ -14,30 +14,22 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(dubbo_common_fun_tests).
+-module(dubbo_extension_tests).
+
+
 -include_lib("eunit/include/eunit.hrl").
+-include("dubbo.hrl").
 
-request_gen_test() ->
-    dubbo_id_generator:init([]),
-    Id = dubbo_id_generator:gen_id(),
-    ?assert(is_integer(Id)).
+invoker_test()->
+    {ok,_Pid} = dubbo_extension:start_link(),
 
-string_join_test() ->
-    Result1 = dubbo_lists_util:join([<<"a">>, <<"b">>], <<",">>),
-    ?assertEqual(Result1, <<"a,b">>),
-
-    Result2 = dubbo_lists_util:join([], <<",">>),
-    ?assertEqual(Result2, <<"">>),
-
-    Result3 = dubbo_lists_util:join([<<"a">>, "b", ttt], <<",">>),
-    ?assertEqual(Result3, <<"a,b">>),
+    ok = dubbo_extension:register(filter, dubbo_filter_test1, 100),
+    Invocation = #dubbo_rpc_invocation{},
+    Ref = make_ref(),
+    {ok,Ref} = dubbo_extension:invoke(filter, invoke, [Invocation], {ok, Ref}, []),
     ok.
 
-list_dup_test() ->
-    R = dubbo_lists_util:del_duplicate([a, b, a]),
-    ?assertEqual(length(R), 2).
+%%on_response_test() ->
 
 
-ip_v4_test()->
-    Result = dubbo_network_tools:local_ipv4(),
-    ?assertEqual(true,is_list(Result)).
+

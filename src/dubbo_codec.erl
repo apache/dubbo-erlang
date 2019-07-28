@@ -46,8 +46,8 @@ encode_header(Request, DataLen, RequestState) ->
                    false -> Header2
                end,
     Header22 = case Request#dubbo_request.is_event of
-                   true -> Header21 bor 32;
-                   false -> Header21
+                   false -> Header21;
+                   true -> Header21 bor 32
                end,
     RequestId = Request#dubbo_request.mid,
     Header = <<?DUBBO_MEGIC:16, Header22:8, RequestState:8, RequestId:64, DataLen:32>>,
@@ -82,8 +82,8 @@ encode_response_header(Response, DataLen, ResponseState) ->
                    false -> Header2
                end,
     Header22 = case Response#dubbo_response.is_event of
-                   true -> Header21 bor 32;
-                   false -> Header21
+                   false -> Header21;
+                   true -> Header21 bor 32
                end,
     RequestId = Response#dubbo_response.mid,
     Header = <<?DUBBO_MEGIC:16, Header22:8, ResponseState:8, RequestId:64, DataLen:32>>,

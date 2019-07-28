@@ -19,7 +19,7 @@
 
 -include("dubbo.hrl").
 %% API
--export([invoke/2, do_response/2]).
+-export([invoke/2, on_response/2]).
 
 
 invoke(#dubbo_rpc_invocation{className = Interface, loadbalance = LoadBalance} = Invocation, Acc) ->
@@ -53,5 +53,5 @@ loadbalance_select(LoadBalance, ConnectionList) ->
     Connection = LoadBalance:select(ConnectionList),
     Connection.
 
-do_response(Invocation, Result) ->
+on_response(Invocation, Result) ->
     {ok, Invocation, Result}.

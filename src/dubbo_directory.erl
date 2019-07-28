@@ -86,14 +86,14 @@ notify(Interface, UrlList) ->
 
 refresh_invoker(UrlList) ->
     case pick_interface(UrlList) of
-        {error, Reason} ->
+        {error, _Reason} ->
             fail;
         {<<"empty">>, Interface,_} ->
             OldProviderHosts = dubbo_provider_consumer_reg_table:get_interface_provider_node(Interface),
             dubbo_provider_consumer_reg_table:clean_invalid_provider(OldProviderHosts),
             todo_destroy;
-        {Schame, Interface, LoadBalance} ->
-            ProtocolModule = binary_to_existing_atom(<<<<"dubbo_protocol_">>/binary, Schame/binary>>, latin1),
+        {Scheme, Interface, LoadBalance} ->
+            ProtocolModule = binary_to_existing_atom(<<<<"dubbo_protocol_">>/binary, Scheme/binary>>, latin1),
 
             logger:info("[DUBBO] refresh invoker for interface ~p loadbalance ~p protocol ~p", [Interface, LoadBalance, ProtocolModule]),
             OldProviderHosts = dubbo_provider_consumer_reg_table:get_interface_provider_node(Interface),
@@ -107,12 +107,8 @@ refresh_invoker(UrlList) ->
                     NewHostConnections = dubbo_provider_consumer_reg_table:query_node_connections(NewHosts),
                     dubbo_provider_consumer_reg_table:update_consumer_connections(Interface, NewHostConnections)
                 end, NewProviderHosts),
-
-
-%%            dubbo_provider_consumer_reg_table:update_connection_info(#interface_info{interface = Interface,loadbalance = LoadBalance})
             dubbo_provider_consumer_reg_table:update_interface_info(#interface_info{interface = Interface, loadbalance = LoadBalance, protocol = ProtocolModule})
     end.
-%%    OldProviderHosts =
 
 refresh_invoker([], Acc) ->
     Acc;
@@ -154,7 +150,7 @@ pick_interface([Url | _]) ->
     {stop, Reason :: term(), Reply :: term(), NewState :: #state{}} |
     {stop, Reason :: term(), NewState :: #state{}}).
 handle_call({subscribe, RegistryName, SubcribeUrl}, _From, State) ->
-    NotifyFun = fun dubbo_directory:notify/1,
+    NotifyFun = fun dubbo_directory:notify/2,
     apply(RegistryName, subscribe, [SubcribeUrl, NotifyFun]),
     {reply, ok, State};
 handle_call(_Request, _From, State) ->

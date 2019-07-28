@@ -34,7 +34,7 @@ get_cur_time() ->
     io_lib:format("~4..0w-~2..0w-~2..0w ~2..0w:~2..0w:~2..0w", [Year, Month, Day, Hour, Min, Second]).
 
 get_cur_date() ->
-    {{Year, Month, Day}, {Hour, Min, Second}} = calendar:now_to_local_time(os:timestamp()),
+    {{Year, Month, Day}, {_Hour, _Min, _Second}} = calendar:now_to_local_time(os:timestamp()),
     io_lib:format("~4..0w-~2..0w-~2..0w", [Year, Month, Day]).
 
 get_cur_time({{Year, Month, Day}, {Hour, Min, Second}}) ->

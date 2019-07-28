@@ -14,30 +14,16 @@
 %% See the License for the specific language governing permissions and
 %% limitations under the License.
 %%------------------------------------------------------------------------------
--module(dubbo_common_fun_tests).
--include_lib("eunit/include/eunit.hrl").
+-module(dubbo_filter_test1).
+-behaviour(dubbo_filter).
 
-request_gen_test() ->
-    dubbo_id_generator:init([]),
-    Id = dubbo_id_generator:gen_id(),
-    ?assert(is_integer(Id)).
+%% API
+-export([invoke/2, on_response/2]).
 
-string_join_test() ->
-    Result1 = dubbo_lists_util:join([<<"a">>, <<"b">>], <<",">>),
-    ?assertEqual(Result1, <<"a,b">>),
+invoke(Invocation, Acc) ->
+    io:format(user,"test filter invoke sucess~n",[]),
+    {ok, Invocation, Acc}.
 
-    Result2 = dubbo_lists_util:join([], <<",">>),
-    ?assertEqual(Result2, <<"">>),
-
-    Result3 = dubbo_lists_util:join([<<"a">>, "b", ttt], <<",">>),
-    ?assertEqual(Result3, <<"a,b">>),
-    ok.
-
-list_dup_test() ->
-    R = dubbo_lists_util:del_duplicate([a, b, a]),
-    ?assertEqual(length(R), 2).
-
-
-ip_v4_test()->
-    Result = dubbo_network_tools:local_ipv4(),
-    ?assertEqual(true,is_list(Result)).
+on_response(Invocation, Result) ->
+    io:format(user,"test filter on_response sucess~n",[]),
+    {ok, Invocation, Result}.

@@ -46,8 +46,6 @@ parse_parameter(<<"methods">>, Value, Config) ->
     Config#provider_config{methods = MethodList};
 parse_parameter(<<"side">>, Value, Config) ->
     Config#provider_config{side = Value};
-parse_parameter(<<"interface">>, Value, Config) ->
-    Config#provider_config{interface = Value};
 parse_parameter(_, _, Config) ->
     Config.
 

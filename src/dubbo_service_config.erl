@@ -63,15 +63,6 @@ gen_registry_parameter(ProviderInfo) ->
     Para.
 
 get_export_info(ProviderInfo) ->
-    %%dubbo://127.0.0.1:20880/org.apache.dubbo.erlang.sample.service.facade.UserOperator?
-    %% anyhost=true&
-    %% application=hello-world&
-    %% bean.name=org.apache.dubbo.erlang.sample.service.facade.UserOperator&
-    %% bind.ip=127.0.0.1&bind.port=20880&default.deprecated=false&
-    %% default.dynamic=false&default.register=true&deprecated=false&dubbo=2.0.2&
-    %% dynamic=false&generic=false&
-    %% interface=org.apache.dubbo.erlang.sample.service.facade.UserOperator&
-    %% methods=queryUserInfo,queryUserList,genUserId,getUserInfo&pid=90956&register=true&release=2.7.1&side=provider&timestamp=1562725983984
     Para = [
         {"anyhost", "true"},
         {"application", ProviderInfo#provider_config.application},

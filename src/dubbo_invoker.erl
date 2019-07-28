@@ -84,7 +84,7 @@ invoke_request(Interface, Request, RequestOption, CallBackPid) ->
     end.
 
 invoke_response(Invocation, Result) ->
-    Result2 = dubbo_extension:invoke_foldr(filter, do_response, [Invocation], Result),
+    Result2 = dubbo_extension:invoke_foldr(filter, on_response, [Invocation], Result),
     gen_server:cast(Invocation#dubbo_rpc_invocation.source_pid, {response_process, Invocation#dubbo_rpc_invocation.call_ref, Invocation#dubbo_rpc_invocation.attachments, Result2}),
     ok.
 

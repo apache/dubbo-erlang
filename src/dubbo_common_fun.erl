@@ -94,13 +94,9 @@ url_to_binary(UrlInfo) ->
     list_to_binary(Value).
 format_path(<< ?URL_PATH_SEPARATOR:8,Rest/binary>>) ->
     Rest;
-format_path([?URL_PATH_SEPARATOR|Rest]) ->
-    Rest;
 format_path(Value) ->
     Value.
 
-format_parameter(undefined) ->
-    "";
 format_parameter(Parameter) when is_map(Parameter) ->
     KeyValues = maps:to_list(Parameter),
     format_parameter(KeyValues);

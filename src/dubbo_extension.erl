@@ -3,7 +3,7 @@
 %% contributor license agreements.  See the NOTICE file distributed with
 %% this work for additional information regarding copyright ownership.
 %% The ASF licenses this file to You under the Apache License, Version 2.0
-%% (the "License"); you may not use this file except in compliance with
+%% (the "License"); you may not use this file e34rg 56yujxcept in compliance with
 %% the License.  You may obtain a copy of the License at
 %%
 %%     http://www.apache.org/licenses/LICENSE-2.0
@@ -119,15 +119,6 @@ do_invoke([M | Rest], HookName, Fun, Args0, Acc) ->
             NewAcc;
         {ok, Args2, NewAcc2} ->
             do_invoke(Rest, HookName, Fun, [Args2], NewAcc2)
-    end.
-
-
-%% @doc retrieve the lists of registered functions for an hook.
--spec find(HookName :: atom()) -> {ok, [{atom(), atom()}]} | error.
-find(HookName) ->
-    case find_hooks(HookName) of
-        no_hook -> error;
-        Hooks -> {ok, Hooks}
     end.
 
 %% @hidden

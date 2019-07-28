@@ -24,7 +24,7 @@
 
 -record(dubbo_url, {
     scheme :: binary() ,
-    user_info :: binary(),
+    user_info :: binary() | undefined,
     host:: binary(),
     port::integer(),
     path:: binary(),

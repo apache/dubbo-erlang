@@ -37,7 +37,6 @@ refer(Url, Acc) ->
 do_refer(UrlInfo) ->
     case dubbo_node_config_util:parse_provider_info(UrlInfo) of
         {ok, ProviderConfig} ->
-%%            OldHostList = dubbo_provider_consumer_reg_table:get_interface_provider_node(ProviderConfig#provider_config.interface),
             case getClients(ProviderConfig) of
                 {ok, ConnectionInfoList} ->
                     dubbo_provider_consumer_reg_table:update_node_conections(ProviderConfig#provider_config.interface, ConnectionInfoList),
