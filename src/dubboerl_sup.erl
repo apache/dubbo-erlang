@@ -41,10 +41,7 @@ start_link() ->
 %% Child :: {Id,StartFunc,Restart,Shutdown,Type,Modules}
 init([]) ->
     dubboerl_app:env_init(),
-    %% @todo registry need move registry sup
-%%    ZK = {dubbo_registry_zookeeper, {dubbo_registry_zookeeper, start_link, []}, transient, 5000, worker, [dubbo_registry_zookeeper]},
     RegistrySup = {dubbo_registry_sup, {dubbo_registry_sup, start_link, []}, transient, 5000, supervisor, [dubbo_registry_sup]},
-
     ExtensionSer = {dubbo_extension, {dubbo_extension, start_link, []}, transient, 5000, worker, [dubbo_extension]},
     Id_count = {dubbo_id_generator, {dubbo_id_generator, start_link, []}, transient, 5000, worker, [dubbo_id_generator]},
     ProviderPoolSup = {dubbo_provider_worker_sup, {dubbo_provider_worker_sup, start_link, []}, transient, 5000, supervisor, [dubbo_provider_worker_sup]},

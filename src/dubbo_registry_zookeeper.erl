@@ -235,7 +235,6 @@ subscribe(SubcribeUrl, NotifyFun) ->
             ok
     catch
         _Error:Reason ->
-            %%todo improve error type
             {error, Reason}
     end.
 
@@ -254,20 +253,6 @@ connection() ->
         {chroot, "/"},
         {monitor, self()}]),
     {ok, Pid}.
-
-add_consumer(InterfaceName, ConsumerUrl, State) ->
-    Pid = State#state.zk_pid,
-    ConsumerNode2 = list_to_binary(edoc_lib:escape_uri(binary_to_list(ConsumerUrl))),
-    check_and_create_path(Pid, <<"">>, [{<<"dubbo">>, p}, {InterfaceName, p}, {<<"consumers">>, p}, {ConsumerNode2, e}]),
-    %% todo
-%%    get_provider_list(Consumer, State),
-    ok.
-register_provider_path(Provider, State) ->
-    #state{zk_pid = Pid} = State,
-    ProviderNode = dubbo_node_config_util:gen_provider_info(Provider),
-    check_and_create_path(Pid, <<"">>, [{<<"dubbo">>, p}, {Provider#provider_config.interface, p}, {<<"providers">>, p}, {ProviderNode, e}]),
-    ok.
-
 
 get_provider_list(InterfaceName, ZkPid) ->
     InterfacePath = <<<<"/dubbo/">>/binary, InterfaceName/binary, <<"/providers">>/binary>>,

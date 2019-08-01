@@ -40,11 +40,7 @@ create_proxy(ConsumerInfo) ->
     ok = dubbo_extension:run_fold(protocol_wapper, refer, [Url], ok),
     ok.
 
-%%application=hello-world&dubbo=2.0.2&pid=68901&refer=application=hello-world&default.check=false&default.lazy=false&default.retries=0&default.sticky=false&default.timeout=300000&dubbo=2.0.2&interface=org.apache.dubbo.erlang.sample.service.facade.UserOperator&lazy=false&methods=queryUserInfo,queryUserList,genUserId,getUserInfo&pid=68901&register.ip=127.0.0.1&release=2.7.1&retries=0&side=consumer&sticky=false&timestamp=1559727789953&registry=zookeeper&release=2.7.1&timestamp=1559727842451
-
-
 gen_registry_url(Para) ->
-    %%todo 组装para & url
     {Host, Port} = dubbo_registry:get_registry_host_port(),
     UrlInfo = #dubbo_url{
         scheme = <<"registry">>,
@@ -54,9 +50,6 @@ gen_registry_url(Para) ->
         parameters = Para
     },
     dubbo_common_fun:url_to_binary(UrlInfo).
-%%    Url = "registry://127.0.0.1:2181/org.apache.dubbo.registry.RegistryService?application=hello-world&dubbo=2.0.2&pid=68901&refer=application%3Dhello-world%26default.check%3Dfalse%26default.lazy%3Dfalse%26default.retries%3D0%26default.sticky%3Dfalse%26default.timeout%3D300000%26dubbo%3D2.0.2%26interface%3Dorg.apache.dubbo.erlang.sample.service.facade.UserOperator%26lazy%3Dfalse%26methods%3DqueryUserInfo%2CqueryUserList%2CgenUserId%2CgetUserInfo%26pid%3D68901%26register.ip%3D127.0.0.1%26release%3D2.7.1%26retries%3D0%26side%3Dconsumer%26sticky%3Dfalse%26timestamp%3D1559727789953&registry=zookeeper&release=2.7.1&timestamp=1559727842451",
-%%    Url.
-
 
 gen_parameter(ConsumerInfo) ->
     Para = #{

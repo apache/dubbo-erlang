@@ -27,8 +27,5 @@ connect(ProviderConfig, Handler) ->
     logger:info("start provider ~p pid info ~p~n", [HostFlag, Pid]),
     {ok, #connection_info{pid = Pid, weight = get_weight(ProviderConfig), host_flag = HostFlag}}.
 
-
-
 get_weight(_ProviderConfig) ->
-    %% todo get weight from provider info
-    30.
+    100.

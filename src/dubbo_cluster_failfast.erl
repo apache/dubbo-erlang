@@ -31,7 +31,7 @@ invoke(#dubbo_rpc_invocation{className = Interface, loadbalance = LoadBalance} =
 %%            case dubbo_traffic_control:check_goon(HostFlag, 199) of
 %%                ok ->
 %%
-%%%%                    Request2 = merge_attachments(Request, RpcContext), %% @todo need add rpc context to attachment
+
 %%
 %%%%                    {ok, RequestData} = dubbo_codec:encode_request(Request2),
 %%%%                    Ref = get_ref(RequestState),
