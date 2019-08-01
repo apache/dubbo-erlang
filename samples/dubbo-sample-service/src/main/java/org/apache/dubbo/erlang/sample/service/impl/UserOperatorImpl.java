@@ -21,6 +21,7 @@ import org.apache.dubbo.erlang.sample.service.bean.UserInfo;
 import org.apache.dubbo.erlang.sample.service.bean.UserInfoRequest;
 import org.apache.dubbo.erlang.sample.service.bean.UserRes;
 import org.apache.dubbo.erlang.sample.service.facade.UserOperator;
+import org.apache.dubbo.rpc.RpcContext;
 
 public class UserOperatorImpl implements UserOperator {
 
@@ -46,6 +47,7 @@ public class UserOperatorImpl implements UserOperator {
         info.setUserAge(99);
         info.setUserId("id123");
         info.setUserName("中文姓名");
+        RpcContext.getContext().setAttachment("attachment_test_key","attachment_test_value");
         return info;
     }
 

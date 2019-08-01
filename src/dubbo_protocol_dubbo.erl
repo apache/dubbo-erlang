@@ -84,8 +84,6 @@ new_transport(ProviderConfig) ->
 
 
 invoke(#dubbo_rpc_invocation{source_pid = CallBackPid, transport_pid = TransportPid, call_ref = Ref} = Invocation, Acc) ->
-
-%%    Request2 = merge_attachments(Request, RpcContext), %% @todo need add rpc context to attachment
     Request = dubbo_adapter:reference(Invocation),
     {ok, RequestData} = dubbo_codec:encode_request(Request),
     gen_server:cast(TransportPid, {send_request, Ref, Request, RequestData, CallBackPid, Invocation}),
@@ -128,7 +126,6 @@ process_response(false, ResponseInfo, RestData) ->
             logger:info("got one response mid ~p, is_event ~p state ~p", [Res#dubbo_response.mid, Res#dubbo_response.is_event, Res#dubbo_response.state]),
             case Res#dubbo_response.is_event of
                 false ->
-                    %% @todo rpccontent need merge response with request
                     ResponseData = dubbo_type_transfer:response_to_native(Res),
                     dubbo_invoker:invoke_response(Invocation, ResponseData);
                 _ ->
