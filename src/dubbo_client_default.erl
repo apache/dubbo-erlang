@@ -170,16 +170,15 @@ handle_info({tcp_closed, Port}, State) ->
 handle_info({timeout, _TimerRef, {reconnect}}, State) ->
     NewState = reconnect(State#state{reconnection_timer = undefined}),
     {noreply, NewState};
-handle_info({timeout, _TimerRef, {heartbeat_timer}}, State) ->
+handle_info({timeout, _TimerRef, {heartbeat_timer}}, #state{heartbeat = HeartbeatInfo} = State) ->
     {ok, NewState} = case check_heartbeat_state(State) of
-                         {normal} -> {ok, State};
-                         {send_heart} ->
+                         ok -> {ok, State};
+                         send_heart ->
                              send_heartbeat_msg(undefined, true, State);
-                         {reconnect} ->
-                             %% @todo reconnect
-                             {ok, State}
+                         reconnect ->
+                             State2 = reconnect(State),
+                             {ok, State2}
                      end,
-    HeartbeatInfo = update_heartbeat(write, NewState#state.heartbeat),
     start_heartbeat_timer(HeartbeatInfo),
     {noreply, NewState#state{heartbeat = HeartbeatInfo}};
 handle_info(_Info, State) ->
@@ -296,13 +295,13 @@ check_heartbeat_state(#state{heartbeat = HeartBeatInfo} = _State) ->
     #heartbeat{last_read = LastRead, last_write = LastWrite, timeout = Timeout, max_timeout = MaxTimeout} = HeartBeatInfo,
     if
         (Now - LastRead) > Timeout ->
-            {send_heart};
+            send_heart;
         (Now - LastWrite) > Timeout ->
-            {send_heart};
+            send_heart;
         (Now - LastRead) > MaxTimeout ->
-            {reconnect};
+            reconnect;
         true ->
-            {normal}
+            ok
     end.
 
 
