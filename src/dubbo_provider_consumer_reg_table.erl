@@ -262,7 +262,7 @@ update_node_conections(Interface, Connections) ->
     lists:map(
         fun(Item) ->
             HostFlag = Item#connection_info.host_flag,
-            case ets:match_object(?PROVIDER_NODE_LIST_TABLE, #connection_info{host_flag = HostFlag, pid = Item#connection_info.pid, _ = "_"}) of
+            case ets:match_object(?PROVIDER_NODE_LIST_TABLE, #connection_info{host_flag = HostFlag, pid = Item#connection_info.pid, _ = '_'}) of
                 [] ->
                     I2 = ets:insert(?PROVIDER_NODE_LIST_TABLE, Item),
                     logger:debug("update_node_conections insert one record ~p result:~p", [HostFlag, I2]);
