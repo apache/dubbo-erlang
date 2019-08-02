@@ -221,43 +221,6 @@ get_interface_info(Interface) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
-%%add_consumer([], RegisterList) ->
-%%    RegisterList;
-%%add_consumer([ProviderNodeInfo | ProviderList], RegisterList) ->
-%%    case dubbo_node_config_util:parse_provider_info(ProviderNodeInfo) of
-%%        {ok, ProviderConfig} ->
-%%            HostFlag = get_host_flag(ProviderConfig),
-%%            case ets:lookup(?PROVIDER_NODE_LIST_TABLE, HostFlag) of
-%%                [] ->
-%%                    ConnectionList = start_provider_process(HostFlag, 30, ProviderConfig),
-%%                    ok = update_connection_info(ProviderConfig#provider_config.interface, HostFlag, ConnectionList, true),
-%%                    ok;
-%%                List ->
-%%                    List2 = lists:map(fun(#provider_node_list{connection_info = ConnectionItem}) ->
-%%                        ConnectionItem
-%%                                      end, List),
-%%                    ok = update_connection_info(ProviderConfig#provider_config.interface, HostFlag, List2, false),
-%%                    ok
-%%            end,
-%%            add_consumer(ProviderList, [HostFlag] ++ RegisterList);
-%%        {error, R1} ->
-%%            logger:error("parse provider info error reason ~p", [R1]),
-%%            add_consumer(ProviderList, RegisterList)
-%%    end.
-%%
-%%start_provider_process(HostFlag, Weight, ProviderConfig) ->
-%%    ExecutesList = lists:seq(1, ProviderConfig#provider_config.executes),
-%%    ConnectionList = lists:map(fun(Item) ->
-%%        ConnectionFlag = <<HostFlag/binary, (integer_to_binary(Item))/binary>>,
-%%        ConnectionFlagTerm = binary_to_atom(ConnectionFlag, utf8),
-%%        AChild = {ConnectionFlagTerm, {dubbo_netty_client, start_link, [ConnectionFlagTerm, HostFlag, ProviderConfig, Item]}, permanent, 2000, worker, [dubbo_netty_client]},
-%%        {ok, Pid} = dubbo_transport_pool_sup:add_children(AChild),
-%%        logger:info("start provider ~p pid info ~p~n", [HostFlag, Pid]),
-%%        #connection_info{connection_id = ConnectionFlagTerm, pid = Pid, weight = Weight, host_flag = HostFlag}
-%%                               end, ExecutesList),
-%%    ConnectionList.
-
-
 update_node_conections(Interface, Connections) ->
     lists:map(
         fun(Item) ->

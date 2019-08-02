@@ -68,7 +68,6 @@ get_deftype(ForeignType) ->
 
 pre_process_typedef(NativeType, ForeignType, FieldsNames) ->
     Type = #type_def{native_type = NativeType, foreign_type = ForeignType, fieldnames = FieldsNames},
-%%            Type2=type_decoding:hash_store(Type),
     dubbo_type_register:regiest_foreign_native(Type),
     logger:debug("pre_process_typedef ~p,~p", [NativeType, ForeignType]),
     ok.
