@@ -73,7 +73,7 @@ get_export_info(ProviderInfo) ->
         {"default.dynamic", "false"},
         {"default.register", "true"},
         {"deprecated", "false"},
-        {"dynamic", "false"},
+        {"dynamic", "true"},
         {"generic", "false"},
         {"interface", ProviderInfo#provider_config.interface},
         {"methods", format_methods_str(ProviderInfo#provider_config.methods)},
