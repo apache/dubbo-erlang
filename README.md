@@ -14,13 +14,12 @@ The following features are supported.
 * Serialize
 	* Hessian serialize (√)
 	* Json serialize (√)
-* Erlang project as a consumer (√)
-* Erlang project as a provider (√)
-* Sync invoker (√)
-* Async invoker (√)
-* Random load balance (√)
-* Network rate limit (√)
+* Erlang project as consumer or provider (√)
+* Sync and Async invoker (√)
+* Random loadbalance (√)
 * Connection pools (√)
+* Support protocol,cluster,loadbalance,registry and filter extension point.
+
 
 Start
 -----
@@ -46,15 +45,17 @@ in sys.config add dubboerl config.
 For example:
 ```erlang
 {dubboerl,[
-	{zookeeper_list,[{"127.0.0.1",2181}]},
-	{application,<<"testdubboerl">>},
-	{consumer,[
-		{<<"org.apache.dubbo.erlang.sample.service.facade.UserOperator">>,[]}
-	]},
-	{provider,[
-		{user_impl,userOperator,<<"org.apache.dubbo.erlang.sample.service.facade.UserOperator">>,[]}
-	]}
-	
+    {application,<<"testdubboerl">>},
+    {protocol, {dubbo, [{port, 20882}]}},
+    {registry,zookeeper},
+    {zookeeper_list,[{"127.0.0.1",2181}]},
+    {serialization,hessian},
+    {consumer,[
+        {<<"org.apache.dubbo.erlang.sample.service.facade.UserOperator">>,[]}
+    ]},
+    {provider,[
+        {user_impl,userOperator,<<"org.apache.dubbo.erlang.sample.service.facade.UserOperator">>,[]}
+    ]}
 ]}
 ```
 
