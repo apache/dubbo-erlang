@@ -17,10 +17,10 @@
 -module(dubbo_common_fun).
 
 -include("dubboerl.hrl").
+-include("dubbo.hrl").
 %% API
 -export([local_ip_v4/0, local_ip_v4_str/0, parse_url/1, url_to_binary/1, parse_url_parameter/1, binary_list_join/2]).
 
--define(URL_PATH_SEPARATOR,47).  %% 47 == <<"/">>
 
 local_ip_v4() ->
     {ok, Addrs} = inet:getifaddrs(),

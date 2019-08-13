@@ -38,6 +38,7 @@
 -define(REQUEST_TIME_OUT, 5000).
 
 -define(LINE_SEPERATOR, <<"\n"/utf8>>).
+-define(URL_PATH_SEPARATOR,47).  %% 47 == <<"/">>
 
 -record(dubbo_request, {
     serialize_type = 2 :: integer(),

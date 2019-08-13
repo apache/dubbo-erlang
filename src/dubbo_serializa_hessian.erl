@@ -192,7 +192,7 @@ decode_request(Req, Data) ->
 decode_request(dubbo_rpc_invocation, Req, Data) ->
     {ResultList, _NewState, _RestData} = decode_request_body(Data, cotton_hessian:init(), [dubbo, path, version, method_name, desc_and_args, attachments]),
     [_DubboVersion, Path, Version, MethodName, Desc, ArgsObj, Attachments] = ResultList,
-    RpcData = #dubbo_rpc_invocation{className = Path, classVersion = Version, methodName = MethodName, parameterDesc = Data, parameters = ArgsObj, attachments = Attachments},
+    RpcData = #dubbo_rpc_invocation{className = trans_path_to_classname(Path), classVersion = Version, methodName = MethodName, parameterDesc = Data, parameters = ArgsObj, attachments = Attachments},
     Req2 = Req#dubbo_request{data = RpcData},
     {ok, Req2};
 decode_request(dubbo_event, Req, Data) ->
@@ -234,3 +234,8 @@ decode_request_body_args([_ArgsType | RestList], Data, State, ArgsObjList) ->
     {Rest, ArgObj, NewState} = cotton_hessian:decode(Data, State),
     ArgObj2 = dubbo_type_transfer:classobj_to_native(ArgObj, NewState),
     decode_request_body_args(RestList, Rest, NewState, ArgsObjList ++ [ArgObj2]).
+
+trans_path_to_classname(<<?URL_PATH_SEPARATOR:8,Rest/binary>>) ->
+    Rest;
+trans_path_to_classname(Path) ->
+    Path.
