@@ -6,7 +6,8 @@
     <dubbo:application name="hello-world"/><!-- 注册地址 -->
     <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
     <dubbo:protocol name="dubbo" port="20880"/>
-
+    <dubbo:config-center address="zookeeper://127.0.0.1:2181" />
+    <dubbo:metadata-report address="zookeeper://127.0.0.1:2181" />
 
     <dubbo:consumer check="false" timeout="300000" id="dubboConsumerConfig" retries="0"/>
 
