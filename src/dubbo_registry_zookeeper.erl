@@ -33,7 +33,7 @@
     code_change/3]).
 
 -define(SERVER, ?MODULE).
-
+-define(CALL_TIMEOUT,20000).
 -record(state, {zk_pid, provider_notify_fun}).
 
 %%%===================================================================
@@ -89,11 +89,11 @@ init([]) ->
     {stop, Reason :: term(), Reply :: term(), NewState :: #state{}} |
     {stop, Reason :: term(), NewState :: #state{}}).
 handle_call({do_register, Url}, _From, State) ->
-    do_register(State#state.zk_pid, Url),
-    {reply, ok, State};
+    Result = do_register(State#state.zk_pid, Url),
+    {reply, Result, State};
 handle_call({do_unregister, Url}, _From, State) ->
-    do_unregister(State#state.zk_pid, Url),
-    {reply, ok, State};
+    Result = do_unregister(State#state.zk_pid, Url),
+    {reply, Result, State};
 handle_call({subscribe_provider, InterfaceName, NotifyFun}, _From, #state{zk_pid = ZkPid} = State) ->
     logger:debug("subscribe provider ~p notify fun ~p", [InterfaceName, NotifyFun]),
     NewState = State#state{provider_notify_fun = NotifyFun},
@@ -177,13 +177,33 @@ start(_Url) ->
     dubbo_registry_sup:start_child(?MODULE, {?MODULE, start_link, []}, ?MODULE),
     ok.
 
+-spec(register(binary()) -> {ok, Result :: binary()} | {error, any()}).
 register(Url) ->
-    gen_server:call(?SERVER, {do_register, Url}, 10000),
-    ok.
+    try gen_server:call(?SERVER, {do_register, Url}, ?CALL_TIMEOUT) of
+        Result ->
+            Result
+    catch
+        exit:{timeout, _} ->
+            {error, timeout};
+        exit:{badrpc, _} ->
+            {error, badrpc};
+        _:Reason ->
+            {error, Reason}
+    end.
 
+-spec(unregister(binary()) -> {ok, Result :: binary()} | {error, any()}).
 unregister(Url) ->
-    gen_server:call(?SERVER, {do_unregister, Url}, 10000),
-    ok.
+    try gen_server:call(?SERVER, {do_unregister, Url}, ?CALL_TIMEOUT) of
+        Result ->
+            Result
+    catch
+        exit:{timeout, _} ->
+            {error, timeout};
+        exit:{badrpc, _} ->
+            {error, badrpc};
+        _:Reason ->
+            {error, Reason}
+    end.
 
 do_register(Pid, Url) ->
     case dubbo_common_fun:parse_url(Url) of
@@ -333,6 +353,6 @@ check_and_create_path(Pid, RootPath, [{Item, CreateType} | Rst]) ->
             create_path(Pid, CheckPath, CreateType),
             check_and_create_path(Pid, CheckPath, Rst);
         {error, R1} ->
-            logger:debug("check_and_create_path unexist ~p", [R1]),
+            logger:error("check_and_create_path error ~p", [R1]),
             check_and_create_path(Pid, CheckPath, Rst)
     end.
