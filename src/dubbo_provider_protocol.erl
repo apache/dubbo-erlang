@@ -163,7 +163,7 @@ process_data(Data, State) ->
     case dubbo_codec:decode_header(Header) of
         {ok, request, RequestInfo} ->
             {ok, Req} = dubbo_codec:decode_request(RequestInfo, RestData),
-            logger:info("get one request mid ~p, is_event ~p", [Req#dubbo_request.mid, Req#dubbo_request.is_event]),
+            logger:info("dubbo process one request mid ~p, is_event ~p", [Req#dubbo_request.mid, Req#dubbo_request.is_event]),
             {ok, State2} = process_request(Req#dubbo_request.is_event, Req, State),
             {ok, State2};
         {ok, response, ResponseInfo} ->
@@ -196,10 +196,32 @@ process_response(false, Response, State) ->
     {ok, State}.
 
 process_request(true, Request, State) ->
-%%    {ok,NewState} = send_heartbeat_msg(Request#dubbo_request.mid,State),
+    {ok,NewState} = send_heartbeat_msg(Request#dubbo_request.mid,false,State),
     logger:debug("process request event ~p", [Request]),
-    {ok, State};
+    {ok, NewState};
 process_request(false, Request, State) ->
     logger:info("process request ~p", [Request]),
     dubbo_provider_worker:process_request(Request, self()),
     {ok, State}.
+
+send_heartbeat_msg(Mid, NeedResponse, State) ->
+    {ok, Bin} = dubbo_heartbeat:generate_request(Mid, NeedResponse),
+    case send_msg(Bin, State#state.socket) of
+        ok ->
+            State;
+        {error, Reason} ->
+            logger:warning("dubbo connection send heartbeat error ~p", [Reason]),
+            State
+    end,
+    {ok, State}.
+
+send_msg(_Msg, undefined) ->
+    {error, closed};
+send_msg(Msg, Socket) ->
+    case gen_tcp:send(Socket, Msg) of
+        ok ->
+            ok;
+        {error, Reason} ->
+            logger:error("protocol socket send error,reason:~p", [Reason]),
+            {error, Reason}
+    end.
