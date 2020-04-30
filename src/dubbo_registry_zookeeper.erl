@@ -346,7 +346,7 @@ check_and_create_path(Pid, RootPath, [{Item, CreateType} | Rst]) ->
     CheckPath = <<RootPath/binary, <<"/">>/binary, Item/binary>>,
 
     case erlzk:exists(Pid, CheckPath) of
-        {ok, Stat} ->
+        {ok, _Stat} ->
             check_and_create_path(Pid, CheckPath, Rst);
         {error, no_node} ->
             logger:debug("check_and_create_path unexist no_node ~p", [CheckPath]),

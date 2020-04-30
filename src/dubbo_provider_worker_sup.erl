@@ -67,14 +67,7 @@ init([]) ->
     MaxSecondsBetweenRestarts = 3600,
 
     SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
-
-    Restart = permanent,
-    Shutdown = 2000,
-    Type = worker,
-
-    AChild = {'AName', {'AModule', start_link, []},
-        Restart, Shutdown, Type, ['AModule']},
-
+    
     PoolArgs = [{name, {local, provider_worker}},
         {worker_module, dubbo_provider_worker},
         {size, 5},

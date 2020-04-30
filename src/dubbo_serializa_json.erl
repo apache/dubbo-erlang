@@ -19,7 +19,7 @@
 
 -include("dubbo.hrl").
 %% API
--export([decode_response/2, decode_request/2, decode_header/1, decode_request/2]).
+-export([decode_response/2, decode_request/2, decode_header/1]).
 
 -export([encode_request_data/1, encode_response_data/1]).
 
@@ -73,7 +73,7 @@ encode_response_data(Response) ->
     {ok, Bin} = encode_response_data(DataType, Response, Response#dubbo_response.data, State),
     {ok, Bin}.
 
-encode_response_data(dubbo_event, _Response, Data, State) ->
+encode_response_data(dubbo_event, _Response, Data, _State) ->
     Bin = jsx:encode(Data),
     {ok, Bin};
 encode_response_data(dubbo_rpc_invocation, _Response, Data, State) ->
@@ -113,7 +113,7 @@ decode_header(Header) ->
             {DecodeState, Req} = decode_header(request, Flag, State, Mid, DataLen),
             {DecodeState, request, Req}
     end.
-decode_header(request, Flag, State, Mid, DataLen) ->
+decode_header(request, Flag, _State, Mid, _DataLen) ->
     SerializeType = Flag band 16#1f,
     IsTwoWay = if
                    (Flag band 16#40) /= 0 -> true;
@@ -131,7 +131,7 @@ decode_header(request, Flag, State, Mid, DataLen) ->
         serialize_type = SerializeType
     },
     {ok, Req};
-decode_header(response, Flag, State, Mid, DataLen) ->
+decode_header(response, Flag, State, Mid, _DataLen) ->
     SerializeType = Flag band 16#1f,
     IsEvent = if
                   (Flag band 16#20) /= 0 -> true;
@@ -155,12 +155,10 @@ decode_response(Res, Data) ->
 decode_response(dubbo_rpc_invocation, Res, Data) ->
     DataList = binary:split(Data, <<"\n">>, [global]),
     [TypeBin | DataList1] = DataList,
-%%    {Rest,Type,State} = cotton_hessian:decode(Data,cotton_hessian:init()),
     Type = jsx:decode(TypeBin),
 
     case Type of
         ?RESPONSE_VALUE ->
-%%            {_,Object,DecodeState} = cotton_hessian:decode(Rest,State),
             [Value | _] = DataList1,
             Object = jsx:decode(Value, [return_maps]),
             {ok, Res#dubbo_response{data = Object}};
@@ -175,8 +173,7 @@ decode_response(dubbo_rpc_invocation, Res, Data) ->
             {ok, Res#dubbo_response{data = <<"server pool exhausted">>}}
 
     end;
-decode_response(dubbo_event, Res, Data) ->
-%%    {_Rest,undefined,_NewState} = cotton_hessian:decode(Data,cotton_hessian:init()),
+decode_response(dubbo_event, Res, _Data) ->
     {ok, Res#dubbo_response{data = null}}.
 
 -spec decode_request(#dubbo_request{}, binary()) -> {ok, #dubbo_request{}}.
@@ -189,8 +186,8 @@ decode_request(Req, Data) ->
     end.
 
 decode_request(dubbo_rpc_invocation, Req, Data) ->
-    {ResultList, NewState, RestData} = decode_request_body(Data, #{}, [dubbo, path, version, method_name, desc_and_args, attachments]),
-    [DubboVersion, Path, Version, MethodName, Desc, ArgsObj, Attachments] = ResultList,
+    {ResultList, _NewState, _RestData} = decode_request_body(Data, #{}, [dubbo, path, version, method_name, desc_and_args, attachments]),
+    [_DubboVersion, Path, Version, MethodName, Desc, ArgsObj, Attachments] = ResultList,
     RpcData = #dubbo_rpc_invocation{className = Path, classVersion = Version, methodName = MethodName, parameterDesc = Desc, parameters = ArgsObj, attachments = Attachments},
     Req2 = Req#dubbo_request{data = RpcData},
     {ok, Req2};
@@ -230,7 +227,6 @@ decode_request_body([desc_and_args | List], [DescBin | Data], State, ResultList)
     end;
 decode_request_body([attachments | List], [DataItem | Data], State, ResultList) ->
     Attachments = jsx:decode(DataItem, [return_maps]),
-%%    AttachmentsList = dict:to_list(Attachments#map.dict),
     decode_request_body(List, Data, State, [Attachments] ++ ResultList);
 decode_request_body([_Type1 | List], Data, State, ResultList) ->
     logger:warning("decode_request_body unknow type"),
@@ -247,7 +243,6 @@ decode_request_body_args([ArgsType | RestList], Data, State, ArgsObjList) when A
 
 decode_request_body_args([ArgsType | RestList], [DataItem | Data], State, ArgsObjList) ->
     ArgObj = jsx:decode(DataItem, [return_maps]),
-%%    {Rest,ArgObj,NewState } = cotton_hessian:decode(Data,State),
     ArgObj2 = dubbo_type_transfer:jsonobj_to_native(ArgsType, ArgObj, State),
     decode_request_body_args(RestList, Data, State, ArgsObjList ++ [ArgObj2]).
 
@@ -255,8 +250,6 @@ string_encode(Data) when is_binary(Data) ->
     <<<<"\"">>/binary, Data/binary, <<"\"">>/binary>>;
 string_encode(Data) when is_tuple(Data) ->
     [Name | _] = tuple_to_list(Data),
-%%    Size = record_info(size, Name),
-%%    Fields = record_info(fields, Name),
     case dubbo_type_register:lookup_native_type(Name) of
         undefined ->
             <<"data encode error">>;

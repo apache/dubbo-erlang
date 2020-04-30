@@ -122,7 +122,7 @@ decode_header(Header) ->
             {DecodeState, Req} = decode_header(request, Flag, State, Mid, DataLen),
             {DecodeState, request, Req}
     end.
-decode_header(request, Flag, State, Mid, DataLen) ->
+decode_header(request, Flag, _State, Mid, _DataLen) ->
     SerializeType = Flag band 16#1f,
     IsTwoWay = if
                    (Flag band 16#40) /= 0 -> true;
@@ -140,7 +140,7 @@ decode_header(request, Flag, State, Mid, DataLen) ->
         serialize_type = SerializeType
     },
     {ok, Req};
-decode_header(response, Flag, State, Mid, DataLen) ->
+decode_header(response, Flag, State, Mid, _DataLen) ->
     SerializeType = Flag band 16#1f,
     IsEvent = if
                   (Flag band 16#20) /= 0 -> true;
@@ -191,7 +191,7 @@ decode_request(Req, Data) ->
 
 decode_request(dubbo_rpc_invocation, Req, Data) ->
     {ResultList, _NewState, _RestData} = decode_request_body(Data, cotton_hessian:init(), [dubbo, path, version, method_name, desc_and_args, attachments]),
-    [_DubboVersion, Path, Version, MethodName, Desc, ArgsObj, Attachments] = ResultList,
+    [_DubboVersion, Path, Version, MethodName, _Desc, ArgsObj, Attachments] = ResultList,
     RpcData = #dubbo_rpc_invocation{className = trans_path_to_classname(Path), classVersion = Version, methodName = MethodName, parameterDesc = Data, parameters = ArgsObj, attachments = Attachments},
     Req2 = Req#dubbo_request{data = RpcData},
     {ok, Req2};

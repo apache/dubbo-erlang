@@ -68,8 +68,7 @@ init({Ref, Socket, Transport, _Opts}) ->
         #state{socket = Socket, transport = Transport},
         ?IDLE_TIMEOUT).
 
-handle_info({tcp, _Port, Data}, #state{recv_buffer = RecvBuffer, socket = Socket, transport = Transport} = State) ->
-%%    Transport:setopts(Socket, [{active, once}]),
+handle_info({tcp, _Port, Data}, #state{recv_buffer = RecvBuffer} = State) ->
     NowBuffer = <<RecvBuffer/binary, Data/binary>>,
 
     {ok, NextBuffer, NewState} = case check_recv_data(NowBuffer, State) of
@@ -79,7 +78,6 @@ handle_info({tcp, _Port, Data}, #state{recv_buffer = RecvBuffer, socket = Socket
                                          logger:debug("[INFO] recv one data state wait next_buffer"),
                                          {ok, NextBuffer2, State3}
                                  end,
-%%    HeartbeatInfo =update_heartbeat(write,NewState#state.heartbeat),
     {noreply, NewState#state{recv_buffer = NextBuffer}, ?IDLE_TIMEOUT};
 
 handle_info({tcp_closed, _Socket}, State) ->
@@ -179,20 +177,10 @@ process_data(Data, State) ->
 
 %% @doc process event
 -spec process_response(IsEvent :: boolean(), #dubbo_response{}, #state{}) -> ok.
-process_response(true, Response, State) ->
-%%
+process_response(true, _Response, State) ->
     {ok, State};
 
-process_response(false, Response, State) ->
-%%    case get_earse_request_info(Response#dubbo_response.mid) of
-%%        undefined->
-%%            logger:error("dubbo response can't find request data,response ~p",[Response]);
-%%        {SourcePid,Ref,Request} ->
-%%            logger:debug("will cast mid ~p to source process SourcePid ~p",[Response#dubbo_response.mid,SourcePid]),
-%%            RpcContent=[],
-%%            ResponseData = de_type_transfer:response_to_native(Response),
-%%            gen_server:cast(SourcePid,{msg_back,Ref,ResponseData,RpcContent})
-%%    end,
+process_response(false, _Response, State) ->
     {ok, State}.
 
 process_request(true, Request, State) ->

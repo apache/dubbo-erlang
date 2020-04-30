@@ -64,7 +64,7 @@ visit(NativeType, State = #encoding_state{pool = Pool}) ->
 %%            type_decoding:hash_store(NewTypeDef,NewState),  %% 貌似这个没用,可以去掉.
             %%%%%%%%%%%%%%%%%%%%%%%%%%
             {hash, Ref, NewTypeDef, NewState};
-        {ok, {Ref, TypeDef}} ->
+        {ok, {Ref, _TypeDef}} ->
             {ref, Ref};
         error ->
             case get_deftype_public_pool(NativeType) of
