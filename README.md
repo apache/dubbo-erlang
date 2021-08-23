@@ -78,5 +78,5 @@ Reference the demo project [dubboerl_demo](./samples/dubboerl_demo)
 
 More Documents
 ------
-Reference [Docs](http://dubbo.apache.org/en-us/docs/user/languages/erlang/start.html)
+Reference [Docs](https://dubbo.apache.org/en/docs/v2.7/user/languages/erlang/)
 
