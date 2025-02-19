@@ -36,9 +36,9 @@
 %% @end
 %%--------------------------------------------------------------------
 -spec(start_link() ->
-    {ok, Pid :: pid()} | ignore | {error, Reason :: term()}).
+  {ok, Pid :: pid()} | ignore | {error, Reason :: term()}).
 start_link() ->
-    supervisor:start_link({local, ?SERVER}, ?MODULE, []).
+  supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 
 %%%===================================================================
 %%% Supervisor callbacks
@@ -55,26 +55,29 @@ start_link() ->
 %% @end
 %%--------------------------------------------------------------------
 -spec(init(Args :: term()) ->
-    {ok, {SupFlags :: {RestartStrategy :: supervisor:strategy(),
-        MaxR :: non_neg_integer(), MaxT :: non_neg_integer()},
-        [ChildSpec :: supervisor:child_spec()]
-    }} |
-    ignore |
-    {error, Reason :: term()}).
+  {ok, {SupFlags :: {RestartStrategy :: supervisor:strategy(),
+    MaxR :: non_neg_integer(), MaxT :: non_neg_integer()},
+    [ChildSpec :: supervisor:child_spec()]
+  }} |
+  ignore |
+  {error, Reason :: term()}).
 init([]) ->
-    RestartStrategy = one_for_one,
-    MaxRestarts = 1000,
-    MaxSecondsBetweenRestarts = 3600,
+  RestartStrategy = one_for_one,
+  MaxRestarts = 1000,
+  MaxSecondsBetweenRestarts = 3600,
 
-    SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
-    
-    PoolArgs = [{name, {local, provider_worker}},
-        {worker_module, dubbo_provider_worker},
-        {size, 5},
-        {max_overflow, 100}
-    ],
-    WorkerPool = poolboy:child_spec(provider_worker, PoolArgs, []),
-    {ok, {SupFlags, [WorkerPool]}}.
+  SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
+  PoolSize = application:get_env(dubbo, pool_size, 5),
+  MaxOverflow = application:get_env(dubbo, max_overflow, 100),
+  Strategy = application:get_env(dubbo, strategy, fifo),
+  PoolArgs = [{name, {local, provider_worker}},
+    {worker_module, dubbo_provider_worker},
+    {size, PoolSize},
+    {max_overflow, MaxOverflow},
+    {strategy, Strategy}
+  ],
+  WorkerPool = poolboy:child_spec(provider_worker, PoolArgs, []),
+  {ok, {SupFlags, [WorkerPool]}}.
 
 %%%===================================================================
 %%% Internal functions
